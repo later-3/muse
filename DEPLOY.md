@@ -16,7 +16,7 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/<owner>/muse.git
+git clone https://github.com/later-3/muse.git
 cd muse
 ```
 
@@ -44,23 +44,27 @@ cp .env.example .env
 
 ### 4. 配置 OpenCode
 
-确保 `opencode.json` 存在于项目根目录:
+Muse 的大脑是 OpenCode serve。它支持多种 LLM provider，包括免费模型。
+
+**如果你已有 OpenCode 配置** (已运行过 `opencode`)，它会读取你的全局配置，无需额外设置。
+
+**如果是新环境**，编辑项目根目录的 `opencode.json`:
 
 ```json
 {
   "provider": {
-    "google": { "apiKey": "env:GOOGLE_API_KEY" },
-    "anthropic": { "apiKey": "env:ANTHROPIC_API_KEY" }
+    "google": { "apiKey": "env:GOOGLE_API_KEY" }
   }
 }
 ```
 
-在 `.env` 中添加 LLM API Key (至少一个):
+然后在 `.env` 中添加对应的 API Key:
 
 ```
-GOOGLE_API_KEY=your-google-api-key
-ANTHROPIC_API_KEY=your-anthropic-api-key
+GOOGLE_API_KEY=your-api-key
 ```
+
+> **说明**: OpenCode 内置免费模型可用。如果用户已有自己的 provider 配置 (Google/Anthropic/OpenAI 等)，直接使用即可。Muse 的 `.env` 里可通过 `DEFAULT_PROVIDER` 和 `DEFAULT_MODEL` 切换模型，后续也可在 Web 驾驶舱设置。
 
 ### 5. 创建 Telegram Bot
 
