@@ -274,9 +274,30 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 
 ---
 
-## 六、任务拆分 (9 个)
+## 六、任务拆分 (10 个)
 
-### 主链
+### 第一批: 原生基座 (并行)
+
+#### T10: Skill + Custom Tool + 开发规范
+
+分两阶段: T10A 先做规范标准，T10B 再做首批 Skill + 试点
+
+1. `.agents/skills/` 目录结构
+2. Skill 开发标准 (分层原则/格式/安全边界)
+3. `memory-companion` Skill (配合 T11)
+4. `daily-chat` Skill
+5. Custom Tool 试点 1 个
+
+#### T10.5: Hook / Plugin / Bus 基座
+
+⚠️ 前移到第一批: prompt.after 影响 T11 落盘，Session.Error 影响 T16 Gap
+
+1. prompt.before: 上下文/能力自知注入
+2. prompt.after: 情景记忆落盘触发
+3. tool.output.after: 审计日志
+4. Session.Error → Gap Journal
+5. Session.Idle → 预留主动触发 (P3 Pulse)
+6. permission.ask → 预留审批链 (P4)
 
 #### T11: Memory MCP — 记忆工具化
 
@@ -296,6 +317,8 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 2. Web 驾驶舱改身份 → 重新生成 AGENTS.md
 3. 验证: 人格不在 session 里重复膨胀
 
+### 第二批: 去 wrapper 化
+
 #### T13: Orchestrator 瘦身
 
 **目标**: Orchestrator 只做消息转发
@@ -308,42 +331,39 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 
 **依赖**: T11 + T12
 
-### 并行基座
-
-#### T10: Skill + Custom Tool + 开发规范
-
-1. `.agents/skills/` 目录结构
-2. Skill 开发标准 (分层原则/格式/安全边界)
-3. `memory-companion` Skill (配合 T11)
-4. `daily-chat` Skill
-5. Custom Tool 试点 1 个
-
-#### T10.5: Hook / Plugin / Bus 基座
-
-1. prompt.before: 上下文/能力自知注入
-2. prompt.after: 情景记忆落盘触发
-3. tool.output.after: 审计日志
-4. Session.Error → Gap Journal
-5. Session.Idle → 预留主动触发 (P3 Pulse)
-6. permission.ask → 预留审批链 (P4)
-
-### 新增核心
+### 第三批: 感知与能力自知 (并行)
 
 #### T14: Perception Ingress — 感知统一层
 
-1. PerceptionObject 数据结构
-2. Telegram text → PerceptionObject
-3. Telegram photo → PerceptionObject
+两层架构: Sense Adapter (器官适配) + Perception Ingress (统一转换)
+
+1. Sense Adapter 接口定义
+2. PerceptionObject 数据结构
+3. Telegram text/photo Adapter
 4. 未支持类型 → 触发 Gap 流程
-5. 预留: 其他器官接口 (P3+)
+5. 预留: 其他器官 Adapter (P3: fs, P5: camera/IoT)
+
+#### T14.5: Multimodal Tool Bridge — 多模态工具桥
+
+外界输入进入认知前的工具化转换层
+
+1. Bridge Tool 标准 (artifact → text/structured)
+2. describe_image (多模态 LLM 直接用 / Gap)
+3. transcribe_audio (标记 Gap → P3 实现)
+4. parse_document (标记 Gap → P3 实现)
+5. Phase 2 重点: 建标准，不是全部实现
 
 #### T15: Capability Registry — 能力自知
 
-1. CapabilityRegistry 数据结构 (senses + capabilities + status)
-2. 静态注册: 启动时构建
-3. 查询: queryCapability(type) → { available, provider, fallback }
-4. Web 驾驶舱: 能力列表
-5. AGENTS.md 注入: AI 知道自己的能力清单
+器官 (senses) 和能力 (capabilities) 分开注册
+
+1. senses: 她怎么接收外界 (telegram_text/photo/audio, camera...)
+2. capabilities: 她怎么处理 (understand_text, remember_user, search_web...)
+3. 查询: queryCapability / querySense
+4. Web 驾驶舱: 器官列表 + 能力列表
+5. AGENTS.md 注入: AI 知道自己的清单
+
+### 第四批: 不会时的系统行为
 
 #### T16: Capability Gap Journal — 缺口管理
 
@@ -353,31 +373,35 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 4. 告知用户 + 成长提议
 5. Web 驾驶舱: Gap 列表
 
-#### T17: Execution Router — 执行路由
+#### T17: Execution Router — 执行路由 (轻量 v1)
 
-1. 8 层路由链 (LLM → 内置 → Skill → Tool → MCP → Hook → Subagent → 新 OC)
-2. 与 Registry 联动: 路由前查可用性
+Phase 2 只做: 路由定义 + 能力查询 + 决策日志 + 失败写 Gap
+
+1. 8 层路由链定义
+2. 与 Registry 联动
 3. 路由失败 → Gap Journal
-4. 决策日志 (自省和审计用)
+4. 决策日志
+5. **不做**: 多 OC 调度/自建 agent 生命周期/并发编排 (P3-4)
 
 ---
 
 ## 七、依赖图与执行顺序
 
 ```
-第一批 (并行):  T11 + T12 + T10
+第一批 (并行):  T10 + T10.5 + T11 + T12
 第二批:         T13 (依赖 T11+T12)
-第三批 (并行):  T10.5 + T14 + T15
+第三批 (并行):  T14 + T14.5 + T15
 第四批:         T16 + T17
 ```
 
 ```
+T10 (Skill 标准) ──── 配合 → T11
+T10.5 (Hook 基座) ── 配合 → T11 (prompt.after 落盘)
 T11 (Memory MCP) ──────────→ T13 (Orchestrator 瘦身)
 T12 (Identity)   ──────────→ T13
-T10 (Skill 标准) ──── 配合 → T11
-T10.5 (Hook 基座)
-T14 (Perception) ──→ T15 (Registry) ──→ T16 (Gap Journal)
-                                         ↓
+T14 (Perception) ──→ T14.5 (Bridge) ──→ T15 (Registry)
+                                          ↓
+T16 (Gap Journal) ←── T14 + T15
 T17 (Execution Router) ←── T15 + T16
 ```
 
