@@ -12,6 +12,7 @@
     "test": "node --test --test-timeout=10000 muse/*.test.mjs muse/**/*.test.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "better-sqlite3": "^12.6.2",
     "dotenv": "^16.4.0",
     "telegraf": "^4.16.0"

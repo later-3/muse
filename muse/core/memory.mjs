@@ -25,6 +25,9 @@ const SCHEMA_SQL = `
     value      TEXT NOT NULL,
     category   TEXT DEFAULT 'general',
     source     TEXT DEFAULT 'auto',
+    confidence TEXT DEFAULT 'medium',
+    tags       TEXT DEFAULT '[]',
+    meta       TEXT DEFAULT '{}',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(agent_id, key)
@@ -40,6 +43,9 @@ const SCHEMA_SQL = `
     content       TEXT NOT NULL,
     summary       TEXT,
     token_count   INTEGER DEFAULT 0,
+    tags          TEXT DEFAULT '[]',
+    meta          TEXT DEFAULT '{}',
+    writer        TEXT DEFAULT 'main_session',
     created_at    TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_episodic_agent ON episodic_memory(agent_id);
@@ -47,18 +53,33 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS idx_episodic_time ON episodic_memory(agent_id, created_at);
 `
 
+/** Schema migration for existing databases (Phase 1 → Phase 2) */
+const MIGRATION_SQL = [
+  // semantic_memory new columns
+  `ALTER TABLE semantic_memory ADD COLUMN confidence TEXT DEFAULT 'medium'`,
+  `ALTER TABLE semantic_memory ADD COLUMN tags TEXT DEFAULT '[]'`,
+  `ALTER TABLE semantic_memory ADD COLUMN meta TEXT DEFAULT '{}'`,
+  // episodic_memory new columns
+  `ALTER TABLE episodic_memory ADD COLUMN tags TEXT DEFAULT '[]'`,
+  `ALTER TABLE episodic_memory ADD COLUMN meta TEXT DEFAULT '{}'`,
+  `ALTER TABLE episodic_memory ADD COLUMN writer TEXT DEFAULT 'main_session'`,
+]
+
 // --- Prepared Statement Queries ---
 // Extracted as constants to avoid inline SQL strings scattered in methods
 
 const SQL = {
   // Semantic
   upsert: `
-    INSERT INTO semantic_memory (agent_id, key, value, category, source, updated_at)
-    VALUES (?, ?, ?, ?, ?, datetime('now'))
+    INSERT INTO semantic_memory (agent_id, key, value, category, source, confidence, tags, meta, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(agent_id, key)
     DO UPDATE SET value = excluded.value,
                   category = excluded.category,
                   source = excluded.source,
+                  confidence = excluded.confidence,
+                  tags = excluded.tags,
+                  meta = excluded.meta,
                   updated_at = datetime('now')`,
   get: 'SELECT * FROM semantic_memory WHERE agent_id = ? AND key = ?',
   delete: 'DELETE FROM semantic_memory WHERE agent_id = ? AND key = ?',
@@ -68,8 +89,9 @@ const SQL = {
 
   // Episodic
   addEpisode: `
-    INSERT INTO episodic_memory (agent_id, session_id, role, content, summary, token_count)
-    VALUES (?, ?, ?, ?, ?, ?)`,
+    INSERT INTO episodic_memory (agent_id, session_id, role, content, summary, token_count, tags, meta, writer)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  getByKey: 'SELECT * FROM semantic_memory WHERE agent_id = ? AND key = ?',
   updateSummary: 'UPDATE episodic_memory SET summary = ? WHERE id = ? AND agent_id = ?',
   recentEpisodes: `
     SELECT * FROM episodic_memory
@@ -136,6 +158,7 @@ export class Memory {
     this.#db.pragma('journal_mode = WAL')
     this.#db.pragma('busy_timeout = 5000')
     this.#db.exec(SCHEMA_SQL)
+    this.#migrate()
     this.#prepareStatements()
 
     log.info(`记忆系统已启动: ${dbPath}`)
@@ -167,10 +190,55 @@ export class Memory {
 
   // --- 语义记忆 (KV) ---
 
-  /** 设置语义记忆 (upsert): 同 key 自动覆盖 */
-  setMemory(key, value, category = 'general', source = 'auto') {
+  /**
+   * 设置语义记忆 (upsert)
+   * @param {string} key
+   * @param {string} value
+   * @param {object} [opts]
+   * @param {string} [opts.category='general']
+   * @param {string} [opts.source='auto']
+   * @param {string} [opts.confidence='medium']
+   * @param {string[]} [opts.tags=[]]
+   * @param {object} [opts.meta={}]
+   * @returns {{ old_value: string|null, new_value: string, blocked: boolean, reason?: string }}
+   */
+  setMemory(key, value, optsOrCategory = {}) {
     this.#ensureConnected()
-    this.#stmts.upsert.run(this.#agentId, key, value, category, source)
+
+    // Backward compat: old API was setMemory(key, value, category, source)
+    let opts = optsOrCategory
+    if (typeof optsOrCategory === 'string') {
+      opts = { category: optsOrCategory, source: arguments[3] || 'auto' }
+    }
+
+    const {
+      category = 'general',
+      source = 'auto',
+      confidence = 'medium',
+      tags = [],
+      meta = {},
+    } = opts
+
+    // 覆盖守卫: ai_inferred 不能覆盖 user_stated
+    const existing = this.#stmts.getByKey.get(this.#agentId, key)
+    if (existing) {
+      if (existing.source === 'user_stated' && source === 'ai_inferred') {
+        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_inferred cannot override user_stated' }
+      }
+      if (existing.source === 'user_stated' && source === 'ai_observed') {
+        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_observed cannot override user_stated' }
+      }
+      // ai_observed 只能追加 low confidence
+      if (source === 'ai_observed' && existing.confidence !== 'low') {
+        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_observed can only write confidence=low entries' }
+      }
+    }
+
+    const old_value = existing?.value ?? null
+    const tagsJson = JSON.stringify(tags)
+    const metaJson = typeof meta === 'string' ? meta : JSON.stringify(meta)
+    this.#stmts.upsert.run(this.#agentId, key, value, category, source, confidence, tagsJson, metaJson)
+    return { old_value, new_value: value, blocked: false }
   }
 
   /** 获取单条语义记忆，不存在返回 null */
@@ -203,12 +271,31 @@ export class Memory {
 
   // --- 情景记忆 ---
 
-  /** 添加一条对话记录，返回插入行 ID */
-  addEpisode(sessionId, role, content, summary = null) {
+  /**
+   * 添加一条对话记录
+   * @param {string} sessionId
+   * @param {string} role
+   * @param {string} content
+   * @param {object} [opts]
+   * @param {string} [opts.summary]
+   * @param {string[]} [opts.tags=[]]
+   * @param {object} [opts.meta={}]
+   * @param {string} [opts.writer='main_session']
+   * @returns {number} 插入行 ID
+   */
+  addEpisode(sessionId, role, content, opts = {}) {
     this.#ensureConnected()
+    const {
+      summary = null,
+      tags = [],
+      meta = {},
+      writer = 'main_session',
+    } = opts
     const tokenCount = estimateTokens(content)
+    const tagsJson = JSON.stringify(tags)
+    const metaJson = typeof meta === 'string' ? meta : JSON.stringify(meta)
     const info = this.#stmts.addEpisode.run(
-      this.#agentId, sessionId, role, content, summary, tokenCount,
+      this.#agentId, sessionId, role, content, summary, tokenCount, tagsJson, metaJson, writer,
     )
     return info.lastInsertRowid
   }
@@ -271,6 +358,7 @@ export class Memory {
     this.#stmts = {
       upsert: this.#db.prepare(SQL.upsert),
       get: this.#db.prepare(SQL.get),
+      getByKey: this.#db.prepare(SQL.getByKey),
       delete: this.#db.prepare(SQL.delete),
       listAll: this.#db.prepare(SQL.listAll),
       listByCategory: this.#db.prepare(SQL.listByCategory),
@@ -282,6 +370,20 @@ export class Memory {
       searchEpisodes: this.#db.prepare(SQL.searchEpisodes),
       recentSummaries: this.#db.prepare(SQL.recentSummaries),
       stats: this.#db.prepare(SQL.stats),
+    }
+  }
+
+  /** Schema migration: 给旧表加新字段 (Phase 1 → Phase 2) */
+  #migrate() {
+    for (const sql of MIGRATION_SQL) {
+      try {
+        this.#db.exec(sql)
+      } catch (e) {
+        // “duplicate column” 说明已迁移过，忽略
+        if (!e.message.includes('duplicate column')) {
+          log.warn(`迁移跳过: ${e.message}`)
+        }
+      }
     }
   }
 }
