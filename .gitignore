@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment (secrets)
+.env
+
+# Runtime data
+muse/data/*.db
+muse/data/*.db-journal
+muse/data/*.db-wal
+muse/data/*.db-shm
+
+# Logs
+logs/
+
+# OS files
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Media
+*.HEIC
+*.heic

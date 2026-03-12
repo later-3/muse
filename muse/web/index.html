@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muse · 小缪的家</title>
+  <meta name="description" content="Muse 交互中心 — 你的灵魂伴侣小缪在这里">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Design Tokens ===== */
+    :root {
+      --bg: #FFF8F3;
+      --bg-card: #FFFFFF;
+      --bg-hover: #FFF0E6;
+      --bg-input: #FAF0EB;
+      --border: #F0DDD2;
+      --border-hover: #E8C5B0;
+      --text: #3D2B1F;
+      --text-secondary: #8B7260;
+      --text-muted: #B8A090;
+      --accent: #FF8A65;
+      --accent-light: #FFCCBC;
+      --accent-dark: #E05A2D;
+      --green: #66BB6A;
+      --green-bg: #E8F5E9;
+      --red: #EF5350;
+      --red-bg: #FFEBEE;
+      --yellow: #FFB74D;
+      --yellow-bg: #FFF8E1;
+      --purple: #AB8FE6;
+      --purple-bg: #F3F0FF;
+      --shadow-sm: 0 1px 3px rgba(120,80,40,0.06);
+      --shadow-md: 0 4px 12px rgba(120,80,40,0.08);
+      --shadow-lg: 0 8px 24px rgba(120,80,40,0.10);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font: 'Inter', -apple-system, system-ui, sans-serif;
+      --transition: 0.2s ease;
+    }
+
+    /* ===== Reset ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Layout ===== */
+    .app {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .header-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: var(--shadow-md);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .header-info h1 {
+      font-size: 1.4rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-info p { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== Tab Bar ===== */
+    .tabs {
+      display: flex; gap: 4px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 5px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 8px;
+      border: none; background: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 0.85rem; font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      text-align: center;
+    }
+    .tab:hover { background: var(--bg-hover); color: var(--text); }
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255,138,101,0.3);
+    }
+    .tab-icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+
+    /* ===== Page ===== */
+    .page { display: none; animation: fadeIn 0.25s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== Cards ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); }
+    .card-title {
+      font-size: 0.8rem; font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ===== Status Grid ===== */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .status-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      transition: all var(--transition);
+    }
+    .status-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .status-item .label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+    .status-item .value { font-size: 1.5rem; font-weight: 700; }
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    .status-dot.ok { background: var(--green); }
+    .status-dot.err { background: var(--red); animation: none; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== Chat ===== */
+    .chat-container { display: flex; flex-direction: column; height: 65vh; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .msg {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.93rem;
+      line-height: 1.6;
+      word-break: break-word;
+      animation: msgIn 0.2s ease;
+    }
+    @keyframes msgIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .msg.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+    .msg.assistant {
+      align-self: flex-start;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 6px;
+    }
+    .msg-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+    .chat-input-area {
+      display: flex; gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--bg-input);
+      font-family: var(--font);
+      font-size: 0.93rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 24px;
+      background: var(--accent);
+      color: white;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn:hover { background: var(--accent-dark); transform: scale(1.03); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-outline:hover { background: var(--accent); color: white; }
+    .btn-danger { background: var(--red); }
+    .btn-danger:hover { background: #D32F2F; }
+
+    /* ===== Identity ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+      transition: border var(--transition);
+    }
+    .form-input:focus { border-color: var(--accent); }
+
+    .slider-group { margin-bottom: 20px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .slider-label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+    .slider-value { font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+    .slider-ends { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--accent-light);
+      outline: none;
+      margin: 6px 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(255,138,101,0.3);
+      transition: transform var(--transition);
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    .json-preview {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* ===== Memory ===== */
+    .search-bar {
+      display: flex; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--bg-input);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    .memory-item {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .memory-item:last-child { border-bottom: none; }
+    .memory-item:hover { background: var(--bg-hover); }
+    .memory-key { font-weight: 600; font-size: 0.9rem; }
+    .memory-value { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .memory-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+
+    .filter-pills { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      font-family: var(--font);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .pill:hover, .pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* ===== System ===== */
+    .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 640px) { .sys-grid { grid-template-columns: 1fr; } }
+    .sys-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+    .sys-card h3 { font-size: 0.9rem; margin-bottom: 8px; }
+    .sys-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.82rem; padding: 4px 0;
+      color: var(--text-secondary);
+    }
+    .sys-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .log-area {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      max-height: 200px;
+      overflow-y: auto;
+      color: var(--text-secondary);
+    }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      background: var(--text);
+      color: white;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ===== Loading ===== */
+    .loading {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--accent-light);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== Empty ===== */
+    .empty {
+      text-align: center; padding: 40px;
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-avatar">🎭</div>
+      <div class="header-info">
+        <h1>小缪的家</h1>
+        <p id="header-subtitle">Muse 交互中心</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="overview" role="tab"><span class="tab-icon">🏠</span>概览</button>
+      <button class="tab" data-tab="chat" role="tab"><span class="tab-icon">💬</span>对话</button>
+      <button class="tab" data-tab="identity" role="tab"><span class="tab-icon">🎭</span>身份</button>
+      <button class="tab" data-tab="memory" role="tab"><span class="tab-icon">🧠</span>记忆</button>
+      <button class="tab" data-tab="system" role="tab"><span class="tab-icon">⚙️</span>系统</button>
+    </div>
+
+    <!-- ===== Overview Page ===== -->
+    <div class="page active" id="page-overview">
+      <div class="status-grid" id="health-grid">
+        <!-- Filled by JS -->
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-title">📊 运行统计</div>
+        <div class="status-grid" id="stats-grid"></div>
+      </div>
+    </div>
+
+    <!-- ===== Chat Page ===== -->
+    <div class="page" id="page-chat">
+      <div class="card chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg assistant">
+            嘿～ Later！有什么想聊的吗？ 😊
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input class="chat-input" id="chat-input" type="text"
+                 placeholder="和小缪聊聊天..." autocomplete="off">
+          <button class="btn" id="chat-send">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Identity Page ===== -->
+    <div class="page" id="page-identity">
+      <div class="card">
+        <div class="card-title">🎨 基本信息</div>
+        <div class="form-group">
+          <label class="form-label">名字</label>
+          <input class="form-input" id="id-name" type="text">
+        </div>
+        <div class="form-group">
+          <label class="form-label">昵称</label>
+          <input class="form-input" id="id-nickname" type="text">
+        </div>
+        <div class="form-group">
+          <label class="form-label">MBTI</label>
+          <input class="form-input" id="id-mbti" type="text">
+        </div>
+        <div class="form-group">
+          <label class="form-label">简介</label>
+          <input class="form-input" id="id-bio" type="text">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎚️ 性格维度</div>
+        <div id="personality-sliders"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 JSON 预览</div>
+        <div class="json-preview" id="json-preview"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" id="id-save">💾 保存</button>
+        <button class="btn btn-outline" id="id-reload">🔄 重新加载</button>
+      </div>
+    </div>
+
+    <!-- ===== Memory Page ===== -->
+    <div class="page" id="page-memory">
+      <div class="filter-pills" id="memory-tabs">
+        <button class="pill" data-type="semantic">语义记忆</button>
+        <button class="pill active" data-type="episodic">情景记忆</button>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" id="memory-search" type="text" placeholder="搜索记忆...">
+        <button class="btn btn-sm" id="memory-search-btn">搜索</button>
+      </div>
+      <div class="card" id="memory-list">
+        <div class="empty"><div class="empty-icon">💭</div>正在加载记忆...</div>
+      </div>
+    </div>
+
+    <!-- ===== System Page ===== -->
+    <div class="page" id="page-system">
+      <div class="sys-grid">
+        <div class="sys-card" id="sys-brain">
+          <h3>🧠 大脑 (OpenCode)</h3>
+          <div id="brain-status">加载中...</div>
+        </div>
+        <div class="sys-card" id="sys-web">
+          <h3>🌐 Web 驾驶舱</h3>
+          <div id="web-status">加载中...</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔧 控制面板</div>
+        <div class="sys-actions">
+          <button class="btn btn-sm" id="sys-test">🧪 测试连接</button>
+          <button class="btn btn-sm btn-danger" id="sys-restart">♻️ 重启大脑</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 操作日志</div>
+        <div class="log-area" id="sys-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===== API Client =====
+    const API = {
+      async get(path) {
+        const res = await fetch(path)
+        return res.json()
+      },
+      async post(path, body) {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        return res.json()
+      },
+      async put(path, body) {
+        const res = await fetch(path, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        return res.json()
+      },
+    }
+
+    // ===== Utils =====
+    const $ = (sel) => document.querySelector(sel)
+    const $$ = (sel) => document.querySelectorAll(sel)
+    let connected = false
+
+    function toast(msg) {
+      const el = $('#toast')
+      el.textContent = msg
+      el.classList.add('show')
+      setTimeout(() => el.classList.remove('show'), 2500)
+    }
+
+    function formatUptime(secs) {
+      if (secs < 60) return `${secs}秒`
+      if (secs < 3600) return `${Math.floor(secs / 60)}分${secs % 60}秒`
+      const h = Math.floor(secs / 3600)
+      const m = Math.floor((secs % 3600) / 60)
+      return `${h}小时${m}分`
+    }
+
+    function sysLog(msg) {
+      const el = $('#sys-log')
+      const time = new Date().toLocaleTimeString()
+      const prefix = el.textContent ? '\n' : ''
+      el.textContent += `${prefix}[${time}] ${msg}`
+      el.scrollTop = el.scrollHeight
+    }
+
+    function setConnectionStatus(ok) {
+      connected = ok
+      $('#header-subtitle').textContent = ok
+        ? 'Muse 交互中心 · ✅ 已连接'
+        : 'Muse 交互中心 · ❌ 未连接'
+    }
+
+    function esc(str) {
+      if (!str) return ''
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    }
+
+    // ===== Tab Navigation =====
+    $$('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        $$('.tab').forEach(t => t.classList.remove('active'))
+        $$('.page').forEach(p => p.classList.remove('active'))
+        tab.classList.add('active')
+        $(`#page-${tab.dataset.tab}`).classList.add('active')
+
+        const name = tab.dataset.tab
+        if (name === 'overview') loadOverview()
+        if (name === 'identity') loadIdentity()
+        if (name === 'memory') loadMemory()
+        if (name === 'system') loadSystem()
+      })
+    })
+
+    // ===== Overview =====
+    async function loadOverview() {
+      const grid = $('#health-grid')
+      const statsGrid = $('#stats-grid')
+
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div>正在连接后端...</div>'
+      statsGrid.innerHTML = ''
+
+      try {
+        const [health, status] = await Promise.all([
+          API.get('/api/health'),
+          API.get('/api/status'),
+        ])
+
+        setConnectionStatus(true)
+
+        const modules = health.data || {}
+        grid.innerHTML = Object.entries(modules).map(([name, info]) => {
+          const ok = info.ok
+          const labels = { identity: '🎭 身份', memory: '🧠 记忆', engine: '🧠 大脑', web: '🌐 Web' }
+          return `
+            <div class="status-item">
+              <div class="label">${labels[name] || name}</div>
+              <div class="value">
+                <span class="status-dot ${ok ? 'ok' : 'err'}"></span>
+                ${ok ? '运行中' : '异常'}
+              </div>
+            </div>`
+        }).join('')
+
+        const stats = status.data || {}
+        statsGrid.innerHTML = `
+          <div class="status-item">
+            <div class="label">⏱ 运行时间</div>
+            <div class="value" style="font-size:1.2rem">${formatUptime(stats.uptime || 0)}</div>
+          </div>
+          <div class="status-item">
+            <div class="label">💬 对话数</div>
+            <div class="value">${stats.memory?.totalEpisodes ?? '—'}</div>
+          </div>
+          <div class="status-item">
+            <div class="label">📂 会话数</div>
+            <div class="value">${stats.memory?.totalSessions ?? '—'}</div>
+          </div>`
+      } catch (e) {
+        setConnectionStatus(false)
+        grid.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">🔌</div>
+            <div>无法连接后端</div>
+            <div style="font-size:0.78rem;margin-top:4px;color:var(--text-muted)">请确保通过 http://127.0.0.1:4097 访问</div>
+          </div>`
+      }
+    }
+
+    // ===== Chat =====
+    const chatMessages = $('#chat-messages')
+    const chatInput = $('#chat-input')
+    const chatSend = $('#chat-send')
+
+    function addMessage(role, text) {
+      const el = document.createElement('div')
+      el.className = `msg ${role}`
+      el.textContent = text
+      chatMessages.appendChild(el)
+      chatMessages.scrollTop = chatMessages.scrollHeight
+    }
+
+    async function sendChat() {
+      const text = chatInput.value.trim()
+      if (!text) return
+
+      chatInput.value = ''
+      addMessage('user', text)
+      chatSend.disabled = true
+      chatSend.textContent = '...'
+
+      try {
+        const res = await API.post('/api/chat', { text })
+        if (res.ok) {
+          addMessage('assistant', res.data.text || '(无回复)')
+        } else {
+          addMessage('assistant', '❌ ' + (res.error || '发送失败'))
+        }
+      } catch (e) {
+        addMessage('assistant', '❌ 网络错误: ' + e.message)
+      } finally {
+        chatSend.disabled = false
+        chatSend.textContent = '发送'
+      }
+    }
+
+    chatSend.addEventListener('click', sendChat)
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() }
+    })
+
+    // ===== Identity =====
+    // Real Identity shape (from identity.mjs):
+    //   identity: { name, nickname, bio, owner }
+    //   psychology: { mbti, traits: { humor: 0-1, warmth: 0-1, initiative: 0-1, precision: 0-1, verbosity: 0-1 } }
+    let identityData = null
+
+    // Must match identity.mjs VALID_TRAITS
+    const TRAIT_DIMS = [
+      { key: 'humor',     label: '幽默感', min: '严肃正式', max: '幽默风趣' },
+      { key: 'warmth',    label: '温暖度', min: '理性客观', max: '温暖贴心' },
+      { key: 'initiative',label: '主动性', min: '被动等待', max: '主动积极' },
+      { key: 'precision', label: '严谨度', min: '大而化之', max: '严谨细致' },
+      { key: 'verbosity', label: '话多程度', min: '言简意赅', max: '话比较多' },
+    ]
+
+    async function loadIdentity() {
+      try {
+        const res = await API.get('/api/identity')
+        if (!res.ok) return
+        identityData = res.data
+        renderIdentity()
+      } catch (e) { toast('加载身份失败: ' + e.message) }
+    }
+
+    function renderIdentity() {
+      if (!identityData) return
+      // Read from NESTED structure
+      $('#id-name').value = identityData.identity?.name || ''
+      $('#id-nickname').value = identityData.identity?.nickname || ''
+      $('#id-mbti').value = identityData.psychology?.mbti || ''
+      $('#id-bio').value = identityData.identity?.bio || ''
+
+      const container = $('#personality-sliders')
+      const traits = identityData.psychology?.traits || {}
+      container.innerHTML = TRAIT_DIMS.map(dim => {
+        // traits are 0.0-1.0 floats, slider shows 0-100
+        const raw = traits[dim.key] ?? 0.5
+        const pct = Math.round(raw * 100)
+        return `
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">${dim.label}</span>
+              <span class="slider-value" id="val-${dim.key}">${pct}%</span>
+            </div>
+            <input type="range" min="0" max="100" value="${pct}"
+                   data-key="${dim.key}"
+                   oninput="document.getElementById('val-${dim.key}').textContent=this.value+'%'; updateJsonPreview()">
+            <div class="slider-ends"><span>${dim.min}</span><span>${dim.max}</span></div>
+          </div>
+        `
+      }).join('')
+
+      updateJsonPreview()
+    }
+
+    /** Build a proper NESTED patch matching Identity schema */
+    function getIdentityPatch() {
+      const traits = {}
+      $$('#personality-sliders input[type="range"]').forEach(s => {
+        traits[s.dataset.key] = parseInt(s.value, 10) / 100  // → 0.0-1.0
+      })
+      return {
+        identity: {
+          name: $('#id-name').value,
+          nickname: $('#id-nickname').value,
+          bio: $('#id-bio').value,
+        },
+        psychology: {
+          mbti: $('#id-mbti').value,
+          traits,
+        },
+      }
+    }
+
+    window.updateJsonPreview = function() {
+      const patch = getIdentityPatch()
+      $('#json-preview').textContent = JSON.stringify(patch, null, 2)
+    }
+
+    $('#id-save').addEventListener('click', async () => {
+      try {
+        const patch = getIdentityPatch()
+        const res = await API.put('/api/identity', patch)
+        if (res.ok) {
+          identityData = res.data
+          renderIdentity()
+          toast('✅ 身份已保存!')
+        } else {
+          toast('❌ 保存失败: ' + res.error)
+        }
+      } catch (e) { toast('❌ 保存失败: ' + e.message) }
+    })
+
+    $('#id-reload').addEventListener('click', loadIdentity)
+
+    // Live JSON preview on form input
+    ;['id-name', 'id-nickname', 'id-mbti', 'id-bio'].forEach(id => {
+      $(`#${id}`).addEventListener('input', updateJsonPreview)
+    })
+
+    // ===== Memory =====
+    let memoryType = 'episodic'
+
+    $$('#memory-tabs .pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        $$('#memory-tabs .pill').forEach(p => p.classList.remove('active'))
+        pill.classList.add('active')
+        memoryType = pill.dataset.type
+        loadMemory()
+      })
+    })
+
+    $('#memory-search-btn').addEventListener('click', loadMemory)
+    $('#memory-search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loadMemory()
+    })
+
+    async function loadMemory() {
+      const q = $('#memory-search').value.trim()
+      const list = $('#memory-list')
+      list.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>'
+
+      try {
+        const path = memoryType === 'semantic'
+          ? `/api/memory/semantic${q ? `?q=${encodeURIComponent(q)}` : ''}`
+          : `/api/memory/episodic${q ? `?q=${encodeURIComponent(q)}` : '?days=7'}`
+        const res = await API.get(path)
+
+        if (!res.ok || !res.data?.length) {
+          list.innerHTML = '<div class="empty"><div class="empty-icon">💭</div>暂无记忆</div>'
+          return
+        }
+
+        if (memoryType === 'semantic') {
+          list.innerHTML = res.data.map(m => `
+            <div class="memory-item">
+              <div class="memory-key">${esc(m.key)}</div>
+              <div class="memory-value">${esc(m.value)}</div>
+              <div class="memory-meta">${m.category || ''} · ${m.updated_at || ''}</div>
+            </div>
+          `).join('')
+        } else {
+          list.innerHTML = res.data.map(m => `
+            <div class="memory-item">
+              <div class="memory-key">${m.role === 'user' ? '👤' : '🎭'} ${esc(m.role)}</div>
+              <div class="memory-value">${esc(m.content?.slice(0, 200) || '')}</div>
+              <div class="memory-meta">${m.created_at || ''}</div>
+            </div>
+          `).join('')
+        }
+      } catch (e) {
+        list.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>${esc(e.message)}</div>`
+      }
+    }
+
+    // ===== System =====
+    async function loadSystem() {
+      try {
+        const res = await API.get('/api/health')
+        if (!res.ok) return
+
+        const eng = res.data.engine || {}
+        const web = res.data.web || {}
+
+        $('#brain-status').innerHTML = `
+          <div class="sys-row"><span>状态</span><span><span class="status-dot ${eng.ok ? 'ok' : 'err'}"></span>${eng.ok ? '在线' : '离线'}</span></div>
+          <div class="sys-row"><span>详情</span><span>${eng.detail ? JSON.stringify(eng.detail) : '—'}</span></div>`
+
+        $('#web-status').innerHTML = `
+          <div class="sys-row"><span>状态</span><span><span class="status-dot ${web.ok ? 'ok' : 'err'}"></span>${web.ok ? '在线' : '离线'}</span></div>
+          <div class="sys-row"><span>端口</span><span>${web.detail?.port ?? '—'}</span></div>
+          <div class="sys-row"><span>运行时间</span><span>${formatUptime(web.detail?.uptime ?? 0)}</span></div>`
+
+        sysLog('✅ 系统状态已刷新')
+      } catch (e) {
+        sysLog('加载系统状态失败: ' + e.message)
+      }
+    }
+
+    $('#sys-test').addEventListener('click', async () => {
+      sysLog('正在测试连接...')
+      try {
+        const res = await API.post('/api/system/test')
+        sysLog(res.ok ? '✅ 连接正常' : '❌ ' + res.error)
+        toast(res.ok ? '连接正常 ✅' : '连接失败 ❌')
+      } catch (e) { sysLog('❌ ' + e.message) }
+    })
+
+    $('#sys-restart').addEventListener('click', async () => {
+      if (!confirm('确定要重启大脑吗？')) return
+      sysLog('正在重启大脑...')
+      try {
+        const res = await API.post('/api/system/restart-brain')
+        sysLog(res.ok ? '✅ 大脑已重启' : '❌ ' + res.error)
+        toast(res.ok ? '大脑已重启 ✅' : '重启失败 ❌')
+        loadSystem()
+      } catch (e) { sysLog('❌ ' + e.message) }
+    })
+
+    // ===== Init =====
+    // Don't show "系统就绪" falsely — probe backend first
+    ;(async () => {
+      sysLog('正在连接后端...')
+      await loadOverview()
+      if (connected) {
+        sysLog('✅ 后端已连接')
+      } else {
+        sysLog('⚠ 后端未响应，请确保通过 http://127.0.0.1:4097 访问')
+      }
+    })()
+  </script>
+</body>
+</html>

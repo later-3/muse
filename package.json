@@ -1,0 +1,19 @@
+{
+  "name": "muse-assistant",
+  "version": "0.1.0",
+  "description": "Muse - 终身 AI 助手",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node muse/index.mjs",
+    "dev": "node --watch muse/index.mjs",
+    "test": "node --test --test-timeout=10000 muse/*.test.mjs muse/**/*.test.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^16.4.0",
+    "telegraf": "^4.16.0"
+  }
+}

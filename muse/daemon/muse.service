@@ -1,0 +1,26 @@
+[Unit]
+Description=Muse AI Companion
+After=network.target
+
+[Service]
+Type=simple
+# --- 修改以下 3 行 ---
+User=your-username
+WorkingDirectory=/home/your-username/muse
+EnvironmentFile=/home/your-username/muse/.env
+# --- 修改结束 ---
+
+ExecStart=/usr/bin/node muse/index.mjs
+Restart=always
+RestartSec=10
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=muse
+
+# 资源限制
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
