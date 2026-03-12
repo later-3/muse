@@ -241,7 +241,7 @@ TELEGRAM_ALLOWED_USERS=your-telegram-user-id
 # === OpenCode Engine ===
 OPENCODE_HOST=http://127.0.0.1
 OPENCODE_PORT=4096
-OPENCODE_WORKSPACE=/Users/xulater/Code/assistant-agent
+OPENCODE_WORKSPACE=/home/user/Code/assistant-agent
 
 # === Models ===
 DEFAULT_PROVIDER=google

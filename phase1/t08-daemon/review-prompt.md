@@ -135,8 +135,8 @@ Phase 1 已完成 T01-T07。T08 = 小脑实现，分 2 部分:
 
 当前目录里存在明显冲突：
 
-1. [README.md](/Users/xulater/Code/assistant-agent/phase1/t08-daemon/README.md) 定义的是 `T08-1 小脑核心`
-2. [review-prompt.md](/Users/xulater/Code/assistant-agent/phase1/t08-daemon/review-prompt.md) 审的却是 `T08-2 自我成长引擎`
+1. [README.md](/home/user/Code/assistant-agent/phase1/t08-daemon/README.md) 定义的是 `T08-1 小脑核心`
+2. [review-prompt.md](/home/user/Code/assistant-agent/phase1/t08-daemon/review-prompt.md) 审的却是 `T08-2 自我成长引擎`
 3. 目录里没有 `context.md`
 4. 但 `review-prompt.md` 又写了“请阅读 `self-growth-spec.md`”
 
@@ -156,7 +156,7 @@ Phase 1 已完成 T01-T07。T08 = 小脑实现，分 2 部分:
 
 #### 问题 2：T08-1 的健康探针和现有 Engine 真实行为没有完全对齐
 
-[README.md](/Users/xulater/Code/assistant-agent/phase1/t08-daemon/README.md#L55) 和 [README.md](/Users/xulater/Code/assistant-agent/phase1/t08-daemon/README.md#L279) 里把健康检查写成 `GET /provider`，但结合当前 `EXPERIENCE.md`：
+[README.md](/home/user/Code/assistant-agent/phase1/t08-daemon/README.md#L55) 和 [README.md](/home/user/Code/assistant-agent/phase1/t08-daemon/README.md#L279) 里把健康检查写成 `GET /provider`，但结合当前 `EXPERIENCE.md`：
 
 1. `BUG-004` 已明确：OpenCode v1.2.24 优先健康端点是 `/global/health`
 2. `Engine.health()` 现在就是优先 `/global/health`，再降级 `/provider`

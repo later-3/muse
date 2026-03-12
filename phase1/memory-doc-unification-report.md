@@ -9,11 +9,11 @@
 
 | # | 文档 | 定位 |
 |---|------|------|
-| D1 | [ARCHITECTURE.md](file:///Users/xulater/Code/assistant-agent/ARCHITECTURE.md) | 项目总架构（愿景级） |
-| D2 | [phase1/README.md](file:///Users/xulater/Code/assistant-agent/phase1/README.md) T04 节 | Phase 1 任务规划 |
-| D3 | [memory-architecture.md](file:///Users/xulater/Code/assistant-agent/phase1/t07-web-cockpit/memory-architecture.md) | T07 BUG 分析时写的记忆架构说明 |
-| D4 | [phase2/README.md](file:///Users/xulater/Code/assistant-agent/phase2/README.md) §3.1 | Phase 2 技术方案（含审核通过的修订） |
-| D5 | [muse/AGENTS.md](file:///Users/xulater/Code/assistant-agent/muse/AGENTS.md) | 刚创建的 OpenCode agent 上下文 |
+| D1 | [ARCHITECTURE.md](file:///home/user/Code/assistant-agent/ARCHITECTURE.md) | 项目总架构（愿景级） |
+| D2 | [phase1/README.md](file:///home/user/Code/assistant-agent/phase1/README.md) T04 节 | Phase 1 任务规划 |
+| D3 | [memory-architecture.md](file:///home/user/Code/assistant-agent/phase1/t07-web-cockpit/memory-architecture.md) | T07 BUG 分析时写的记忆架构说明 |
+| D4 | [phase2/README.md](file:///home/user/Code/assistant-agent/phase2/README.md) §3.1 | Phase 2 技术方案（含审核通过的修订） |
+| D5 | [muse/AGENTS.md](file:///home/user/Code/assistant-agent/muse/AGENTS.md) | 刚创建的 OpenCode agent 上下文 |
 
 ---
 

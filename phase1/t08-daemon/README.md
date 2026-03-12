@@ -316,12 +316,12 @@ export class Cerebellum {
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/xulater/.nvm/versions/node/v22.0.0/bin/node</string>
-        <string>/Users/xulater/Code/assistant-agent/muse/daemon/cerebellum.mjs</string>
+        <string>/home/user/.nvm/versions/node/v22.0.0/bin/node</string>
+        <string>/home/user/Code/assistant-agent/muse/daemon/cerebellum.mjs</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/xulater/Code/assistant-agent</string>
+    <string>/home/user/Code/assistant-agent</string>
 
     <key>KeepAlive</key>
     <true/>

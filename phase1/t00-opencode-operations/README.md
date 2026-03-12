@@ -169,7 +169,7 @@ Muse 的 Orchestrator 做意图分类后，通过 `model` 参数告诉 OpenCode 
 # 创建 Session
 curl -X POST http://127.0.0.1:4096/session \
   -H "Content-Type: application/json" \
-  -H "x-opencode-directory: /Users/xulater/Code/assistant-agent" \
+  -H "x-opencode-directory: /home/user/Code/assistant-agent" \
   -d '{}'
 # → {"id":"ses_abc123","title":"","..."}
 
@@ -192,7 +192,7 @@ const reply = await fetch(`http://127.0.0.1:4096/session/${sessionId}/message`, 
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'x-opencode-directory': '/Users/xulater/Code/assistant-agent'  // ⚠️ 必须！
+    'x-opencode-directory': '/home/user/Code/assistant-agent'  // ⚠️ 必须！
   },
   body: JSON.stringify({
     // ⚠️ model 必须是嵌套对象（不是字符串！）
@@ -298,7 +298,7 @@ curl http://127.0.0.1:4096/mcp
 opencode serve --port 4096 --hostname 127.0.0.1
 
 # 2. 配置 .env
-cat > /Users/xulater/Code/assistant-agent/.env << 'EOF'
+cat > /home/user/Code/assistant-agent/.env << 'EOF'
 TELEGRAM_BOT_TOKEN=8704521883:AAGgSxRHS--Uiz77t46YXjbjuoxuh8Izl00
 TELEGRAM_ALLOWED_USERS=你的TG用户ID
 OPENCODE_HOST=http://127.0.0.1
@@ -407,7 +407,7 @@ mcpConfig:
 
 每次请求必须带此 Header，告诉 OpenCode 工作区路径：
 ```javascript
-headers: { 'x-opencode-directory': '/Users/xulater/Code/assistant-agent' }
+headers: { 'x-opencode-directory': '/home/user/Code/assistant-agent' }
 ```
 
 ### 7.2 model 格式必须嵌套

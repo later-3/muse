@@ -219,18 +219,18 @@
 核心问题：
 
 1. **Web 被放在启动链最后，不适合做系统驾驶舱**
-   - [index.mjs](/Users/xulater/Code/assistant-agent/muse/index.mjs#L49) 先 `engine.start()`，再 `telegram.start()`，最后才 `web.start()`
+   - [index.mjs](/home/user/Code/assistant-agent/muse/index.mjs#L49) 先 `engine.start()`，再 `telegram.start()`，最后才 `web.start()`
    - 这意味着只要 `Engine` 起不来、`Telegram` token 缺失、或 `Telegram` 启动失败，Web 就根本不会起来
    - 这和 T07 “系统状态 + 控制台 + 诊断入口”的目标是冲突的。真正的驾驶舱应该在子模块异常时也尽量能打开，至少能看到故障
 
 2. **当前整体启动仍然被 Telegram 配置绑死**
-   - [config.mjs](/Users/xulater/Code/assistant-agent/muse/config.mjs#L50) 的 `validateConfig()` 仍然强制要求 `TELEGRAM_BOT_TOKEN`
+   - [config.mjs](/home/user/Code/assistant-agent/muse/config.mjs#L50) 的 `validateConfig()` 仍然强制要求 `TELEGRAM_BOT_TOKEN`
    - 这会让“只想跑本地 Web 驾驶舱”这件事在系统层面不可行
    - 从整体路线看，Telegram 仍然是主渠道可以接受，但 T07 作为本地 cockpit，不应被 Telegram 的配置前置卡死
 
 3. **README 承诺的 `web.enabled` 没实现**
-   - [README.md](/Users/xulater/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L76) 写了 `muse/config.mjs` 会新增 `web.enabled`
-   - 但 [config.mjs](/Users/xulater/Code/assistant-agent/muse/config.mjs#L28) 只有 `web.port` 和 `web.host`
+   - [README.md](/home/user/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L76) 写了 `muse/config.mjs` 会新增 `web.enabled`
+   - 但 [config.mjs](/home/user/Code/assistant-agent/muse/config.mjs#L28) 只有 `web.port` 和 `web.host`
    - 这说明文档、实现、启动策略没有完全收口
 
 建议：
@@ -248,28 +248,28 @@
 最严重的问题有 3 个：
 
 1. **身份页前端的数据结构和 `Identity` 模块真实结构不一致**
-   - [identity.mjs](/Users/xulater/Code/assistant-agent/muse/core/identity.mjs#L24) 到 [identity.mjs](/Users/xulater/Code/assistant-agent/muse/core/identity.mjs#L52) 的真实数据结构是嵌套的：
+   - [identity.mjs](/home/user/Code/assistant-agent/muse/core/identity.mjs#L24) 到 [identity.mjs](/home/user/Code/assistant-agent/muse/core/identity.mjs#L52) 的真实数据结构是嵌套的：
      - `identity.name`
      - `identity.nickname`
      - `psychology.mbti`
      - `psychology.traits`
-   - 但 [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L712) 到 [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L747) 读取的是：
+   - 但 [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L712) 到 [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L747) 读取的是：
      - `identityData.name`
      - `identityData.nickname`
      - `identityData.mbti`
      - `identityData.personality`
    - 这会导致页面加载到真实身份数据时字段为空或错位
-   - 更严重的是保存时 [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L749) 到 [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L760) 构造出的 patch 也是错 shape，`identity.update()` 不会按预期更新真实字段，甚至可能把无效顶层键写进配置对象里
+   - 更严重的是保存时 [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L749) 到 [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L760) 构造出的 patch 也是错 shape，`identity.update()` 不会按预期更新真实字段，甚至可能把无效顶层键写进配置对象里
 
 2. **README 承诺的 API 没有完全实现**
-   - [README.md](/Users/xulater/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L89) 声明了 `GET /api/chat/history?n=`
-   - [README.md](/Users/xulater/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L91) 声明了 `GET /api/system/logs?lines=`
-   - 但 [api.mjs](/Users/xulater/Code/assistant-agent/muse/web/api.mjs) 里并没有这两个路由
+   - [README.md](/home/user/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L89) 声明了 `GET /api/chat/history?n=`
+   - [README.md](/home/user/Code/assistant-agent/phase1/t07-web-cockpit/README.md#L91) 声明了 `GET /api/system/logs?lines=`
+   - 但 [api.mjs](/home/user/Code/assistant-agent/muse/web/api.mjs) 里并没有这两个路由
    - 这不只是“后续可增强”，因为它们已经写进了 T07 Phase 1 API 规格
 
 3. **“系统就绪”首屏文案会误导用户**
-   - [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L544) 默认日志文本就是 `系统就绪。`
-   - 但页面初始化时只调用了 [index.html](/Users/xulater/Code/assistant-agent/muse/web/index.html#L891) 的 `loadOverview()`，并没有先拿到后端健康检查成功的确认
+   - [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L544) 默认日志文本就是 `系统就绪。`
+   - 但页面初始化时只调用了 [index.html](/home/user/Code/assistant-agent/muse/web/index.html#L891) 的 `loadOverview()`，并没有先拿到后端健康检查成功的确认
    - 所以当页面是直接双击打开，或后端根本没起来，用户也会先看到“系统就绪”，然后在系统页才看到 `Failed to fetch`
    - 这和真实状态不一致，属于产品层面的误报
 
@@ -304,7 +304,7 @@
      - 发送消息后页面行为符合预期
 
 4. **系统级集成测试没有更新到 T07**
-   - [index.test.mjs](/Users/xulater/Code/assistant-agent/muse/index.test.mjs#L13) 现在注释仍然写的是 `T01-T06`
+   - [index.test.mjs](/home/user/Code/assistant-agent/muse/index.test.mjs#L13) 现在注释仍然写的是 `T01-T06`
    - 说明项目级集成测试尚未把 `Web` 纳入主链验证
 
 5. **我无法在当前沙箱独立复跑 `api.test.mjs` 的监听测试**

@@ -9,11 +9,11 @@
     <array>
         <!-- 路径需根据实际环境调整 -->
         <string>/usr/local/bin/node</string>
-        <string>/Users/xulater/Code/assistant-agent/muse/daemon/cerebellum.mjs</string>
+        <string>/home/user/muse/muse/daemon/cerebellum.mjs</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/xulater/Code/assistant-agent</string>
+    <string>/home/user/muse</string>
 
     <key>KeepAlive</key>
     <true/>

@@ -157,7 +157,7 @@ class GrowthAttempt {
       3. 阅读 OpenCode REST API，了解 message parts 是否支持图片
       4. 输出一个简明修改方案 (JSON 格式)，不要修改任何文件
       
-      项目根目录: /Users/xulater/Code/assistant-agent
+      项目根目录: /home/user/Code/assistant-agent
       ```
     → 获取研究方案 (哪些文件要改，怎么改)
     ↓
@@ -176,7 +176,7 @@ class GrowthAttempt {
       - 不要改无关文件
       - 不要破坏现有的文本消息处理
       
-      项目根目录: /Users/xulater/Code/assistant-agent
+      项目根目录: /home/user/Code/assistant-agent
       ```
     → OpenCode 修改代码
     → git add -A && git commit -m "growth: add image support (auto-learning)"
@@ -426,9 +426,9 @@ CREATE INDEX IF NOT EXISTS idx_growth_gap_type ON growth_journal(gap_type);
 
 | 来源 | 参考点 |
 |------|--------|
-| [PHILOSOPHY.md](file:///Users/xulater/Code/assistant-agent/PHILOSOPHY.md) | 第一原则: AI 做认知决策 → 学习决策交给 AI |
-| [ARCHITECTURE.md](file:///Users/xulater/Code/assistant-agent/ARCHITECTURE.md) | 小脑职责: 守护 + 定时任务 + 事件触发 |
+| [PHILOSOPHY.md](file:///home/user/Code/assistant-agent/PHILOSOPHY.md) | 第一原则: AI 做认知决策 → 学习决策交给 AI |
+| [ARCHITECTURE.md](file:///home/user/Code/assistant-agent/ARCHITECTURE.md) | 小脑职责: 守护 + 定时任务 + 事件触发 |
 | [Sisyphus Protocol](KI) | Phase 0 Intent Gate, Phase 2C Failure Recovery |
 | [OpenCode Hooks](KI) | BackgroundManager, 46 hooks lifecycle |
 | [Engineering Principles](KI) | Plugins > Forks, Parallelize by Default |
-| [EXPERIENCE.md](file:///Users/xulater/Code/assistant-agent/phase1/EXPERIENCE.md) | BUG-009~011: OpenCode API 行为验证 |
+| [EXPERIENCE.md](file:///home/user/Code/assistant-agent/phase1/EXPERIENCE.md) | BUG-009~011: OpenCode API 行为验证 |
