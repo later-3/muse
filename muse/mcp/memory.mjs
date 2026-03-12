@@ -51,6 +51,8 @@ const TOOLS = [
         confidence: { type: 'string', enum: ['high', 'medium', 'low'], default: 'high', description: '置信度' },
         tags: { type: 'array', items: { type: 'string' }, default: [], description: '标签' },
         meta: { type: 'object', default: {}, description: '扩展元数据 (预留 goal/thread/artifact)' },
+        writer: { type: 'string', enum: ['main_session', 'hook', 'subagent', 'background', 'family_agent'], default: 'main_session', description: '写入者' },
+        session_id: { type: 'string', description: '关联的 session ID' },
       },
       required: ['key', 'value'],
     },
@@ -67,11 +69,12 @@ const TOOLS = [
   },
   {
     name: 'get_recent_episodes',
-    description: '获取最近的对话摘要。在需要回顾历史对话、了解之前聊过什么时调用。',
+    description: '获取最近的对话摘要。在需要回顾历史对话、了解之前聊过什么时调用。scope 可按 meta.related_goal 过滤。',
     inputSchema: {
       type: 'object',
       properties: {
         days: { type: 'number', default: 3, description: '最近几天 (默认 3)' },
+        scope: { type: 'string', description: '过滤条件: goal key 或 thread id (匹配 meta.related_goal / meta.related_thread)' },
       },
     },
   },
@@ -84,6 +87,8 @@ const TOOLS = [
         summary: { type: 'string', description: '摘要内容' },
         tags: { type: 'array', items: { type: 'string' }, default: [], description: '标签' },
         meta: { type: 'object', default: {}, description: '扩展: { related_goal, related_thread, artifact_refs }' },
+        session_id: { type: 'string', description: '关联的 session ID (不传则自动生成)' },
+        writer: { type: 'string', enum: ['main_session', 'hook', 'subagent', 'background', 'family_agent'], default: 'main_session', description: '写入者' },
       },
       required: ['summary'],
     },
@@ -136,7 +141,7 @@ function handleSearchMemory(memory, args) {
 }
 
 function handleSetMemory(memory, args) {
-  const { key, value, category, source, confidence, tags, meta } = args
+  const { key, value, category, source, confidence, tags, meta, writer, session_id } = args
 
   if (!key || !value) {
     return errorResult('key and value are required')
@@ -148,6 +153,8 @@ function handleSetMemory(memory, args) {
     confidence: confidence || 'high',
     tags: tags || [],
     meta: meta || {},
+    writer: writer || 'main_session',
+    session_id: session_id || null,
   })
 
   return {
@@ -234,7 +241,16 @@ function handleGetUserProfile(memory, args) {
 
 function handleGetRecentEpisodes(memory, args) {
   const days = args.days || 3
-  const episodes = memory.getRecentEpisodes(days)
+  const scope = args.scope || null
+  let episodes = memory.getRecentEpisodes(days)
+
+  // scope filter: match meta.related_goal or meta.related_thread
+  if (scope) {
+    episodes = episodes.filter(ep => {
+      const meta = safeParseJson(ep.meta, {})
+      return meta.related_goal === scope || meta.related_thread === scope
+    })
+  }
 
   const formatted = episodes.map(ep => ({
     id: ep.id,
@@ -257,19 +273,19 @@ function handleGetRecentEpisodes(memory, args) {
 }
 
 function handleAddEpisode(memory, args) {
-  const { summary, tags, meta } = args
+  const { summary, tags, meta, session_id, writer } = args
 
   if (!summary) {
     return errorResult('summary is required')
   }
 
-  // Use a synthetic session_id for MCP-originated episodes
-  const sessionId = `mcp-${Date.now()}`
+  const sessionId = session_id || `mcp-${Date.now()}`
+  const actualWriter = writer || 'main_session'
   const id = memory.addEpisode(sessionId, 'assistant', summary, {
     summary,
     tags: tags || [],
     meta: meta || {},
-    writer: 'main_session',
+    writer: actualWriter,
   })
 
   return {

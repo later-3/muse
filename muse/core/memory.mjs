@@ -51,6 +51,23 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS idx_episodic_agent ON episodic_memory(agent_id);
   CREATE INDEX IF NOT EXISTS idx_episodic_agent_session ON episodic_memory(agent_id, session_id, created_at);
   CREATE INDEX IF NOT EXISTS idx_episodic_time ON episodic_memory(agent_id, created_at);
+
+  CREATE TABLE IF NOT EXISTS memory_audit (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id   TEXT NOT NULL DEFAULT 'muse',
+    action     TEXT NOT NULL,
+    target_key TEXT NOT NULL,
+    old_value  TEXT,
+    new_value  TEXT,
+    source     TEXT,
+    writer     TEXT DEFAULT 'main_session',
+    session_id TEXT,
+    reason     TEXT,
+    blocked    INTEGER DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_audit_agent ON memory_audit(agent_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_audit_key ON memory_audit(agent_id, target_key);
 `
 
 /** Schema migration for existing databases (Phase 1 → Phase 2) */
@@ -63,6 +80,7 @@ const MIGRATION_SQL = [
   `ALTER TABLE episodic_memory ADD COLUMN tags TEXT DEFAULT '[]'`,
   `ALTER TABLE episodic_memory ADD COLUMN meta TEXT DEFAULT '{}'`,
   `ALTER TABLE episodic_memory ADD COLUMN writer TEXT DEFAULT 'main_session'`,
+  // memory_audit table (created in SCHEMA_SQL for new DBs, migration for old)
 ]
 
 // --- Prepared Statement Queries ---
@@ -92,6 +110,17 @@ const SQL = {
     INSERT INTO episodic_memory (agent_id, session_id, role, content, summary, token_count, tags, meta, writer)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   getByKey: 'SELECT * FROM semantic_memory WHERE agent_id = ? AND key = ?',
+
+  // Audit
+  addAudit: `
+    INSERT INTO memory_audit (agent_id, action, target_key, old_value, new_value, source, writer, session_id, reason, blocked)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  listAudit: `
+    SELECT * FROM memory_audit WHERE agent_id = ? AND target_key = ?
+    ORDER BY created_at DESC, id DESC LIMIT ?`,
+  recentAudits: `
+    SELECT * FROM memory_audit WHERE agent_id = ?
+    ORDER BY created_at DESC, id DESC LIMIT ?`,
   updateSummary: 'UPDATE episodic_memory SET summary = ? WHERE id = ? AND agent_id = ?',
   recentEpisodes: `
     SELECT * FROM episodic_memory
@@ -191,7 +220,7 @@ export class Memory {
   // --- 语义记忆 (KV) ---
 
   /**
-   * 设置语义记忆 (upsert)
+   * 设置语义记忆 (upsert) 带覆盖守卫和审计
    * @param {string} key
    * @param {string} value
    * @param {object} [opts]
@@ -200,7 +229,9 @@ export class Memory {
    * @param {string} [opts.confidence='medium']
    * @param {string[]} [opts.tags=[]]
    * @param {object} [opts.meta={}]
-   * @returns {{ old_value: string|null, new_value: string, blocked: boolean, reason?: string }}
+   * @param {string} [opts.writer='main_session'] - 谁写的
+   * @param {string} [opts.session_id] - 关联 session
+   * @returns {{ old_value: string|null, new_value: string, blocked: boolean, reason?: string, provenance: object }}
    */
   setMemory(key, value, optsOrCategory = {}) {
     this.#ensureConnected()
@@ -217,28 +248,40 @@ export class Memory {
       confidence = 'medium',
       tags = [],
       meta = {},
+      writer = 'main_session',
+      session_id = null,
     } = opts
 
-    // 覆盖守卫: ai_inferred 不能覆盖 user_stated
     const existing = this.#stmts.getByKey.get(this.#agentId, key)
-    if (existing) {
-      if (existing.source === 'user_stated' && source === 'ai_inferred') {
-        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_inferred cannot override user_stated' }
-      }
-      if (existing.source === 'user_stated' && source === 'ai_observed') {
-        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_observed cannot override user_stated' }
-      }
-      // ai_observed 只能追加 low confidence
-      if (source === 'ai_observed' && existing.confidence !== 'low') {
-        return { old_value: existing.value, new_value: value, blocked: true, reason: 'ai_observed can only write confidence=low entries' }
-      }
+    const old_value = existing?.value ?? null
+
+    // --- 覆盖守卫 ---
+    // ai_inferred 不能覆盖 user_stated
+    if (existing && existing.source === 'user_stated' && (source === 'ai_inferred' || source === 'ai_observed')) {
+      const reason = `${source} cannot override user_stated`
+      this.#addAudit('set_memory_blocked', key, old_value, value, source, writer, session_id, reason, true)
+      return { old_value, new_value: value, blocked: true, reason, provenance: { writer, session_id, reason, blocked: true } }
     }
 
-    const old_value = existing?.value ?? null
+    // ai_observed: 不覆盖已有高置信值，写入 pending key
+    if (source === 'ai_observed' && existing && existing.confidence !== 'low') {
+      const pendingKey = `${key}__pending`
+      const tagsJson = JSON.stringify(tags)
+      const metaJson = typeof meta === 'string' ? meta : JSON.stringify(meta)
+      this.#stmts.upsert.run(this.#agentId, pendingKey, value, category, 'ai_observed', 'low', tagsJson, metaJson)
+      const reason = 'ai_observed stored as pending (needs confirmation)'
+      this.#addAudit('set_memory_pending', key, old_value, value, source, writer, session_id, reason, false)
+      return { old_value, new_value: value, blocked: false, pending: true, pending_key: pendingKey, reason, provenance: { writer, session_id, reason, blocked: false } }
+    }
+
+    // --- 正常写入 ---
     const tagsJson = JSON.stringify(tags)
     const metaJson = typeof meta === 'string' ? meta : JSON.stringify(meta)
     this.#stmts.upsert.run(this.#agentId, key, value, category, source, confidence, tagsJson, metaJson)
-    return { old_value, new_value: value, blocked: false }
+    this.#addAudit('set_memory', key, old_value, value, source, writer, session_id, null, false)
+
+    const provenance = { writer, session_id, timestamp: new Date().toISOString(), source, old_value, new_value: value }
+    return { old_value, new_value: value, blocked: false, provenance }
   }
 
   /** 获取单条语义记忆，不存在返回 null */
@@ -370,7 +413,36 @@ export class Memory {
       searchEpisodes: this.#db.prepare(SQL.searchEpisodes),
       recentSummaries: this.#db.prepare(SQL.recentSummaries),
       stats: this.#db.prepare(SQL.stats),
+      addAudit: this.#db.prepare(SQL.addAudit),
+      listAudit: this.#db.prepare(SQL.listAudit),
+      recentAudits: this.#db.prepare(SQL.recentAudits),
     }
+  }
+
+  /** 记录审计日志 */
+  #addAudit(action, targetKey, oldValue, newValue, source, writer, sessionId, reason, blocked) {
+    try {
+      this.#stmts.addAudit.run(
+        this.#agentId, action, targetKey,
+        oldValue, newValue, source,
+        writer || 'main_session', sessionId || null,
+        reason || null, blocked ? 1 : 0,
+      )
+    } catch (e) {
+      log.warn(`审计日志写入失败: ${e.message}`)
+    }
+  }
+
+  /** 查询某个 key 的审计历史 */
+  getAuditLog(key, limit = 20) {
+    this.#ensureConnected()
+    return this.#stmts.listAudit.all(this.#agentId, key, limit)
+  }
+
+  /** 查询最近的审计日志 */
+  getRecentAudits(limit = 50) {
+    this.#ensureConnected()
+    return this.#stmts.recentAudits.all(this.#agentId, limit)
   }
 
   /** Schema migration: 给旧表加新字段 (Phase 1 → Phase 2) */

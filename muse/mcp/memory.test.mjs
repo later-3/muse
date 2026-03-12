@@ -281,6 +281,178 @@ describe('Memory MCP — add_episode', () => {
   })
 })
 
+describe('Memory MCP — audit / provenance', () => {
+  let memory, dir
+
+  before(async () => {
+    ({ memory, dir } = createTestMemory())
+    await memory.start()
+  })
+  after(async () => {
+    await memory.stop()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('should persist audit record on set_memory', () => {
+    handleSetMemory(memory, { key: 'aud_test', value: 'v1', source: 'user_stated' })
+    const audits = memory.getAuditLog('aud_test')
+    assert.ok(audits.length >= 1)
+    assert.equal(audits[0].action, 'set_memory')
+    assert.equal(audits[0].new_value, 'v1')
+    assert.equal(audits[0].source, 'user_stated')
+  })
+
+  it('should persist audit on blocked write', () => {
+    handleSetMemory(memory, { key: 'aud_block', value: 'real', source: 'user_stated' })
+    handleSetMemory(memory, { key: 'aud_block', value: 'guess', source: 'ai_inferred' })
+    const audits = memory.getAuditLog('aud_block')
+    const blocked = audits.find(a => a.action === 'set_memory_blocked')
+    assert.ok(blocked)
+    assert.equal(blocked.blocked, 1)
+    assert.ok(blocked.reason.includes('ai_inferred cannot override'))
+  })
+
+  it('should return provenance in set_memory result', () => {
+    const result = handleSetMemory(memory, { key: 'aud_prov', value: 'test', writer: 'hook', session_id: 'sess-123' })
+    const data = getText(result)
+    assert.ok(data.provenance)
+    assert.equal(data.provenance.writer, 'hook')
+    assert.equal(data.provenance.session_id, 'sess-123')
+  })
+
+  it('should track writer in audit', () => {
+    handleSetMemory(memory, { key: 'aud_writer', value: 'bg', writer: 'background', session_id: 'bg-001' })
+    const audits = memory.getAuditLog('aud_writer')
+    assert.equal(audits[0].writer, 'background')
+    assert.equal(audits[0].session_id, 'bg-001')
+  })
+})
+
+describe('Memory MCP — ai_observed pending model', () => {
+  let memory, dir
+
+  before(async () => {
+    ({ memory, dir } = createTestMemory())
+    await memory.start()
+  })
+  after(async () => {
+    await memory.stop()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('should write ai_observed to pending key when existing is high confidence', () => {
+    // Set a high confidence value (NOT user_stated, which always blocks ai_observed)
+    handleSetMemory(memory, { key: 'obs_test', value: 'original', source: 'ai_inferred', confidence: 'high' })
+
+    // ai_observed should not overwrite, but store as pending
+    const result = handleSetMemory(memory, { key: 'obs_test', value: 'observed_val', source: 'ai_observed' })
+    const data = getText(result)
+    assert.equal(data.pending, true)
+    assert.equal(data.pending_key, 'obs_test__pending')
+
+    // Original value preserved
+    assert.equal(memory.getMemory('obs_test').value, 'original')
+    // Pending value stored separately
+    const pending = memory.getMemory('obs_test__pending')
+    assert.ok(pending)
+    assert.equal(pending.value, 'observed_val')
+    assert.equal(pending.confidence, 'low')
+    assert.equal(pending.source, 'ai_observed')
+  })
+
+  it('should allow ai_observed to write directly if no existing value', () => {
+    const result = handleSetMemory(memory, { key: 'obs_new', value: 'fresh', source: 'ai_observed', confidence: 'low' })
+    const data = getText(result)
+    assert.equal(data.blocked, false)
+    assert.equal(data.pending, undefined)
+    assert.equal(memory.getMemory('obs_new').value, 'fresh')
+  })
+
+  it('should persist pending audit entry', () => {
+    const audits = memory.getAuditLog('obs_test')
+    const pending = audits.find(a => a.action === 'set_memory_pending')
+    assert.ok(pending)
+  })
+})
+
+describe('Memory MCP — add_episode with caller params', () => {
+  let memory, dir
+
+  before(async () => {
+    ({ memory, dir } = createTestMemory())
+    await memory.start()
+  })
+  after(async () => {
+    await memory.stop()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('should use provided session_id and writer', () => {
+    const result = handleAddEpisode(memory, {
+      summary: 'subagent did something',
+      session_id: 'real-sess-42',
+      writer: 'subagent',
+    })
+    const data = getText(result)
+    assert.ok(data.episode_id > 0)
+
+    // Verify stored values
+    const recent = handleGetRecentEpisodes(memory, { days: 1 })
+    const episodes = getText(recent).episodes
+    const ep = episodes.find(e => e.summary === 'subagent did something')
+    assert.ok(ep)
+    assert.equal(ep.session_id, 'real-sess-42')
+    assert.equal(ep.writer, 'subagent')
+  })
+
+  it('should auto-generate session_id if not provided', () => {
+    const result = handleAddEpisode(memory, { summary: 'auto session' })
+    const data = getText(result)
+    assert.ok(data.episode_id > 0)
+
+    const recent = handleGetRecentEpisodes(memory, { days: 1 })
+    const episodes = getText(recent).episodes
+    const ep = episodes.find(e => e.summary === 'auto session')
+    assert.ok(ep.session_id.startsWith('mcp-'))
+  })
+})
+
+describe('Memory MCP — get_recent_episodes scope filter', () => {
+  let memory, dir
+
+  before(async () => {
+    ({ memory, dir } = createTestMemory())
+    await memory.start()
+    // Episodes with different goals
+    memory.addEpisode('s1', 'assistant', '学了 Rust 基础', { summary: '学 Rust', tags: ['rust'], meta: { related_goal: 'learn_rust' } })
+    memory.addEpisode('s2', 'assistant', '跑了 5 公里', { summary: '运动', tags: ['health'], meta: { related_goal: 'fitness' } })
+    memory.addEpisode('s3', 'assistant', '闲聊了', { summary: '日常', tags: ['chat'] })
+  })
+  after(async () => {
+    await memory.stop()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('should filter episodes by scope (related_goal)', () => {
+    const result = handleGetRecentEpisodes(memory, { days: 7, scope: 'learn_rust' })
+    const data = getText(result)
+    assert.equal(data.count, 1)
+    assert.ok(data.episodes[0].meta.related_goal === 'learn_rust')
+  })
+
+  it('should return all episodes when no scope', () => {
+    const result = handleGetRecentEpisodes(memory, { days: 7 })
+    const data = getText(result)
+    assert.ok(data.count >= 3)
+  })
+
+  it('should return empty for non-matching scope', () => {
+    const result = handleGetRecentEpisodes(memory, { days: 7, scope: 'nonexistent' })
+    const data = getText(result)
+    assert.equal(data.count, 0)
+  })
+})
+
 describe('Memory MCP — helpers', () => {
   it('sourcePriority should rank correctly', () => {
     assert.ok(sourcePriority('user_stated') > sourcePriority('ai_inferred'))
