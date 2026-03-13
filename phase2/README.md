@@ -299,15 +299,19 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 5. Session.Idle → 预留主动触发 (P3 Pulse)
 6. permission.ask → 预留审批链 (P4)
 
-#### T11: Memory MCP — 记忆工具化
+#### T11: Memory MCP — 记忆工具化 ✅
 
 **目标**: Memory 从 Orchestrator 手动注入 → AI 通过 MCP 自主存取
+**状态**: 已完成 (64 单测 + 5 E2E)
 
-1. `muse/mcp/memory.mjs` — MCP stdio Server
+1. `muse/mcp/memory.mjs` — MCP Server (5 工具 + 覆盖守卫 + 审计)
 2. 工具: search_memory, set_memory, get_user_profile, get_recent_episodes, add_episode
-3. opencode.json 注册
-4. 降级: MCP 不可用 → Orchestrator 直接查 SQLite
-5. Memory 表结构预留 capability / goal / gap 字段
+3. opencode.json 注册 (`type: "local"`)
+4. ai_observed → `key__pending` 模型 (不覆盖高置信值)
+5. `memory_audit` 表持久化所有写入 (含 blocked)
+6. E2E: AI 自主调 set_memory + get_user_profile 已验证
+
+> ⚠️ T11 只建了 MCP 基座。Telegram 链路仍用 Phase 1 手动注入，切换是 T13 的任务。
 
 #### T12: Identity → AGENTS.md
 
@@ -321,13 +325,14 @@ Phase 2: 静态注册。Phase 3: 动态发现。Phase 4: 自主扩展。
 
 #### T13: Orchestrator 瘦身
 
-**目标**: Orchestrator 只做消息转发
+**目标**: Orchestrator 只做消息转发，将 T11 MCP 真正接入 Telegram 链路
 
-1. 删手动记忆注入 (T11 接管)
-2. 删 buildSystemPrompt (T12 接管)
-3. 删意图路由正则
-4. 保留: 消息转发 + 格式化 + 降级
-5. 回归测试
+1. 删 `#buildPrompt()` 中手动记忆注入 (T11 MCP 替代: AI 自主调 search_memory / get_user_profile)
+2. 删 `#postProcess()` 中的 extractKeywords + 自动 setMemory (T11 MCP 替代: AI 自主调 set_memory)
+3. 删 `buildSystemPrompt()` 依赖 (T12 AGENTS.md 替代)
+4. 删 `classifyIntent()` + `HEAVY_PATTERNS` + `PREFERENCE_TERMS` + `extractKeywords`
+5. 保留: 消息转发 + 格式化 + 降级
+6. E2E 验证: Telegram 发消息 → MCP 日志显示工具调用
 
 **依赖**: T11 + T12
 
