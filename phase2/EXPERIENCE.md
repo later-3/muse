@@ -87,6 +87,20 @@
 
 ---
 
+## 📱 Telegram 适配
+
+### BUG-108: 双重超时导致 Telegram 无回复
+
+| 项目 | 内容 |
+|------|------|
+| **现象** | 用户在 Telegram 发消息，等了 90s 后无回复。日志显示 `Promise timed out after 90000 milliseconds` |
+| **根因** | AI 启动了 Sisyphus @explore 子 Agent 遍历项目文件，处理时间远超 120s。两层超时先后触发: ① Telegraf p-timeout 90s → 用户无回复 ② Engine sendAndWait 120s → 链路断。但 OpenCode session 实际还在跑 |
+| **修复** | 先回后补机制: (1) 收到消息立即发 "🤔 思考中..." 占位消息 (2) 每 15s 编辑占位消息刷新进度 + typing (3) 结果出来后编辑为最终回复 (4) 超长回复删占位+分段发 (5) handlerTimeout 提升到 330s，Engine 可传 300s |
+| **配套** | Orchestrator 透传 context.timeoutMs 到 Engine |
+| **教训** | **不要让用户等一个同步结果**。Agent 的工具链执行时间不可预测 (子 Agent/MCP 调用/文件扫描)，必须先回应再补内容。后续应做 SSE 流式推送 |
+
+---
+
 ## 🔑 经验总结
 
 | # | 教训 | 适用范围 |
@@ -98,3 +112,5 @@
 | 5 | 审计/可追踪性第一版就要做，不要后补 | 所有持久化模块 |
 | 6 | MCP 工具 schema 要覆盖所有 writer，不只主对话 | 所有 MCP 工具 |
 | 7 | 写入正确 ≠ 读取正确，pending 需要读侧过滤 | 记忆系统 |
+| 8 | Agent 工具链时间不可预测，不要同步等结果 | Telegram + 所有通道适配 |
+

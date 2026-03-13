@@ -450,3 +450,15 @@ T17 (Execution Router) ←── T15 + T16
 | Phase 3 | Phase 2 的 Registry + Gap → Phase 3 的自我学习 + Pulse |
 | Phase 4 | Phase 2 的 Execution Router → Phase 4 的自我开发 + 家族 |
 | Phase 5 | Phase 2 的 Perception → Phase 5 的 Camera/IoT 器官 |
+
+---
+
+## 十、TODO (待优化)
+
+| # | 优化点 | 当前方案 | 目标方案 | 优先级 |
+|---|--------|---------|---------|--------|
+| 1 | Telegram 长等待体验 | 先回后补: 占位消息 + 进度编辑 | SSE 流式推送: AI 边想边回 | 中 |
+| 2 | 长回复渲染 | 等全部完成再编辑/分段 | 实时追加内容 (stream edit) | 低 |
+| 3 | 子 Agent 感知 | 只显示已等待秒数 | 显示"正在查阅项目文件..."等语义进度 | 中 |
+| 4 | Engine 超时策略 | 固定 300s | 按意图分级: 闲聊 30s / 工具链 300s | 低 |
+| 5 | 并发消息排队 | 无处理 | 用户连续发多条时排队或提示等待 | 低 |

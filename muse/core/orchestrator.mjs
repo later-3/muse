@@ -152,11 +152,11 @@ export class Orchestrator {
 
     // [4] 发送引擎 (核心依赖，不降级; session 失效时自动重建)
     log.info(`[pipeline] ④ 调用 Engine.sendAndWait ...`)
+    const engineOpts = { model: modelConfig }
+    if (context.timeoutMs) engineOpts.timeoutMs = context.timeoutMs
     let result
     try {
-      result = await this.#engine.sendAndWait(sessionId, enrichedPrompt, {
-        model: modelConfig,
-      })
+      result = await this.#engine.sendAndWait(sessionId, enrichedPrompt, engineOpts)
     } catch (e) {
       // session 可能已被 T08 小脑清理，尝试新建 session 重试一次
       if (context.sessionId && this.#isSessionError(e)) {
