@@ -373,6 +373,14 @@ describe('Memory MCP — ai_observed pending model', () => {
     const pending = audits.find(a => a.action === 'set_memory_pending')
     assert.ok(pending)
   })
+
+  it('should hide __pending keys from search results', () => {
+    // obs_test__pending exists in DB, but search should not return it
+    const result = handleSearchMemory(memory, { query: 'observed_val', type: 'semantic' })
+    const data = getText(result)
+    const pendingHit = data.semantic.find(s => s.key.endsWith('__pending'))
+    assert.equal(pendingHit, undefined)
+  })
 })
 
 describe('Memory MCP — add_episode with caller params', () => {

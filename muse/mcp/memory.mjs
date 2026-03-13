@@ -97,14 +97,20 @@ const TOOLS = [
 
 // --- Tool Handlers ---
 
+/** Pending keys (ai_observed staging) should not appear as confirmed facts */
+function isPendingKey(key) {
+  return key.endsWith('__pending')
+}
+
 function handleSearchMemory(memory, args) {
   const { query, type = 'all', scope = 'all', limit = 10 } = args
 
   const results = { semantic: [], episodic: [] }
 
-  // Semantic search
+  // Semantic search — exclude __pending keys by default
   if (type === 'semantic' || type === 'all') {
     let hits = memory.searchMemories(query)
+      .filter(h => !isPendingKey(h.key))
     if (scope !== 'all') {
       hits = hits.filter(h => h.category === scope)
     }
@@ -167,7 +173,8 @@ function handleSetMemory(memory, args) {
 
 function handleGetUserProfile(memory, args) {
   const sections = args.sections || ['identity', 'preferences', 'goals', 'current_focus']
-  const all = memory.listMemories()
+  // Exclude __pending keys from profile — they are unconfirmed observations
+  const all = memory.listMemories().filter(m => !isPendingKey(m.key))
 
   const profile = {
     identity: {},
