@@ -5,10 +5,9 @@
   "username": "Later",
   "mcp": {
     "memory-server": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["muse/mcp/memory.mjs"],
-      "env": {
+      "type": "local",
+      "command": ["node", "muse/mcp/memory.mjs"],
+      "environment": {
         "MEMORY_DB_PATH": "./muse/data/memory.db"
       }
     }
