@@ -3,6 +3,9 @@
   "model": "openai/gpt-5.4",
   "small_model": "openai/gpt-5.4",
   "username": "Later",
+  "plugin": [
+    "file://muse/plugin/index.mjs"
+  ],
   "mcp": {
     "memory-server": {
       "type": "local",
@@ -13,3 +16,4 @@
     }
   }
 }
+
