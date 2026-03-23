@@ -1,0 +1,122 @@
+{
+  "id": "task-mgmt-wf",
+  "name": "任务管理工作流",
+  "version": "1.0",
+  "description": "pua 写任务说明书 → 用户审核 → arch 写技术方案。标准任务管理流程。",
+  "initial": "brief",
+
+  "participants": [
+    { "role": "pua", "description": "项目经理，负责任务说明书和用户沟通" },
+    { "role": "arch", "description": "架构师，负责技术方案和任务拆分" }
+  ],
+
+  "nodes": {
+    "brief": {
+      "type": "action",
+      "participant": "pua",
+      "objective": "编写任务说明书：组装上下文，明确背景、目标、范围",
+      "instructions": [
+        "理解用户提出的任务需求",
+        "阅读相关项目文件，组装上下文（背景、现状）",
+        "编写 task-brief.md：包含背景、目标、范围、预期产出",
+        "不写技术方案和测试方案（那是 arch 的事）",
+        "如果有疑问，在说明书中标注需要用户确认的点",
+        "用 workflow_emit_artifact 写入 task-brief.md",
+        "完成后调用 workflow_transition('submit') 提交审核"
+      ],
+      "constraints": [
+        "不写技术实现细节",
+        "不写测试方案",
+        "不修改代码文件"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "output": {
+        "artifact": "task-brief.md",
+        "required": true
+      },
+      "exit_criteria": {
+        "artifacts": ["task-brief.md"]
+      },
+      "transitions": {
+        "submit": {
+          "target": "user_review",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "user_review": {
+      "type": "action",
+      "participant": "pua",
+      "wait_for_user": true,
+      "input": { "artifacts": ["task-brief.md"] },
+      "objective": "将任务说明书发给用户审核，等待用户确认或修改意见",
+      "instructions": [
+        "读取 task-brief.md 并通过 Telegram 向用户展示",
+        "等待用户回复：通过、修改意见、或其他指示",
+        "用户说通过 → 调用 workflow_transition('approved')",
+        "用户说要修改 → 调用 workflow_transition('rejected')"
+      ],
+      "constraints": [
+        "不要自主决定通过或拒绝",
+        "必须等待用户明确指示"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "transitions": {
+        "approved": {
+          "target": "tech_design",
+          "actor": "agent"
+        },
+        "rejected": {
+          "target": "brief",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "tech_design": {
+      "type": "action",
+      "participant": "arch",
+      "input": { "artifacts": ["task-brief.md"] },
+      "read_first": [
+        "muse/docs/architecture.md",
+        "muse/docs/philosophy.md",
+        "muse/families/later-muse-family/knowledge/INDEX.md"
+      ],
+      "objective": "基于任务说明书编写总体技术方案、测试方案，并拆分为小任务",
+      "instructions": [
+        "读取 task-brief.md 理解任务目标",
+        "编写 tech-design.md：技术方案、架构设计、测试策略、约束条件",
+        "拆分为可执行的小任务列表，每个小任务包含：目标、输入、输出、验收标准",
+        "用 workflow_emit_artifact 写入 tech-design.md",
+        "完成后调用 workflow_transition('done')"
+      ],
+      "constraints": [
+        "方案必须基于 task-brief.md 的目标和范围",
+        "不修改代码文件",
+        "不实现代码，只做设计"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "output": {
+        "artifact": "tech-design.md",
+        "required": true
+      },
+      "exit_criteria": {
+        "artifacts": ["tech-design.md"]
+      },
+      "transitions": {
+        "done": {
+          "target": "end",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "end": {
+      "type": "terminal"
+    }
+  }
+}

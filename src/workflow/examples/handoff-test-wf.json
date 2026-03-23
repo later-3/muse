@@ -1,0 +1,70 @@
+{
+  "id": "handoff-test-wf",
+  "name": "跨 Muse Handoff 测试",
+  "version": "1.0",
+  "description": "最简双角色工作流：pua 写分析 → arch 审查 → 完成。用于测试跨 Muse handoff。",
+  "initial": "analyze",
+
+  "participants": [
+    { "role": "pua", "description": "编排者，发起分析" },
+    { "role": "arch", "description": "架构师，审查代码" }
+  ],
+
+  "nodes": {
+    "analyze": {
+      "type": "action",
+      "participant": "pua",
+      "objective": "写一句话总结当前项目状态",
+      "instructions": [
+        "用 read 工具读取 muse/PROJECT_STATE.json",
+        "输出一句话总结到 analysis.txt（用 workflow_emit_artifact）",
+        "完成后调用 workflow_transition('hand_to_arch') 交给 arch"
+      ],
+      "constraints": [
+        "不能修改任何文件",
+        "不能执行 bash"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "output": {
+        "artifact": "analysis.txt",
+        "required": true
+      },
+      "exit_criteria": {
+        "artifacts": ["analysis.txt"]
+      },
+      "transitions": {
+        "hand_to_arch": {
+          "target": "review",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "review": {
+      "type": "action",
+      "participant": "arch",
+      "objective": "审查 analysis.txt 并确认",
+      "instructions": [
+        "读取 analysis.txt（在工作流 artifact 目录中）",
+        "回复一句话确认",
+        "调用 workflow_transition('done') 完成"
+      ],
+      "constraints": [
+        "不能修改任何文件"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "transitions": {
+        "done": {
+          "target": "end",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "end": {
+      "type": "terminal"
+    }
+  }
+}

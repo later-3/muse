@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muse · 小缪的家</title>
+  <meta name="description" content="Muse — 你的灵魂伴侣小缪在这里">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-avatar">🎭</div>
+      <div class="header-info">
+        <h1>小缪的家</h1>
+        <p id="header-subtitle">正在连接...</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="home" role="tab"><span class="tab-icon">🏠</span>主页</button>
+      <button class="tab" data-tab="chat" role="tab"><span class="tab-icon">💬</span>对话</button>
+      <button class="tab" data-tab="mind" role="tab"><span class="tab-icon">🧠</span>内心</button>
+      <button class="tab dev-only" data-tab="dev" role="tab" style="display:none"><span class="tab-icon">⚙️</span>开发</button>
+    </div>
+
+    <!-- ===== Home Page ===== -->
+    <div class="page active" id="page-home">
+      <!-- Self Check Report -->
+      <div class="card">
+        <div class="card-title">🩺 她的体检报告</div>
+        <div class="check-layers" id="check-layers">
+          <div class="loading"><div class="spinner"></div>正在体检...</div>
+        </div>
+      </div>
+
+      <!-- Growth States -->
+      <div class="card">
+        <div class="card-title">🌱 她的成长</div>
+        <div class="growth-grid" id="growth-grid">
+          <div class="loading"><div class="spinner"></div>加载中...</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="card-title">📊 运行统计</div>
+        <div class="status-grid" id="stats-grid"></div>
+      </div>
+
+      <!-- Timeline placeholder for T23 -->
+      <div class="card" id="timeline-placeholder" style="display:none">
+        <div class="card-title">📅 今日活动</div>
+        <div class="empty"><div class="empty-icon">📅</div>时间线功能开发中 (T23)</div>
+      </div>
+    </div>
+
+    <!-- ===== Chat Page ===== -->
+    <div class="page" id="page-chat">
+      <div class="card chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg assistant">嘿～ Later！有什么想聊的吗？ 😊</div>
+        </div>
+        <div class="chat-input-area">
+          <input class="chat-input" id="chat-input" type="text"
+                 placeholder="和小缪聊聊天..." autocomplete="off">
+          <button class="btn" id="chat-send">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Mind Page ===== -->
+    <div class="page" id="page-mind">
+      <!-- Sub tabs -->
+      <div class="filter-pills" id="mind-tabs">
+        <button class="pill active" data-section="identity">🎭 身份</button>
+        <button class="pill" data-section="memories">🧠 记忆</button>
+        <button class="pill" data-section="capabilities">💪 能力</button>
+        <button class="pill" data-section="gaps">🔍 缺口</button>
+      </div>
+
+      <!-- Identity Section -->
+      <div class="mind-section active" id="mind-identity">
+        <div class="card">
+          <div class="card-title">🎨 基本信息</div>
+          <div class="form-group"><label class="form-label">名字</label><input class="form-input" id="id-name" type="text"></div>
+          <div class="form-group"><label class="form-label">昵称</label><input class="form-input" id="id-nickname" type="text"></div>
+          <div class="form-group"><label class="form-label">MBTI</label><input class="form-input" id="id-mbti" type="text"></div>
+          <div class="form-group"><label class="form-label">简介</label><input class="form-input" id="id-bio" type="text"></div>
+        </div>
+        <div class="card"><div class="card-title">🎚️ 性格维度</div><div id="personality-sliders"></div></div>
+        <div class="card"><div class="card-title">📋 JSON 预览</div><div class="json-preview" id="json-preview"></div></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" id="id-save">💾 保存</button>
+          <button class="btn btn-outline" id="id-reload">🔄 重新加载</button>
+        </div>
+      </div>
+
+      <!-- Memories Section -->
+      <div class="mind-section" id="mind-memories">
+        <div class="filter-pills" id="memory-tabs">
+          <button class="pill" data-type="semantic">语义记忆</button>
+          <button class="pill active" data-type="episodic">情景记忆</button>
+        </div>
+        <div class="search-bar">
+          <input class="search-input" id="memory-search" type="text" placeholder="搜索记忆...">
+          <button class="btn btn-sm" id="memory-search-btn">搜索</button>
+        </div>
+        <div class="card" id="memory-list">
+          <div class="empty"><div class="empty-icon">💭</div>正在加载记忆...</div>
+        </div>
+      </div>
+
+      <!-- Capabilities Section -->
+      <div class="mind-section" id="mind-capabilities">
+        <div class="card" id="cap-list">
+          <div class="loading"><div class="spinner"></div>加载能力清单...</div>
+        </div>
+      </div>
+
+      <!-- Gaps Section -->
+      <div class="mind-section" id="mind-gaps">
+        <div class="card" id="gap-list">
+          <div class="loading"><div class="spinner"></div>加载缺口记录...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Dev Page (hidden by default) ===== -->
+    <div class="page" id="page-dev">
+      <div class="card">
+        <div class="card-title">🩺 selfCheck 原始报告</div>
+        <div class="json-preview" id="dev-selfcheck" style="max-height:400px">加载中...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 执行日志</div>
+        <div id="dev-executions">加载中...</div>
+      </div>
+      <div class="sys-grid">
+        <div class="sys-card" id="sys-brain"><h3>🧠 大脑 (OpenCode)</h3><div id="brain-status">加载中...</div></div>
+        <div class="sys-card" id="sys-web"><h3>🌐 Web 驾驶舱</h3><div id="web-status">加载中...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔧 控制面板</div>
+        <div class="sys-actions">
+          <button class="btn btn-sm" id="sys-test">🧪 测试连接</button>
+          <button class="btn btn-sm btn-danger" id="sys-restart">♻️ 重启大脑</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 操作日志</div>
+        <div class="log-area" id="sys-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

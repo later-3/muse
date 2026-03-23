@@ -1,0 +1,22 @@
+{
+  "name": "muse",
+  "version": "0.1.0",
+  "description": "Muse — AI 灵魂伴侣框架，基于 OpenCode 的数字生命体",
+  "type": "module",
+  "license": "MIT",
+  "author": "Later",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "dev": "node --watch src/index.mjs",
+    "test": "node --test --test-timeout=10000 'src/*.test.mjs' 'src/**/*.test.mjs'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^16.4.0",
+    "telegraf": "^4.16.0"
+  }
+}

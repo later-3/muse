@@ -1,0 +1,171 @@
+{
+  "project": "assistant-agent",
+  "updatedAt": "2026-03-15",
+  "currentPhase": "phase3d_implementing",
+  "summary": "Phase 1 主体完成；Phase 2 完成 (T10-T17)；Phase 2.5 完成；Phase 3A 完成 (T20-T23)；Phase 3B 完成 (T30-T33)；Phase 3C 完成 (T34-T36)；Phase 3D 实现中 (T37 已实现 + T38 已实现, 待 Later 验收)。",
+  "statusPriority": [
+    "muse/PROJECT_STATE.json",
+    "AGENTS.md",
+    "phaseX/README.md",
+    "task README/context/review",
+    "discussion docs"
+  ],
+  "phases": {
+    "phase1": {
+      "status": "mostly_done",
+      "summary": "T01-T09 主体完成，仍有真实环境验证与收口证据持续补充。",
+      "evidence": [
+        "phase1/t09-integration/manual-checklist.md"
+      ]
+    },
+    "phase2": {
+      "status": "done",
+      "summary": "从 Wrapper 到 Native Agent。T10-T17 + T12 P1 全部实现。",
+      "currentFocus": []
+    },
+    "phase2.5": {
+      "status": "done",
+      "summary": "健康自检基础 + 文档贯通 + 系统架构愿景。selfCheck 三层报告已实现，/status 改用 selfCheck，Web API 测试补全。SYSTEM_ARCHITECTURE.md 定义了 Family-First 四层架构。",
+      "deliverables": [
+        "muse/daemon/self-check.mjs",
+        "SYSTEM_ARCHITECTURE.md",
+        "muse/README.md (重写)",
+        "phase2.5/README.md"
+      ]
+    },
+    "phase3a": {
+      "status": "done",
+      "summary": "Family-First 基础设施。T20.5 项目结构 + T21 FAMILY_HOME + T22 boundaries + T23 Web 活动时间线。"
+    },
+    "phase3b": {
+      "status": "done",
+      "summary": "Pulse 主动性引擎。T30 核心调度 + T31 主动推送 + T32 Anti-Spam + T33 定时体检。全部完成并通过审核。"
+    },
+    "phase3c": {
+      "status": "done",
+      "summary": "自我认知 + 结构化生活。T34 AI Health Insight ✅ + T35 Goal 系统 ✅ + T36 Life Threads ✅。全部完成。",
+      "currentFocus": ["E2E 真实验收", "Phase 3 结项"]
+    },
+    "phase3d": {
+      "status": "implementing",
+      "summary": "自我进化 + 语音交互。T37 自我开发引擎 (编排者模型 + 4 模块 + MCP 4 工具) 已实现。T38 语音通道 (STT/TTS + Ingress audio + sendVoice) 已实现。39/39 测试通过。",
+      "currentFocus": ["Later 验收", "Telegram adapter voice handler 集成", "真实 E2E 测试"]
+    }
+  },
+  "tasks": {
+    "t10": {
+      "status": "implemented_needs_stronger_e2e",
+      "summary": "Skill 规范、2 个 Skill、1 个 Custom Tool、单测 20/20；E2E 3/3 通过但系统联动尚需后续验证。"
+    },
+    "t10.5": {
+      "status": "implemented",
+      "summary": "Plugin 壳子 + 4 Hook (event/message/tool-audit/system-prompt) 已实现。单测 13/13，E2E 3/3，Plugin 被 OpenCode 成功加载。"
+    },
+    "t11": {
+      "status": "implemented_reviewed",
+      "summary": "Memory MCP 已实现并通过模块级审核；Telegram 主链切换待 T13。"
+    },
+    "t12": {
+      "status": "implemented",
+      "summary": "Identity → AGENTS.md: 人格区块生成器 + 受控合并 + Web 触发重生 AGENTS.md。"
+    },
+    "t13": {
+      "status": "implemented",
+      "summary": "Orchestrator 瘦身: 344→112 行 (-67%)。删 wrapper 认知层，留薄转发 + session + health。"
+    },
+    "t14": {
+      "status": "implemented",
+      "summary": "Perception Ingress: PerceptionObject 标准 + TelegramSense + Ingress 路由。text/photo/unsupported 全部走统一感知流水线。"
+    },
+    "t14.5": {
+      "status": "implemented",
+      "summary": "多模态感知通道: TelegramChannel 图片下载 + Ingress 三条降级路径 (成功/失败/无通道) + AGENTS.md 图片能力告知。54/54 测试通过。"
+    },
+    "t15": {
+      "status": "implemented",
+      "summary": "Capability Registry: 6 senses + 8 capabilities 静态注册 + 查询 API + Web 驾驶舱端点 + system-prompt Hook 注入。81/81 测试通过。"
+    },
+    "t16": {
+      "status": "implemented",
+      "summary": "Gap Journal: 内存缺口记录 + Ingress 联动 + Web /api/gaps + Registry 上下文。96/96 测试通过。"
+    },
+    "t17": {
+      "status": "implemented",
+      "summary": "Execution Router: 8 层路由定义 + classifyRoute 分类器 + ExecutionLog + Gap 失败分类 + Web /api/executions + extractToolCalls。主链集成 — handleMessage 自动记录执行路由。"
+    },
+    "t20.5": {
+      "status": "implemented",
+      "summary": "Muse 项目结构规范化。muse/ 独立化 (package.json + .gitignore + start.sh/docs/opencode.json 迁入) + 13 处路径修正 + 文档重组 (DEPLOY/README/AGENTS.md 归位 + 大文档拆分)" 
+    },
+    "t21": {
+      "status": "implemented",
+      "summary": "FAMILY_HOME 目录结构。config-loader 4 层配置加载 + init/CLI/migrate + config.mjs 改造 + 基础设施文档 (configuration.md)。202 tests 0 fail。"
+    },
+    "t22": {
+      "status": "implemented",
+      "summary": "boundaries.json 提取。identity.mjs 三层合并 (identity内嵌 → shared/rules.json → boundaries.json)。never_do 并集硬约束，always_do 成员替换。GET/PUT /api/boundaries。init 创建默认文件。"
+    },
+    "t23": {
+      "status": "implemented",
+      "summary": "Web 活动时间线。GET /api/timeline 聚合 executionLog + selfCheck，按时间倒序 + limit + stats (totalChats/totalChecks/successRate)。"
+    },
+    "t30": {
+      "status": "implemented",
+      "summary": "Pulse Core 主动性引擎。pulse.mjs 调度器 + pulse-state.mjs 持久化状态 + init 创建 pulse/ 目录。触发器注册/启停/状态管理。"
+    },
+    "t31": {
+      "status": "implemented",
+      "summary": "主动消息推送。pulse-actions.mjs dispatch + sendAndWait + sendProactive。identity.buildSystemPrompt() 注入人格，sent>0 才递增 unresponsedCount。"
+    },
+    "t32": {
+      "status": "implemented",
+      "summary": "Anti-Spam 保护。shouldAllow guard (DND/quiet hours/rate limit/frequency reduction/skipAntiSpam)。GET /api/pulse/status + PUT /api/pulse/config。15/15 测试。"
+    },
+    "t33": {
+      "status": "implemented",
+      "summary": "定时体检 + 历史。health-history.mjs save/list/detectTrend/cleanup。Pulse 触发器注册 (6h, skipAntiSpam)。index.mjs onTrigger 直接处理 selfCheck action。"
+    },
+    "t34": {
+      "status": "implemented",
+      "summary": "AI Health Insight 体检解读。health-insight.mjs 独立模块 (generate+getLatest)。selfCheck onTrigger 追加 AI 解读，degrading 时复用 sendProactive + chatIds 通知用户。GET /api/health/insight。"
+    },
+    "t35": {
+      "status": "implemented",
+      "summary": "Goal 系统 (Agent-First)。goals.mjs CRUD+状态机+进度。MCP 3 工具 (create_goal/list_goals/update_goal) 为核心 AI 接口。Pulse goalCheck 12h 触发 AI 判断是否提醒。GET /api/goals 只读展示。Memory.getDb() 共享 SQLite。"
+    },
+    "t36": {
+      "status": "implemented",
+      "summary": "Life Threads (Agent-First)。threads.mjs 独立模块 CRUD+episode 关联。MCP 3 工具 (create_thread/list_threads/get_thread) 核心 AI 接口。ThreadWeaver AI 批量归类 (Pulse 1h)。GET /api/threads 只读展示。get_user_profile 已接入 important_threads。"
+    },
+    "t37": {
+      "status": "implemented",
+      "summary": "自我开发引擎 (编排者模型)。DevGuard (安全规则) + DevStore (SQLite) + DevSession (git worktree) + TaskOrchestrator (调度 Engine agent=plan/build)。MCP 4 工具 (start_dev_task/dev_status/approve_dev/reject_dev)。Web GET /api/dev-tasks。27/27 测试。"
+    },
+    "t38": {
+      "status": "implemented",
+      "summary": "语音交互通道。voice/stt.mjs (Whisper) + voice/tts.mjs (OpenAI TTS)。SUPPORTED_TYPES += audio。TelegramSense.fromAudioMessage() + Ingress audio 路由 + TelegramChannel.sendVoice()。12/12 测试。"
+    }
+  },
+  "openRisks": [
+    "T10.5 使用 experimental.* Hook API，OpenCode 升级时可能移除。",
+    "T15 system-prompt Hook 通过 globalThis 通信，Phase 3 动态化时需改依赖注入。",
+    "model 切换时需提醒用户多模态能力可能变化。",
+    "MCP 工具定义占上下文 token — 行业正在转向 Skill + CLI 渐进暴露方案。当前 8 个工具在可控范围，后续扩展需调研 MCP vs Skill 混合架构。"
+  ],
+  "nextPriorities": [
+    "Phase 3D: T37/T38 Later 验收 (Telegram 真实语音测试 + 开发任务 E2E)",
+    "Phase 3D: Telegram adapter voice handler 集成 (bot.on('voice') → STT → fromAudioMessage)",
+    "Phase 4: Family 家族管理 (nvwa 作为家长 Agent)",
+    "调研: MCP vs Skill 混合架构 (上下文优化)",
+    "Phase 6: Muse 社区 (跨家族交互 + 自建通道)"
+  ],
+  "sources": {
+    "architecture": "ARCHITECTURE.md",
+    "systemArchitecture": "phase3/phase3a/system-architecture.md",
+    "phase2": "phase2/README.md",
+    "phase2.5": "phase2.5/README.md",
+    "reviewBaseline": "muse/review-baseline.md",
+    "agentDesign": "AGENT_DESIGN.md",
+    "configuration": "muse/docs/configuration.md"
+  }
+}

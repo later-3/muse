@@ -1,0 +1,105 @@
+{
+  "id": "code-review-wf",
+  "name": "代码审核工作流",
+  "version": "1.0",
+  "description": "pua 分析代码 → arch 审核 → pua 执行/修复 → 完成",
+  "initial": "analyze",
+  "participants": [
+    {
+      "role": "pua",
+      "description": "编排者，负责分析和执行"
+    },
+    {
+      "role": "arch",
+      "description": "架构师，负责审核"
+    }
+  ],
+  "nodes": {
+    "analyze": {
+      "type": "action",
+      "participant": "pua",
+      "objective": "分析代码库，理解需要审核的模块",
+      "instructions": [
+        "读取目标模块的代码",
+        "列出关键文件和依赖关系",
+        "输出分析报告 (analysis-report.json)"
+      ],
+      "constraints": [
+        "不能修改任何文件",
+        "不能执行 bash 命令",
+        "完成后必须向用户汇报分析结果，等待用户确认（说'通过'或'可以'）后才能调用 workflow_transition 推进到下一节点"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "output": {
+        "artifact": "analysis-report.json",
+        "required": true
+      },
+      "exit_criteria": {
+        "artifacts": ["analysis-report.json"],
+        "actor": "user"
+      },
+      "transitions": {
+        "submit_review": {
+          "target": "arch_review",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "arch_review": {
+      "type": "handoff",
+      "participant": "arch",
+      "objective": "审核代码架构，给出 approve/reject 结论",
+      "instructions": [
+        "读取 analysis-report.json",
+        "审查模块划分、依赖关系、扩展性",
+        "输出审核报告 (review-result.json)"
+      ],
+      "constraints": [
+        "不能修改任何文件",
+        "不能使用 bash"
+      ],
+      "capabilities": ["code_read", "workflow_control"],
+      "bash_policy": "deny",
+      "output": {
+        "artifact": "review-result.json",
+        "required": true
+      },
+      "exit_criteria": {
+        "artifacts": ["review-result.json"]
+      },
+      "transitions": {
+        "review_done": {
+          "target": "check_result",
+          "actor": "agent"
+        }
+      }
+    },
+
+    "check_result": {
+      "type": "decision",
+      "participant": "pua",
+      "capabilities": [],
+      "bash_policy": "deny",
+      "transitions": {
+        "approved": {
+          "target": "done",
+          "actor": "system",
+          "condition": {
+            "type": "artifact_exists",
+            "artifact": "review-result.json"
+          }
+        },
+        "default": {
+          "target": "analyze",
+          "actor": "system"
+        }
+      }
+    },
+
+    "done": {
+      "type": "terminal"
+    }
+  }
+}
