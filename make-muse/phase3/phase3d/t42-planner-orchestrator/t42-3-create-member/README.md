@@ -220,8 +220,8 @@ OpenCode 支持在 `opencode.json` 中通过 `agent` 字段定义自定义 prima
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
-  "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
+  "model": "alibaba-coding-plan-cn/qwen3-max-2026-01-23",
+  "small_model": "minimax-cn/MiniMax-M2.7-highspeed",
   "username": "Later",
 
   "agent": {
@@ -234,7 +234,7 @@ OpenCode 支持在 `opencode.json` 中通过 `agent` 字段定义自定义 prima
     "planner": {
       "description": "工作流指挥官，负责任务拆解、调度推进和质量检查",
       "mode": "primary",
-      "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
+      "model": "alibaba-coding-plan-cn/qwen3-max-2026-01-23",
       "temperature": 0.1,
       "prompt": "{file:./.agents/prompt.md}",
       "permission": {
@@ -310,7 +310,11 @@ OpenCode 支持在 `opencode.json` 中通过 `agent` 字段定义自定义 prima
 | 模型类型 | 通用推理模型 | 编码模型 |
 | temperature | 0.1~0.2 | 0.3~0.5 |
 
-> **当前方案**：`model` 暂用 `qwen3-coder-plus`（当前可用池最强），后续 later 确认可切换为更偏推理的模型。Planner 的模型和 Coder 的模型**必须独立配置**，互不影响。
+> **已确认方案**：
+> - `model`: `alibaba-coding-plan-cn/qwen3-max-2026-01-23`（qwen3-max，推理最强，非 coder 系列）
+> - `small_model`: `minimax-cn/MiniMax-M2.7-highspeed`（高速摘要整理）
+>
+> Planner 的模型和 Coder 的模型**独立配置**，互不影响。
 
 ### prompt.md 骨架
 
