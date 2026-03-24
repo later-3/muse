@@ -112,7 +112,19 @@ export function createWorkflowPrompt() {
       // delivered → 继续走正常路径
     }
 
-    // ── 正常 prompt 注入 ──
+    // ── T42: Planner 驱动时跳过覆盖层 ──
+    // Planner 模式下，buildHandoffPrompt() 已提供完整任务指令，
+    // 再注入 compileNodePrompt 会造成重复和冲突。
+    if (sm.definition?.driver === 'planner') {
+      const logKey = `${sessionID}:planner-skip`
+      if (!loggedKeys.has(logKey)) {
+        loggedKeys.add(logKey)
+        promptDebugLog(logDir, `[skip] planner-driven workflow, 跳过 prompt 覆盖层 sid=${sessionID}`)
+      }
+      return
+    }
+
+    // ── 正常 prompt 注入（self-driven 工作流） ──
     const participantStatus = registry.getParticipantStatus(sessionID)
     const node = sm.getCurrentNode()
     if (!node) return
