@@ -56,7 +56,10 @@ function loadMemberDirConfig(memberDir) {
 }
 
 const memberDir = process.env.MUSE_MEMBER_DIR
-const familyHome = process.env.MUSE_HOME
+const museHome = process.env.MUSE_HOME
+const museFamily = process.env.MUSE_FAMILY
+// MUSE_HOME=families/, MUSE_FAMILY=later-muse-family → families/later-muse-family
+const familyHome = museHome && museFamily ? join(museHome, museFamily) : museHome
 const memberName = process.env.MUSE_MEMBER || 'nvwa'
 
 // ESM export must be top-level
