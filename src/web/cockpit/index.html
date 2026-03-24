@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muse Cockpit — Family Dashboard</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: linear-gradient(180deg, #FFF0E6 0%, #FFF8F3 100%);
+      color: #3D2B1F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .placeholder {
+      text-align: center;
+      padding: 60px 40px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(120,80,40,0.10);
+      border: 1px solid #F0DDD2;
+      max-width: 480px;
+    }
+    .placeholder h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #E05A2D, #FF8A65);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .placeholder p { color: #8B7260; line-height: 1.6; }
+    .placeholder .status {
+      margin-top: 24px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #FF8A65, #FF6E40);
+      color: white;
+      border-radius: 24px;
+      display: inline-block;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="placeholder">
+    <h1>🌸 Muse Cockpit</h1>
+    <p>Standalone service is running.<br>
+    Full dashboard UI coming in T44.</p>
+    <div class="status" id="status">Loading members...</div>
+  </div>
+  <script>
+    fetch('/api/family/members')
+      .then(r => r.json())
+      .then(data => {
+        const online = data.members.filter(m => m.status === 'online').length
+        document.getElementById('status').textContent =
+          `${data.family}: ${online}/${data.members.length} members online`
+      })
+      .catch(() => {
+        document.getElementById('status').textContent = 'API unavailable'
+      })
+  </script>
+</body>
+</html>

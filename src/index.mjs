@@ -202,9 +202,12 @@ export async function createModules(cfg = config) {
     action: 'threadWeave',
   })
 
-  // T32: WebServer 在 Pulse 之后创建，以注入 pulse 模块
-  const web = new WebServer(cfg, { identity, memory, engine, orchestrator, cerebellum, pulse, healthInsight, goals, threads, devStore, registry, gapJournal, executionLog })
-  allModules.web = web
+  // T43: WebServer 降级 — 独立 cockpit 替代后，默认关闭
+  // 仅当 config.web.enabled === true 时启动
+  if (cfg.web?.enabled) {
+    const web = new WebServer(cfg, { identity, memory, engine, orchestrator, cerebellum, pulse, healthInsight, goals, threads, devStore, registry, gapJournal, executionLog })
+    allModules.web = web
+  }
 
   // T38: TTS 语音回复
   const tts = new TextToSpeech()
