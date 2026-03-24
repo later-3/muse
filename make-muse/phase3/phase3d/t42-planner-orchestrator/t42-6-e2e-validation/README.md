@@ -36,11 +36,12 @@
   "nodes": {
     "write_doc": {
       "id": "write_doc",
-      "type": "task",
+      "type": "action",
       "participant": "pua",
       "objective": "编写测试文档",
       "instructions": ["创建 test-output.md", "包含项目概述"],
       "constraints": ["不修改 src/ 下的文件"],
+      "capabilities": ["code"],
       "output": { "artifact": "test-output.md" },
       "transitions": {
         "doc_done": { "target": "review", "actor": "agent" }
@@ -48,10 +49,11 @@
     },
     "review": {
       "id": "review",
-      "type": "review",
+      "type": "action",
       "participant": "pua",
       "objective": "用户审核文档",
       "wait_for_user": true,
+      "capabilities": ["code"],
       "transitions": {
         "approved": { "target": "done", "actor": "user" },
         "rejected": { "target": "write_doc", "actor": "user" }
@@ -59,7 +61,7 @@
     },
     "done": {
       "id": "done",
-      "type": "end"
+      "type": "terminal"
     }
   }
 }
@@ -162,6 +164,14 @@ describe('6.1 Happy Path', () => {
 - Planner 读取产出并推进
 - 工作流到达 done 终态
 
+> **❗ L2 前置条件**：当前 `buildHandoffPrompt`（`handoff.mjs:199`）会告诉执行者“完成后必须调用 workflow_transition”，
+> 但 planner-mode 的 GateEnforcer（`gate-enforcer.mjs:104`）会拦截这个调用。
+> 这​将​导致​执行者​完成​后​持续​重试​ transition ​而​失败​。
+> **解决方案**（二选一）：
+> 1. 在 T42-2 实施时，让 `buildHandoffPrompt` 感知 driver=planner，改为“完成后通知 Planner”
+> 2. 或在 `workflow-prompt.mjs` 的 planner-mode 分支中覆盖 handoff prompt 的 transition 指令
+> 实施者必须先确认此前置条件已满足，否则 L2 6.1 和 6.3 无法闭环。
+
 ---
 
 ## 子任务 6.2: 迭代返工
@@ -233,19 +243,24 @@ import { GateEnforcer } from '../../src/workflow/gate-enforcer.mjs'
 
 describe('6.3 Dual-Drive Protection', () => {
   it('driver=planner 时拦截执行者 workflow_transition', () => {
+    // GateEnforcer.check() 真实签名: { tool, args, node, participantStatus, workspaceRoot, driver }
     const result = GateEnforcer.check({
-      toolName: 'workflow_transition',
-      capabilities: ['code', 'test'],
+      tool: 'workflow_transition',
+      args: {},
+      node: { id: 'write_doc', capabilities: ['code', 'workflow_control'] },
+      participantStatus: 'active',
       driver: 'planner',
     })
     assert.equal(result.allowed, false)
-    assert.ok(result.reason.includes('planner'))
+    assert.ok(result.reason.includes('planner') || result.reason.includes('Planner'))
   })
 
   it('driver=self 时不拦截执行者 workflow_transition', () => {
     const result = GateEnforcer.check({
-      toolName: 'workflow_transition',
-      capabilities: ['code', 'test'],
+      tool: 'workflow_transition',
+      args: {},
+      node: { id: 'write_doc', capabilities: ['code', 'workflow_control'] },
+      participantStatus: 'active',
       driver: 'self',
     })
     assert.equal(result.allowed, true)
@@ -468,9 +483,9 @@ describe('6.7 Persistence', () => {
 ### ⚠️ 测试环境准备
 
 1. **工作流定义文件** — 放在 `test/fixtures/t42-e2e-workflow.json`
-2. **环境变量** — L1 测试需设置 `MUSE_ROOT` 和 `MUSE_MEMBER_DIR`
+2. **环境变量** — 持久化场景（6.7）需要设置 `MUSE_HOME` 和 `MUSE_FAMILY`（bridge.mjs:33 的 `getWorkflowRoot()` 依赖这两个）
 3. **Registry mock** — L1 测试需要 mock `getRegistry()` 返回内存 registry
-4. **Bridge mock** — L1 测试可以用临时目录做 `loadInstanceState`/`saveInstanceState`
+4. **Bridge mock** — L1 测试用临时目录做 `workflowRoot`，或在 `before` 中设置 `MUSE_HOME`/`MUSE_FAMILY` 指向 `os.tmpdir()`
 
 ### ⚠️ L2 联调前提
 
