@@ -71,7 +71,8 @@ T42 **基于 T39 引擎**，不替代它：
 |------|------|------|
 | T39 工作流引擎 | ✅ 已实现 | StateMachine/GateEnforcer/Bridge |
 | Family Registry | ✅ 已实现 | Muse 成员发现 + Handoff |
-| Muse Home 隔离 | ✅ 已实现 | 本次会话完成 |
-| PM (pua) Muse | ⚠️ 需创建 | 工作流参与者 |
-| Arch Muse | ⚠️ 需创建 | 工作流参与者 |
-| Coder Muse | ⚠️ 需创建 | 工作流参与者 |
+| Muse Home 隔离 | ✅ 已实现 | members/ 目录 + shared/ + 静态 opencode.json |
+| pua Muse | ✅ 存在 | test-pua 在 registry 中，需正式化 |
+| arch Muse | ✅ 存在 | arch 在 registry 中，需正式化 |
+| coder Muse | ✅ 存在 | test-coder 在 registry 中，需正式化 |
+| create-member.sh | ⚠️ 需规范化 | 现有 init-member.sh 需重命名 + 增强 |
