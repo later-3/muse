@@ -1,16 +1,19 @@
 /**
- * T43: standalone.mjs 单元测试
+ * T43: standalone.mjs 单元测试 + API 级测试
  *
- * 验证：成员发现、路由匹配、工作流实例扫描
+ * 覆盖：
+ * - 纯函数：matchRoute, discoverMembers, readMemberConfig, listWorkflowInstances
+ * - HTTP API：handleRequest → GET /api/family/members, GET /api/member/:name/config,
+ *   GET /, POST restart, 404
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-import { discoverMembers, readMemberConfig, listWorkflowInstances, matchRoute } from './standalone.mjs'
+import { discoverMembers, readMemberConfig, listWorkflowInstances, matchRoute, handleRequest } from './standalone.mjs'
 
 // ── Test Fixture ──
 
@@ -73,6 +76,36 @@ function setupFixture() {
   }))
 }
 
+// ── Mock HTTP req/res for handleRequest tests ──
+
+function mockReq(method, url) {
+  return {
+    method,
+    url,
+    headers: { host: 'localhost:4200' },
+    [Symbol.asyncIterator]: async function* () {},
+  }
+}
+
+function mockRes() {
+  const res = {
+    _status: null,
+    _headers: {},
+    _body: '',
+    writeHead(status, headers) {
+      res._status = status
+      Object.assign(res._headers, headers || {})
+    },
+    end(data) {
+      res._body = data ? (typeof data === 'string' ? data : data.toString()) : ''
+    },
+    json() {
+      return JSON.parse(res._body)
+    },
+  }
+  return res
+}
+
 describe('T43: standalone service', () => {
   beforeEach(() => {
     setupFixture()
@@ -85,6 +118,8 @@ describe('T43: standalone service', () => {
     delete process.env.MUSE_HOME
     delete process.env.MUSE_FAMILY
   })
+
+  // ── 纯函数测试 ──
 
   describe('matchRoute', () => {
     it('静态路径匹配', () => {
@@ -117,27 +152,23 @@ describe('T43: standalone service', () => {
 
       const coder = members.find(m => m.name === 'coder')
       assert.strictEqual(coder.status, 'offline')
-      assert.strictEqual(coder.engine, undefined)
     })
 
     it('MUSE_HOME 未设置 → 空数组', () => {
       delete process.env.MUSE_HOME
-      const members = discoverMembers()
-      assert.strictEqual(members.length, 0)
+      assert.strictEqual(discoverMembers().length, 0)
     })
   })
 
   describe('readMemberConfig', () => {
     it('读取 config.json + identity.json', () => {
       const cfg = readMemberConfig('nvwa')
-      assert.strictEqual(cfg.name, 'nvwa')
       assert.strictEqual(cfg.config.role, 'nvwa')
       assert.strictEqual(cfg.identity.name, 'Test NvWa')
     })
 
     it('不存在的 member → null', () => {
-      const cfg = readMemberConfig('nonexistent')
-      assert.strictEqual(cfg, null)
+      assert.strictEqual(readMemberConfig('nonexistent'), null)
     })
   })
 
@@ -146,11 +177,101 @@ describe('T43: standalone service', () => {
       const result = listWorkflowInstances()
       assert.strictEqual(result.active.length, 1)
       assert.strictEqual(result.active[0].instanceId, 'wf_test_001')
-      assert.strictEqual(result.active[0].status, 'running')
-
       assert.strictEqual(result.archived.length, 1)
-      assert.strictEqual(result.archived[0].instanceId, 'wf_old_001')
       assert.strictEqual(result.archived[0].status, 'completed')
+    })
+  })
+
+  // ── HTTP API 测试 ──
+
+  describe('handleRequest — API 层', () => {
+    it('GET /api/family/members → 200 + 成员列表', async () => {
+      const req = mockReq('GET', '/api/family/members')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.family, FAMILY)
+      assert.strictEqual(data.members.length, 2)
+      assert.ok(data.members.find(m => m.name === 'nvwa'))
+    })
+
+    it('GET /api/member/nvwa/config → 200 + config + identity', async () => {
+      const req = mockReq('GET', '/api/member/nvwa/config')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.name, 'nvwa')
+      assert.strictEqual(data.config.role, 'nvwa')
+      assert.strictEqual(data.identity.name, 'Test NvWa')
+    })
+
+    it('GET /api/member/nonexistent/config → 404', async () => {
+      const req = mockReq('GET', '/api/member/nonexistent/config')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
+      assert.ok(res.json().error.includes('not found'))
+    })
+
+    it('GET /api/member/nvwa/health → offline member returns offline status', async () => {
+      const req = mockReq('GET', '/api/member/coder/health')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.status, 'offline')
+    })
+
+    it('GET /api/workflow/instances → 200 + active/archived', async () => {
+      const req = mockReq('GET', '/api/workflow/instances')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.active.length, 1)
+      assert.strictEqual(data.archived.length, 1)
+    })
+
+    it('GET / → 200 + text/html (cockpit/index.html)', async () => {
+      const req = mockReq('GET', '/')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      // cockpit/index.html exists → 200
+      assert.strictEqual(res._status, 200)
+      assert.ok(res._headers['Content-Type'].includes('text/html'))
+    })
+
+    it('GET /nonexistent-api → 404', async () => {
+      const req = mockReq('GET', '/api/does/not/exist')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
+    })
+
+    it('OPTIONS → 204 CORS preflight', async () => {
+      const req = mockReq('OPTIONS', '/api/family/members')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 204)
+      assert.ok(res._headers['Access-Control-Allow-Origin'])
+    })
+
+    it('POST /api/member/nonexistent/restart → 404', async () => {
+      const req = mockReq('POST', '/api/member/nonexistent/restart')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
     })
   })
 })

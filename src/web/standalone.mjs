@@ -308,13 +308,15 @@ async function handleRequest(req, res) {
       try { process.kill(member.pid, 'SIGTERM') } catch { /* already dead */ }
     }
 
-    // Restart via start.sh
+    // Restart via start.sh — must pass family env to child
     const { spawn } = await import('node:child_process')
     const museRoot = join(import.meta.dirname, '..', '..')
-    const child = spawn('bash', ['start.sh', name], {
+    const family = process.env.MUSE_FAMILY || ''
+    const child = spawn('bash', ['start.sh', family, name], {
       cwd: museRoot,
       detached: true,
       stdio: 'ignore',
+      env: { ...process.env, FAMILY: family, MUSE_FAMILY: family },
     })
     child.unref()
 
