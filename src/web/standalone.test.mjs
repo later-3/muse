@@ -78,12 +78,14 @@ function setupFixture() {
 
 // ── Mock HTTP req/res for handleRequest tests ──
 
-function mockReq(method, url) {
+function mockReq(method, url, body) {
   return {
     method,
     url,
     headers: { host: 'localhost:4200' },
-    [Symbol.asyncIterator]: async function* () {},
+    [Symbol.asyncIterator]: async function* () {
+      if (body) yield Buffer.from(body)
+    },
   }
 }
 
@@ -272,6 +274,147 @@ describe('T43: standalone service', () => {
       await handleRequest(req, res)
 
       assert.strictEqual(res._status, 404)
+    })
+  })
+
+  // ── T46: Config Management API 测试 ──
+
+  describe('T46: handleRequest — Config API', () => {
+    beforeEach(() => {
+      // Setup identity.json in proper schema format
+      const membersDir = join(TMP, FAMILY, 'members')
+      writeFileSync(join(membersDir, 'nvwa', 'data', 'identity.json'), JSON.stringify({
+        id: 'test',
+        identity: { name: '小缪', nickname: '缪缪', bio: 'Test bio', owner: 'Later' },
+        psychology: { mbti: 'ENFP', traits: { humor: 0.8, warmth: 0.7 } },
+      }))
+      // Setup opencode.json
+      writeFileSync(join(membersDir, 'nvwa', 'opencode.json'), JSON.stringify({
+        model: 'test-model/v1',
+        small_model: 'test-small/v1',
+        permission: { bash: 'allow' },
+      }))
+    })
+
+    it('GET /api/member/nvwa/identity → 200 + identity data', async () => {
+      const req = mockReq('GET', '/api/member/nvwa/identity')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.identity.name, '小缪')
+      assert.strictEqual(data.psychology.mbti, 'ENFP')
+    })
+
+    it('PUT /api/member/nvwa/identity → 200 + deep merge', async () => {
+      const body = JSON.stringify({
+        identity: { name: '新名字' },
+        psychology: { traits: { humor: 0.9 } },
+      })
+      const req = mockReq('PUT', '/api/member/nvwa/identity', body)
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const result = res.json()
+      assert.strictEqual(result.ok, true)
+      // Verify merge: name changed, warmth preserved
+      assert.strictEqual(result.identity.identity.name, '新名字')
+      assert.strictEqual(result.identity.psychology.traits.humor, 0.9)
+      assert.strictEqual(result.identity.psychology.traits.warmth, 0.7) // preserved
+
+      // Verify file was written
+      const written = JSON.parse(readFileSync(
+        join(TMP, FAMILY, 'members', 'nvwa', 'data', 'identity.json'), 'utf-8'
+      ))
+      assert.strictEqual(written.identity.name, '新名字')
+    })
+
+    it('GET /api/member/nonexistent/identity → 404', async () => {
+      const req = mockReq('GET', '/api/member/nonexistent/identity')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
+    })
+
+    it('GET /api/member/nvwa/model → 200 + model data', async () => {
+      const req = mockReq('GET', '/api/member/nvwa/model')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const data = res.json()
+      assert.strictEqual(data.model, 'test-model/v1')
+      assert.strictEqual(data.small_model, 'test-small/v1')
+    })
+
+    it('PUT /api/member/nvwa/model → 200 + requiresRestart', async () => {
+      const body = JSON.stringify({ model: 'new-model/v2' })
+      const req = mockReq('PUT', '/api/member/nvwa/model', body)
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 200)
+      const result = res.json()
+      assert.strictEqual(result.ok, true)
+      assert.strictEqual(result.model, 'new-model/v2')
+      assert.strictEqual(result.requiresRestart, true)
+
+      // Verify file: model changed, other fields preserved
+      const written = JSON.parse(readFileSync(
+        join(TMP, FAMILY, 'members', 'nvwa', 'opencode.json'), 'utf-8'
+      ))
+      assert.strictEqual(written.model, 'new-model/v2')
+      assert.strictEqual(written.permission.bash, 'allow') // preserved
+    })
+  })
+
+  // ── T45: OpenCode Proxy API 测试 ──
+
+  describe('T45: handleRequest — OpenCode Proxy API', () => {
+    it('GET /api/member/:name/oc/session → 503 for offline member', async () => {
+      // coder is offline in fixture
+      const req = mockReq('GET', '/api/member/coder/oc/session')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 503)
+      assert.ok(res.json().error.includes('offline'))
+    })
+
+    it('GET /api/member/nonexistent/oc/session → 404', async () => {
+      const req = mockReq('GET', '/api/member/nonexistent/oc/session')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
+    })
+
+    it('POST /api/member/:name/oc/session/:sid/prompt_async → 503 for offline', async () => {
+      const body = JSON.stringify({ parts: [{ type: 'text', text: 'hello' }] })
+      const req = mockReq('POST', '/api/member/coder/oc/session/sid-123/prompt_async', body)
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 503)
+    })
+
+    it('GET /api/member/nonexistent/oc/session/:sid/message → 404', async () => {
+      const req = mockReq('GET', '/api/member/nonexistent/oc/session/sid-123/message')
+      const res = mockRes()
+      await handleRequest(req, res)
+
+      assert.strictEqual(res._status, 404)
+    })
+
+    it('prompt_async 路由匹配正确', () => {
+      const m = matchRoute('/api/member/:name/oc/session/:sid/prompt_async',
+                           '/api/member/nvwa/oc/session/abc123/prompt_async')
+      assert.ok(m)
+      assert.strictEqual(m.params.name, 'nvwa')
+      assert.strictEqual(m.params.sid, 'abc123')
     })
   })
 })

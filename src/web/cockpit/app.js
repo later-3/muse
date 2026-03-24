@@ -542,3 +542,328 @@ function formatDateTime(isoString) {
 document.addEventListener('DOMContentLoaded', init)
 
 window.addEventListener('beforeunload', stopPolling)
+
+// ── T45: Cross-Member Chat ──
+
+const chatState = {
+  selectedMember: null,
+  selectedSession: null,
+  sessions: [],
+  messages: [],
+  isLoading: false,
+  pollTimer: null,
+}
+
+const chatElements = {}
+
+function initChat() {
+  cacheChatElements()
+  bindChatEvents()
+}
+
+function cacheChatElements() {
+  chatElements.chatMemberList = document.getElementById('chatMemberList')
+  chatElements.chatSessionList = document.getElementById('chatSessionList')
+  chatElements.chatMessages = document.getElementById('chatMessages')
+  chatElements.chatInput = document.getElementById('chatInput')
+  chatElements.chatSendBtn = document.getElementById('chatSendBtn')
+  chatElements.chatNewSessionBtn = document.getElementById('chatNewSessionBtn')
+  chatElements.chatPlaceholder = document.getElementById('chatPlaceholder')
+  chatElements.chatActiveArea = document.getElementById('chatActiveArea')
+  chatElements.chatMemberName = document.getElementById('chatMemberName')
+  chatElements.chatSessionName = document.getElementById('chatSessionName')
+}
+
+function bindChatEvents() {
+  chatElements.chatSendBtn?.addEventListener('click', sendChatMessage)
+  chatElements.chatInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendChatMessage()
+    }
+  })
+  chatElements.chatNewSessionBtn?.addEventListener('click', createNewSession)
+}
+
+async function loadChatMembers() {
+  if (!chatElements.chatMemberList) return
+
+  try {
+    const res = await fetch('/api/family/members')
+    const data = await res.json()
+    const members = data.members || []
+
+    chatElements.chatMemberList.innerHTML = members.map(m => `
+      <div class="chat-member-item ${m.status === 'online' ? 'online' : 'offline'}" 
+           data-name="${escapeHtml(m.name)}" data-status="${m.status}">
+        <div class="chat-member-avatar">${getAvatarEmoji(m.role)}</div>
+        <div class="chat-member-info">
+          <div class="chat-member-name">${escapeHtml(m.name)}</div>
+          <div class="chat-member-role">${escapeHtml(m.role)}</div>
+        </div>
+        <div class="chat-member-status">
+          <span class="status-dot ${m.status === 'online' ? 'pulse' : ''}"></span>
+        </div>
+      </div>
+    `).join('')
+
+    // Bind click events
+    chatElements.chatMemberList.querySelectorAll('.chat-member-item').forEach(item => {
+      item.addEventListener('click', () => selectChatMember(item.dataset.name))
+    })
+  } catch (e) {
+    console.error('Failed to load chat members:', e)
+  }
+}
+
+async function selectChatMember(memberName) {
+  if (!memberName) return
+
+  // Update UI selection
+  chatElements.chatMemberList?.querySelectorAll('.chat-member-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.name === memberName)
+  })
+
+  chatState.selectedMember = memberName
+  chatState.selectedSession = null
+  chatState.messages = []
+
+  // Check if member is online
+  const memberItem = chatElements.chatMemberList?.querySelector(`[data-name="${memberName}"]`)
+  if (memberItem?.dataset.status !== 'online') {
+    showToast('warning', '离线', '该成员当前不在线')
+    return
+  }
+
+  // Load sessions for this member
+  await loadChatSessions(memberName)
+
+  // Show chat area
+  if (chatElements.chatPlaceholder) chatElements.chatPlaceholder.style.display = 'none'
+  if (chatElements.chatActiveArea) chatElements.chatActiveArea.style.display = 'flex'
+  if (chatElements.chatMemberName) chatElements.chatMemberName.textContent = memberName
+}
+
+async function loadChatSessions(memberName) {
+  if (!chatElements.chatSessionList) return
+
+  try {
+    const res = await fetch(`/api/member/${memberName}/oc/session`)
+    const data = await res.json()
+    chatState.sessions = Array.isArray(data) ? data : (data.sessions || [])
+
+    chatElements.chatSessionList.innerHTML = chatState.sessions.map(s => `
+      <div class="chat-session-item ${s.id === chatState.selectedSession ? 'active' : ''}" 
+           data-id="${escapeHtml(s.id)}">
+        <div class="chat-session-name">${escapeHtml(s.name || s.id.slice(0, 8))}</div>
+        <div class="chat-session-time">${formatTime(s.updatedAt)}</div>
+      </div>
+    `).join('')
+
+    // Add "New Session" button at top
+    const newSessionBtn = document.createElement('div')
+    newSessionBtn.className = 'chat-session-new'
+    newSessionBtn.innerHTML = '<span>+ 新对话</span>'
+    newSessionBtn.addEventListener('click', createNewSession)
+    chatElements.chatSessionList.prepend(newSessionBtn)
+
+    // Bind click events
+    chatElements.chatSessionList.querySelectorAll('.chat-session-item').forEach(item => {
+      item.addEventListener('click', () => selectChatSession(item.dataset.id))
+    })
+  } catch (e) {
+    console.error('Failed to load sessions:', e)
+    chatElements.chatSessionList.innerHTML = '<div class="chat-empty">无法加载会话</div>'
+  }
+}
+
+async function createNewSession() {
+  if (!chatState.selectedMember) return
+
+  try {
+    const res = await fetch(`/api/member/${chatState.selectedMember}/oc/session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: '新对话' })
+    })
+    const data = await res.json()
+    if (data.id) {
+      await loadChatSessions(chatState.selectedMember)
+      await selectChatSession(data.id)
+    }
+  } catch (e) {
+    console.error('Failed to create session:', e)
+    showToast('error', '创建失败', '无法创建会话')
+  }
+}
+
+async function selectChatSession(sessionId) {
+  chatState.selectedSession = sessionId
+
+  // Update UI
+  chatElements.chatSessionList?.querySelectorAll('.chat-session-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.id === sessionId)
+  })
+
+  const session = chatState.sessions.find(s => s.id === sessionId)
+  if (chatElements.chatSessionName) {
+    chatElements.chatSessionName.textContent = session?.name || sessionId.slice(0, 8)
+  }
+
+  // Load messages
+  await loadChatMessages()
+  startChatPolling()
+}
+
+async function loadChatMessages() {
+  if (!chatState.selectedMember || !chatState.selectedSession) return
+
+  try {
+    const res = await fetch(`/api/member/${chatState.selectedMember}/oc/session/${chatState.selectedSession}/message`)
+    const data = await res.json()
+    chatState.messages = Array.isArray(data) ? data : (data.messages || [])
+    renderChatMessages()
+  } catch (e) {
+    console.error('Failed to load messages:', e)
+  }
+}
+
+function renderChatMessages() {
+  if (!chatElements.chatMessages) return
+
+  chatElements.chatMessages.innerHTML = chatState.messages.map(m => {
+    const isUser = m.role === 'user'
+    const content = renderMarkdown(extractTextFromParts(m.parts))
+    return `
+      <div class="chat-message ${isUser ? 'user' : 'assistant'}">
+        <div class="chat-message-bubble">${content}</div>
+        <div class="chat-message-time">${formatTime(m.createdAt)}</div>
+      </div>
+    `
+  }).join('')
+
+  // Scroll to bottom
+  chatElements.chatMessages.scrollTop = chatElements.chatMessages.scrollHeight
+}
+
+/**
+ * Extract text content from OpenCode message parts array
+ * OpenCode format: { parts: [{ type: 'text', text: '...' }, ...] }
+ */
+function extractTextFromParts(parts) {
+  if (!parts || !Array.isArray(parts)) return ''
+  return parts
+    .filter(p => p.type === 'text')
+    .map(p => p.text || '')
+    .join('\n')
+}
+
+function renderMarkdown(text) {
+  if (!text) return ''
+  // Simple markdown: **bold**, `code`, newlines
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>')
+}
+
+async function sendChatMessage() {
+  if (!chatElements.chatInput || chatState.isLoading) return
+
+  const content = chatElements.chatInput.value.trim()
+  if (!content) return
+  if (!chatState.selectedMember || !chatState.selectedSession) {
+    showToast('warning', '未选择', '请先选择成员和会话')
+    return
+  }
+
+  // Check member online
+  const memberItem = chatElements.chatMemberList?.querySelector(`[data-name="${chatState.selectedMember}"]`)
+  if (memberItem?.dataset.status !== 'online') {
+    showToast('warning', '离线', '该成员当前不在线')
+    return
+  }
+
+  chatState.isLoading = true
+  chatElements.chatInput.value = ''
+  chatElements.chatInput.disabled = true
+  chatElements.chatSendBtn.disabled = true
+
+  // Show thinking indicator
+  const thinkingId = 'thinking-' + Date.now()
+  const thinkingEl = document.createElement('div')
+  thinkingEl.id = thinkingId
+  thinkingEl.className = 'chat-message assistant'
+  thinkingEl.innerHTML = `
+    <div class="chat-message-bubble">
+      <span class="msg-thinking"><span></span><span></span><span></span></span>
+    </div>
+  `
+  chatElements.chatMessages.appendChild(thinkingEl)
+  chatElements.chatMessages.scrollTop = chatElements.chatMessages.scrollHeight
+
+  try {
+    await fetch(`/api/member/${chatState.selectedMember}/oc/session/${chatState.selectedSession}/prompt_async`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parts: [{ type: 'text', text: content }] })
+    })
+
+    // Remove thinking and poll for response
+    thinkingEl.remove()
+    await pollForResponse()
+  } catch (e) {
+    console.error('Failed to send message:', e)
+    thinkingEl.remove()
+    showToast('error', '发送失败', '无法发送消息')
+  } finally {
+    chatState.isLoading = false
+    chatElements.chatInput.disabled = false
+    chatElements.chatSendBtn.disabled = false
+    chatElements.chatInput.focus()
+  }
+}
+
+async function pollForResponse() {
+  let attempts = 0
+  const maxAttempts = 60 // 60 seconds max
+
+  while (attempts < maxAttempts) {
+    await new Promise(r => setTimeout(r, 1000))
+    await loadChatMessages()
+
+    // Check if last message is from assistant
+    const lastMsg = chatState.messages[chatState.messages.length - 1]
+    if (lastMsg && lastMsg.role === 'assistant') {
+      break
+    }
+    attempts++
+  }
+}
+
+function startChatPolling() {
+  stopChatPolling()
+  chatState.pollTimer = setInterval(loadChatMessages, 3000)
+}
+
+function stopChatPolling() {
+  if (chatState.pollTimer) {
+    clearInterval(chatState.pollTimer)
+    chatState.pollTimer = null
+  }
+}
+
+// Initialize chat when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  initChat()
+  // Load chat members when entering chat page
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((m) => {
+      if (m.target.id === 'page-chat' && m.target.classList.contains('active')) {
+        loadChatMembers()
+      }
+    })
+  })
+  const chatPage = document.getElementById('page-chat')
+  if (chatPage) observer.observe(chatPage, { attributes: true, attributeFilter: ['class'] })
+})

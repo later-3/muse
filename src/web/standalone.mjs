@@ -12,7 +12,7 @@
  */
 
 import { createServer } from 'node:http'
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync, statSync, mkdirSync } from 'node:fs'
 import { join, extname } from 'node:path'
 import { readRegistry, getRegistryPath } from '../family/registry.mjs'
 
@@ -193,6 +193,112 @@ function listWorkflowInstances() {
   return result
 }
 
+// ── T46: Config Management Functions ──
+
+/**
+ * 读取 member 身份 (data/identity.json)
+ */
+function readMemberIdentity(name) {
+  const membersDir = getMembersDir()
+  if (!membersDir) return null
+
+  const idPath = join(membersDir, name, 'data', 'identity.json')
+  if (!existsSync(idPath)) return null
+
+  try {
+    return JSON.parse(readFileSync(idPath, 'utf-8'))
+  } catch { return null }
+}
+
+/**
+ * 写入 member 身份 (data/identity.json)
+ * 合并更新，不覆盖未传字段
+ */
+function writeMemberIdentity(name, updates) {
+  const membersDir = getMembersDir()
+  if (!membersDir) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const memberDir = join(membersDir, name)
+  if (!existsSync(memberDir)) return { error: `Member "${name}" not found`, status: 404 }
+
+  const dataDir = join(memberDir, 'data')
+  if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true })
+
+  const idPath = join(dataDir, 'identity.json')
+  let existing = {}
+  if (existsSync(idPath)) {
+    try { existing = JSON.parse(readFileSync(idPath, 'utf-8')) } catch { /* start fresh */ }
+  }
+
+  // Deep merge identity and psychology sections
+  if (updates.identity) {
+    existing.identity = { ...(existing.identity || {}), ...updates.identity }
+  }
+  if (updates.psychology) {
+    existing.psychology = {
+      ...(existing.psychology || {}),
+      ...updates.psychology,
+      traits: { ...(existing.psychology?.traits || {}), ...(updates.psychology?.traits || {}) },
+    }
+  }
+  // Merge top-level metadata
+  if (updates.id) existing.id = updates.id
+  if (updates.schemaVersion) existing.schemaVersion = updates.schemaVersion
+  existing.updatedAt = new Date().toISOString()
+
+  writeFileSync(idPath, JSON.stringify(existing, null, 2) + '\n')
+
+  return { ok: true, identity: existing }
+}
+
+/**
+ * 读取 member 模型配置 (opencode.json → model/small_model)
+ */
+function readMemberModel(name) {
+  const membersDir = getMembersDir()
+  if (!membersDir) return null
+
+  const ocPath = join(membersDir, name, 'opencode.json')
+  if (!existsSync(ocPath)) return null
+
+  try {
+    const oc = JSON.parse(readFileSync(ocPath, 'utf-8'))
+    return {
+      model: oc.model || null,
+      small_model: oc.small_model || null,
+    }
+  } catch { return null }
+}
+
+/**
+ * 写入 member 模型配置 (opencode.json → model/small_model)
+ * 只修改 model 字段，保留其他配置
+ */
+function writeMemberModel(name, updates) {
+  const membersDir = getMembersDir()
+  if (!membersDir) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const ocPath = join(membersDir, name, 'opencode.json')
+  if (!existsSync(ocPath)) return { error: `Member "${name}" opencode.json not found`, status: 404 }
+
+  let oc
+  try { oc = JSON.parse(readFileSync(ocPath, 'utf-8')) } catch {
+    return { error: 'Failed to parse opencode.json', status: 500 }
+  }
+
+  if (updates.model) oc.model = updates.model
+  if (updates.small_model) oc.small_model = updates.small_model
+
+  writeFileSync(ocPath, JSON.stringify(oc, null, 2) + '\n')
+
+  return {
+    ok: true,
+    model: oc.model,
+    small_model: oc.small_model,
+    requiresRestart: true,
+  }
+}
+
 // ── HTTP Handler ──
 
 function sendJSON(res, data, status = 200) {
@@ -331,6 +437,128 @@ async function handleRequest(req, res) {
     return
   }
 
+  // ── T45: OpenCode Proxy Routes ──
+
+  // Helper: proxy to member's OpenCode API
+  async function proxyToOpenCode(memberName, ocPath, reqMethod, body) {
+    const members = discoverMembers()
+    const member = members.find(m => m.name === memberName)
+    if (!member) return { error: `Member "${memberName}" not found`, status: 404 }
+    if (member.status !== 'online' || !member.engine) {
+      return { error: `Member "${memberName}" is offline`, status: 503 }
+    }
+    try {
+      const ocUrl = `${member.engine.replace(/\/$/, '')}${ocPath}`
+      const fetchOpts = {
+        method: reqMethod,
+        headers: { 'Content-Type': 'application/json' },
+      }
+      if (body && (reqMethod === 'POST' || reqMethod === 'PUT')) {
+        fetchOpts.body = typeof body === 'string' ? body : JSON.stringify(body)
+      }
+      const resp = await fetch(ocUrl, fetchOpts)
+      const data = await resp.json().catch(() => null)
+      return { data, status: resp.status, headers: resp.headers }
+    } catch (e) {
+      return { error: e.message, status: 502 }
+    }
+  }
+
+  // GET /api/member/:name/oc/session
+  const ocSessionListMatch = matchRoute('/api/member/:name/oc/session', path)
+  if (method === 'GET' && ocSessionListMatch) {
+    const { name } = ocSessionListMatch.params
+    const result = await proxyToOpenCode(name, '/session', 'GET')
+    if (result.error) return sendError(res, result.error, result.status)
+    sendJSON(res, result.data, result.status)
+    return
+  }
+
+  // POST /api/member/:name/oc/session
+  if (method === 'POST' && ocSessionListMatch) {
+    const { name } = ocSessionListMatch.params
+    const body = await readBody(req)
+    const result = await proxyToOpenCode(name, '/session', 'POST', body)
+    if (result.error) return sendError(res, result.error, result.status)
+    sendJSON(res, result.data, result.status)
+    return
+  }
+
+  // GET /api/member/:name/oc/session/:sid
+  const ocSessionGetMatch = matchRoute('/api/member/:name/oc/session/:sid', path)
+  if (method === 'GET' && ocSessionGetMatch) {
+    const { name, sid } = ocSessionGetMatch.params
+    const result = await proxyToOpenCode(name, `/session/${sid}`, 'GET')
+    if (result.error) return sendError(res, result.error, result.status)
+    sendJSON(res, result.data, result.status)
+    return
+  }
+
+  // POST /api/member/:name/oc/session/:sid/prompt_async
+  const ocPromptMatch = matchRoute('/api/member/:name/oc/session/:sid/prompt_async', path)
+  if (method === 'POST' && ocPromptMatch) {
+    const { name, sid } = ocPromptMatch.params
+    const body = await readBody(req)
+    const result = await proxyToOpenCode(name, `/session/${sid}/prompt_async`, 'POST', body)
+    if (result.error) return sendError(res, result.error, result.status)
+    // prompt_async returns 204 No Content
+    res.writeHead(result.status || 204, { 'Access-Control-Allow-Origin': '*' })
+    res.end()
+    return
+  }
+
+  // GET /api/member/:name/oc/session/:sid/message
+  const ocMessageMatch = matchRoute('/api/member/:name/oc/session/:sid/message', path)
+  if (method === 'GET' && ocMessageMatch) {
+    const { name, sid } = ocMessageMatch.params
+    const result = await proxyToOpenCode(name, `/session/${sid}/message`, 'GET')
+    if (result.error) return sendError(res, result.error, result.status)
+    sendJSON(res, result.data, result.status)
+    return
+  }
+
+  // ── T46: Config Management Routes ──
+
+  // GET /api/member/:name/identity
+  const identityGetMatch = matchRoute('/api/member/:name/identity', path)
+  if (method === 'GET' && identityGetMatch) {
+    const { name } = identityGetMatch.params
+    const identity = readMemberIdentity(name)
+    if (!identity) return sendError(res, `Member "${name}" not found or no identity`, 404)
+    sendJSON(res, identity)
+    return
+  }
+
+  // PUT /api/member/:name/identity
+  if (method === 'PUT' && identityGetMatch) {
+    const { name } = identityGetMatch.params
+    const body = JSON.parse(await readBody(req))
+    const result = writeMemberIdentity(name, body)
+    if (result.error) return sendError(res, result.error, result.status || 400)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/member/:name/model
+  const modelGetMatch = matchRoute('/api/member/:name/model', path)
+  if (method === 'GET' && modelGetMatch) {
+    const { name } = modelGetMatch.params
+    const model = readMemberModel(name)
+    if (!model) return sendError(res, `Member "${name}" not found or no opencode.json`, 404)
+    sendJSON(res, model)
+    return
+  }
+
+  // PUT /api/member/:name/model
+  if (method === 'PUT' && modelGetMatch) {
+    const { name } = modelGetMatch.params
+    const body = JSON.parse(await readBody(req))
+    const result = writeMemberModel(name, body)
+    if (result.error) return sendError(res, result.error, result.status || 400)
+    sendJSON(res, result)
+    return
+  }
+
   // ── Static Files ──
   const cockpitDir = getCockpitDir()
   if (method === 'GET') {
@@ -390,4 +618,5 @@ if (isMain) {
 
 // ── Exports for testing ──
 export { discoverMembers, readMemberConfig, listWorkflowInstances, matchRoute, handleRequest }
+export { readMemberIdentity, writeMemberIdentity, readMemberModel, writeMemberModel }
 export { server }
