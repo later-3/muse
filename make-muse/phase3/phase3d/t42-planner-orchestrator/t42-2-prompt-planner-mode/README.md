@@ -6,13 +6,14 @@
 
 ## 任务概述
 
-修改 2 个文件，让 `driver=planner` 的工作流在 prompt 注入和工具拦截上与 T39 默认模式区分开。
+修改 3 个文件，让 `driver=planner` 的工作流在 prompt 注入和工具拦截上与 T39 默认模式区分开。
 
 | 子任务 | 文件 | 改动量 |
 |--------|------|--------|
 | 2.1 planner-mode prompt 注入 | `src/plugin/hooks/workflow-prompt.mjs` | ~20 行 |
 | 2.2 planner-mode transition 展示 | `src/plugin/hooks/workflow-prompt.mjs` | ~5 行 |
 | 2.3 GateEnforcer planner-mode 拦截 | `src/workflow/gate-enforcer.mjs` | ~10 行 |
+| 2.4 workflow-gate.mjs 传入 driver | `src/plugin/hooks/workflow-gate.mjs` | ~3 行 |
 
 ---
 
@@ -377,24 +378,92 @@ describe('GateEnforcer — Planner Mode', () => {
 
 ---
 
-## 注意事项
+## 子任务 2.4: workflow-gate.mjs 传入 driver
 
-### ⚠️ GateEnforcer.check 调用链
+### 现状
 
-`GateEnforcer.check()` 新增了 `driver` 参数，需要找到所有 **调用方** 并传入 `driver`。
+`workflow-gate.mjs` L82-88 是 GateEnforcer.check 的唯一生产调用点，当前没有传 `driver`：
 
-查找命令：
-```bash
-grep -rn 'GateEnforcer.check' muse/src/
-```
-
-调用方需要从当前 session 的 SM 中获取 driver：
 ```javascript
-const sm = registry.getBySession(sessionId)
-const driver = sm?.definition?.driver || 'self'
+// workflow-gate.mjs:82-88 (现状)
+const result = GateEnforcer.check({
+  tool,
+  args,
+  node,
+  participantStatus,
+  workspaceRoot: registry.workspaceRoot,
+})
 ```
 
-**如果调用方无法获取 SM 或 definition**，`driver` 应该默认为 `undefined`，此时不触发 planner-mode 拦截（兼容 T39）。
+### 改动
+
+```diff
++ const driver = sm.definition?.driver || 'self'
+  const result = GateEnforcer.check({
+    tool,
+    args,
+    node,
+    participantStatus,
+    workspaceRoot: registry.workspaceRoot,
++   driver,
+  })
+```
+
+> `sm` 在 L48 已获取（`const sm = registry.getBySession(sessionID)`），可直接使用。
+
+### 测试用例
+
+> 测试添加到 `src/plugin/hooks/workflow-hooks.test.mjs` 的 `workflow-gate hook` describe 块中（L38 开始）。
+> 现有 `devWorkflow()` fixture 不含 `driver` 字段，需要新增一个带 `driver: 'planner'` 的 fixture。
+
+```javascript
+function plannerWorkflow() {
+  return parseWorkflow({
+    id: 'planner-task', name: 'Planner Test', version: '1.0',
+    driver: 'planner',  // ★ T42 新增
+    initial: 'work',
+    participants: [{ role: 'worker' }],
+    nodes: {
+      work: {
+        type: 'action', participant: 'worker', objective: '干活',
+        capabilities: ['code_read', 'workflow_control'],
+        bash_policy: 'deny',
+        transitions: { done: { target: 'end', actor: 'agent' } },
+      },
+      end: { type: 'terminal' },
+    },
+  })
+}
+
+describe('workflow-gate hook — Planner Mode', () => {
+  let gate, reg, sm
+
+  beforeEach(() => {
+    reg = new WorkflowRegistry({ workspaceRoot: '/test' })
+    sm = new StateMachine(plannerWorkflow(), { taskId: 't-planner' })
+    reg.register(sm, [{ role: 'worker', sessionId: 'ses_worker' }])
+    setRegistry(reg)
+    gate = createWorkflowGate()
+  })
+
+  afterEach(() => setRegistry(null))
+
+  it('driver=planner: active 调 workflow_transition → 拦截', async () => {
+    await assert.rejects(
+      () => gate({ tool: 'workflow_transition', args: {}, sessionID: 'ses_worker' }),
+      /Planner/,
+    )
+  })
+
+  it('driver=planner: active 调 workflow_status → 放行', async () => {
+    await gate({ tool: 'workflow_status', args: {}, sessionID: 'ses_worker' })
+  })
+
+  it('driver=planner: active 调 read → 放行', async () => {
+    await gate({ tool: 'read', args: {}, sessionID: 'ses_worker' })
+  })
+})
+```
 
 ### ⚠️ 不要改的
 
@@ -414,8 +483,17 @@ const driver = sm?.definition?.driver || 'self'
 
 - **ESM only** — 所有文件使用 `import/export`
 - **测试框架** — `node:test`（`describe`/`it`）+ `assert/strict`
-- **运行测试** — `node --test src/workflow/gate-enforcer.test.mjs`
+- **运行测试** — 必须同时跑两个文件：
+  ```bash
+  node --test src/plugin/hooks/workflow-hooks.test.mjs   # prompt + gate 集成测试
+  node --test src/workflow/gate-enforcer.test.mjs        # gate-enforcer 单元测试
+  ```
 - **commit 格式** — `feat(t42-2): 简述`
+
+> **注意**：仓库中没有独立的 `workflow-prompt.test.mjs`，prompt 相关测试全部在 `workflow-hooks.test.mjs`。
+> - `compileNodePrompt` 测试: L212 开始
+> - `workflow-gate hook` 测试: L38 开始
+> - T41-4 系统通知头测试: L393 开始
 
 ---
 
@@ -423,17 +501,19 @@ const driver = sm?.definition?.driver || 'self'
 
 | # | 检查项 | 验证方法 |
 |---|--------|---------|
-| 1 | 所有现有测试通过 | `node --test src/workflow/gate-enforcer.test.mjs` 0 failures |
-| 2 | driver=self prompt 包含 "workflow_transition" | 测试 2.1 |
-| 3 | driver=planner prompt 包含 "通知 Planner" | 测试 2.1 |
-| 4 | driver=planner prompt 不含 "调用 workflow_transition" | 测试 2.1 |
-| 5 | driver=planner + wait_for_user → 也走 planner 分支 | 测试 2.1 |
-| 6 | driver=self + wait_for_user → T39 原逻辑 | 测试 2.1 |
-| 7 | frozen 状态 → 不受 planner mode 影响 | 测试 2.1 |
-| 8 | driver=planner → 不显示 transition 调用列表 | 测试 2.2 |
-| 9 | driver=self → 正常显示 transition 调用列表 | 测试 2.2 |
-| 10 | driver=planner → GateEnforcer 拦截 workflow_transition | 测试 2.3 |
-| 11 | driver=planner → GateEnforcer 放行 workflow_status | 测试 2.3 |
-| 12 | driver=planner → GateEnforcer 放行 workflow_emit_artifact | 测试 2.3 |
-| 13 | driver 不传 → 兼容 T39，不拦截 | 测试 2.3 |
-| 14 | GateEnforcer.check 调用方正确传入 driver | grep 检查所有调用点 |
+| 1 | 所有现有测试通过 | `node --test src/plugin/hooks/workflow-hooks.test.mjs` 0 failures |
+| 2 | 所有现有测试通过 | `node --test src/workflow/gate-enforcer.test.mjs` 0 failures |
+| 3 | driver=self prompt 包含 "workflow_transition" | 测试 2.1 |
+| 4 | driver=planner prompt 包含 "通知 Planner" | 测试 2.1 |
+| 5 | driver=planner prompt 不含 "调用 workflow_transition" | 测试 2.1 |
+| 6 | driver=planner + wait_for_user → 也走 planner 分支 | 测试 2.1 |
+| 7 | driver=self + wait_for_user → T39 原逻辑 | 测试 2.1 |
+| 8 | frozen 状态 → 不受 planner mode 影响 | 测试 2.1 |
+| 9 | driver=planner → 不显示 transition 调用列表 | 测试 2.2 |
+| 10 | driver=self → 正常显示 transition 调用列表 | 测试 2.2 |
+| 11 | driver=planner → GateEnforcer 拦截 workflow_transition | 测试 2.3 |
+| 12 | driver=planner → GateEnforcer 放行 workflow_status | 测试 2.3 |
+| 13 | driver=planner → GateEnforcer 放行 workflow_emit_artifact | 测试 2.3 |
+| 14 | driver 不传 → 兼容 T39，不拦截 | 测试 2.3 |
+| 15 | **workflow-gate.mjs 传入 driver** | 测试 2.4 |
+| 16 | **生产链路：driver=planner + workflow_transition → 拦截** | 测试 2.4（集成测试） |

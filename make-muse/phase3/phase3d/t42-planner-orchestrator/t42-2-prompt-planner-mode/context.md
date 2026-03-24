@@ -18,7 +18,9 @@ T42 Planner 驱动模式需要 2 个行为变更来避免"双驱动"：
 | 文件 | 路径 | 当前行数 |
 |------|------|---------|
 | workflow-prompt.mjs | `muse/src/plugin/hooks/workflow-prompt.mjs` | 303 行 |
+| workflow-gate.mjs | `muse/src/plugin/hooks/workflow-gate.mjs` | 99 行 |
 | gate-enforcer.mjs | `muse/src/workflow/gate-enforcer.mjs` | 298 行 |
+| workflow-hooks.test.mjs | `muse/src/plugin/hooks/workflow-hooks.test.mjs` | 476 行 |
 | gate-enforcer.test.mjs | `muse/src/workflow/gate-enforcer.test.mjs` | 存在 |
 
 ## 关键代码段
