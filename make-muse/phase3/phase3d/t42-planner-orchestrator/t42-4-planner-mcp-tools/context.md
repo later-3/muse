@@ -59,7 +59,7 @@ export async function handleWorkflowCreate(sessionId, args) {
 
 ### 工具注册
 
-在 `server.mjs` 中注册时，需要判断当前成员 role 是否为 planner：
+在 `memory.mjs`（L858）中注册时，需要判断当前成员 role 是否为 planner：
 
 ```javascript
 if (memberRole === 'planner') {

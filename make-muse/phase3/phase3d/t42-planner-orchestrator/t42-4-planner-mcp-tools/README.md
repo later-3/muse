@@ -60,15 +60,14 @@ export async function handleWorkflowCreate(sessionId, args) {
     return textResult('⛔ 此工作流不是 planner 驱动（driver !== "planner"）')
   }
 
-  // 3. 创建 bindings — Planner 绑定自己的 session，其他角色全部 placeholder
+  // 3. 创建 bindings — 所有 participant 先建 placeholder
+  // ★ Planner 不是工作流参与者，不绑定任何 session
+  // ★ 所有 participant 的 session 都是 placeholder，等 handoff_to_member 时创建真实 session
   const bindings = raw.participants.map(p => ({
     role: p.role,
     sessionId: `${sessionId}_${p.role}`,
     placeholder: true,
   }))
-  // Planner 自己也注册一个 binding（orchestrator 或第一个非执行角色）
-  // 但 Planner 不是工作流参与者 — 他是外部指挥官
-  // → 所有角色都是 placeholder，等 handoff_to_member 时创建真实 session
 
   // 4. 调用 initWorkflow
   const { sm, registry } = await initWorkflow({
@@ -374,7 +373,7 @@ export async function handleWorkflowRollback(sessionId, args) {
       },
       "instructions": {
         "type": "string",
-        "description": "Planner 附加指令（补充节点定义之外的上下文）"
+        "description": "Planner 附加指令（本期保留字段但不生效，后续版本支持注入 extraPrompt）"
       }
     },
     "required": ["instance_id", "role"]
@@ -444,9 +443,10 @@ handoff 链路的真实调用链如下：
 | `buildHandoffPrompt()` | `src/family/handoff.mjs:197` | 构建节点 prompt（已包含 objective/instructions/constraints） |
 | `MemberClient` | `src/family/member-client.mjs:18` | 与目标成员通信（createSession / prompt / pollUntilDone） |
 
-> **注意**：`executeHandoff` 内部已调用 `buildHandoffPrompt(sm, node)` 构建 prompt（L78）。
-> 如果需要注入 Planner 附加指令（`instructions` 参数），需要在 `buildHandoffPrompt` 之后、`client.prompt` 之前拼接。
-> 这可能需要小幅重构 `executeHandoff`，增加一个 `extraPrompt` 参数。此为实现时的决策点。
+> **本期决策**：`instructions` 参数**本期保留但不生效**。
+> `executeHandoff` 当前不接受 `extraPrompt`，强行改签名会影响现有执行者链路。
+> 后续版本再扩展 `executeHandoff` 支持 `extraPrompt` 注入。
+> 实现者遇到 `instructions` 参数时直接 `log.info` 记录即可，不要尝试拼接到 prompt。
 
 ---
 
