@@ -47,7 +47,7 @@ Web 驾驶舱应该是**独立进程**，通过 Family Registry + Member Engine 
 |--------|------|
 | T50-1 | **服务入口**: `src/web/standalone.mjs` — 独立 node 进程，读 `MUSE_HOME` 发现 families |
 | T50-2 | **Registry API**: `/api/family/members` — 列出所有在线 member（基于 `registry.mjs`） |
-| T50-3 | **Member 代理**: `/api/member/:name/health` → 透传到 member 的 OpenCode API |
+| T50-3 | **Member 控制面板**: `/api/member/:name/restart` — family-level 启停控制（调 start.sh / kill PID） |
 | T50-4 | **启动脚本**: `start-cockpit.sh` 或 `./start.sh cockpit` — 一键启动 |
 | T50-5 | **旧 WebServer 降级**: `index.mjs` 中的 WebServer 改为可选，默认关闭 |
 
@@ -66,10 +66,15 @@ Web 驾驶舱应该是**独立进程**，通过 Family Registry + Member Engine 
 
 在驾驶舱里直接和任意 member 对话。
 
+> **API 策略**: 不复用 MemberClient（它只封装了 createSession/prompt/poll/fetchLastReply），
+> standalone cockpit 直接**透传 OpenCode HTTP API**（`/session`, `/session/:id/message` 等），
+> 后端做纯代理 + CORS，不再包装一层。
+
 | 子任务 | 说明 |
 |--------|------|
-| T52-1 | **对话面板**: 选择 member → 输入消息 → 通过 MemberClient 发送到 OpenCode |
-| T52-2 | **Session 管理**: 创建/切换/删除 session |
+| T52-0 | **OpenCode 代理层**: `/api/member/:name/oc/*` → 透传到 member 的 OpenCode API（session/message/status） |
+| T52-1 | **对话面板**: 选择 member → 输入消息 → 通过代理层发到 OpenCode |
+| T52-2 | **Session 管理**: 创建/切换/删除 session（直接调 OpenCode REST） |
 | T52-3 | **会话历史**: 读取 member 的所有 session + messages，按时间线展示 |
 | T52-4 | **多窗口对话**: 同时打开多个 member 的对话窗口 |
 
@@ -77,11 +82,19 @@ Web 驾驶舱应该是**独立进程**，通过 Family Registry + Member Engine 
 
 在 Web 上配置 member 的模型、身份、性格。
 
+> **身份真相源**: `data/identity.json` 是运行时身份主数据（名字、简介、性格维度等）。
+> AGENTS.md 是由 `identity.mergePersonaToAgentsMd()` 生成的人格展示层，不是真相源。
+> `config.json` 只处理端口/telegram/role 等运行配置，不承担身份主数据。
+
+> **模型生效合同**: 修改 `opencode.json` 的 model 字段本身不会让在线实例切模型。
+> OpenCode serve 在启动时解析模型，改文件后**必须显式 restart member** 才生效。
+> Cockpit 需要提供 family-level restart API（T50-3 的 control plane）。
+
 | 子任务 | 说明 |
 |--------|------|
-| T53-1 | **模型配置**: 查看/切换 member 的 AI 模型（读写 opencode.json `model` 字段） |
-| T53-2 | **身份编辑**: 编辑 member 的 AGENTS.md / config.json（名字、角色、简介） |
-| T53-3 | **性格调参**: 性格维度滑块（复用现有 identity 接口） |
+| T53-1 | **模型配置**: 查看/切换 member 的 AI 模型（读写 opencode.json `model`），改后触发 restart member |
+| T53-2 | **身份编辑**: 编辑 `data/identity.json` 对应字段（名字、角色、简介），需要时同步生成 AGENTS.md |
+| T53-3 | **性格调参**: 性格维度滑块，写入 identity.json，同步 AGENTS.md 人格区块 |
 | T53-4 | **创建新成员**: 表单化创建 member（调 `create-member.sh`） |
 
 ### T54 — 工作流可视化
