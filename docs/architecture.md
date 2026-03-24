@@ -96,16 +96,15 @@ Muse 主进程按 5 阶段启动 (Web 优先，确保诊断入口可用):
 | 能力 | 注册表 | `capability/registry.mjs` | 能力自知 |
 | 家族 | CLI | `family/cli.mjs` | init / start / migrate |
 | 家族 | 配置加载 | `family/config-loader.mjs` | 4 层合并 |
-| 工作流 | 状态机 | `workflow/state-machine.mjs` | 节点流转 + transition + history |
-| 工作流 | 定义解析 | `workflow/definition.mjs` | JSON 解析 + 校验 |
-| 工作流 | Bridge | `workflow/bridge.mjs` | 实例持久化 + session-index + 归档 |
+| 工作流 | 状态机 | `workflow/state-machine.mjs` | 节点流转 + admin transition + evidence |
+| 工作流 | 定义解析 | `workflow/definition.mjs` | JSON 解析 + 校验 + driver 模式 |
+| 工作流 | Bridge | `workflow/bridge.mjs` | 实例持久化 + session-index + trace + 归档 |
 | 工作流 | 通知 | `workflow/notify.mjs` | Telegram 通知（handoff/完成/异常） |
 | 通信 | Registry | `family/registry.mjs` | 成员注册 + 端口发现 + 角色映射 |
-| 通信 | Handoff | `family/handoff.mjs` | 跨 Muse 3-step ACK + session 创建 |
+| 通信 | Handoff | `family/handoff.mjs` | 跨 Muse 3-step ACK + Planner 叙事 prompt |
 | 通信 | Client | `family/member-client.mjs` | OpenCode REST API 封装 |
-| Hook | Prompt | `plugin/hooks/workflow-prompt.mjs` | 节点 prompt 编译（七要素+自检） |
-| Hook | Gate | `plugin/hooks/workflow-gate.mjs` | 工具权限门控 |
-| MCP 工具 | 工作流 | `mcp/workflow-tools.mjs` | init/status/transition/emit_artifact |
+| 工作流 | Gate | `workflow/gate-enforcer.mjs` | capabilities 解析 + planner 模式拦截 |
+| MCP 工具 | Planner | `mcp/planner-tools.mjs` | create/inspect/admin_transition/rollback/handoff/read_artifact |
 
 ## Family 多实例架构
 
@@ -139,33 +138,33 @@ pua (端口 4100)  ──handoff──▸  arch (端口 4101)
   OpenCode REST API             OpenCode REST API
 ```
 
-## 工作流引擎
+## 工作流引擎 (Planner-First)
 
-工作流引擎驱动跨 Muse 的协作任务：
+工作流由 **Planner Muse** 驱动，执行者只负责产出和汇报：
 
 ```
-workflow JSON 定义
-       │
-       ▼
-  StateMachine（节点流转）
-       │
-  ┌────┼────┐
-  ▼    ▼    ▼
-Gate  Prompt Bridge
- │     │      │
- ▼     ▼      ▼
-工具   AI    持久化
-权限  指令   state.json
+Planner (role=planner)
+   │
+   ├── workflow_create        → 初始化实例
+   ├── workflow_inspect       → 检查状态
+   ├── handoff_to_member      → 3-step ACK 分派任务
+   ├── workflow_admin_transition → 推进节点 (on_behalf_of + evidence)
+   ├── read_artifact          → 读取产出物
+   └── workflow_rollback      → 回滚
+         │
+         ▼
+   StateMachine → Bridge (state.json + trace.jsonl + 归档)
 ```
 
 ### 核心机制
 
-- **状态机**: 节点 + transition + history，支持 action/handoff/terminal/decision 类型
-- **Bridge**: per-instance 持久化 + session-index + 完成后自动归档
-- **Handoff**: 跨 Muse 3-step ACK（deliver → bind → execute），支持重试/取消
-- **Prompt Hook**: 编译节点七要素（目标/步骤/约束/工具/退出条件/流转/执行规则）
-- **Gate Hook**: 按 capabilities + bash_policy + file_scope 门控工具权限
-- **自检机制**: pre-check 验证输入 artifact 存在，post-check 验证输出 artifact 才允许流转
+- **driver: planner**: 工作流定义声明 Planner 驱动，执行者不能调 workflow_transition
+- **admin_transition**: Planner 用 on_behalf_of + evidence 推进节点
+- **Gate Enforcer**: driver=planner 时，执行者调 workflow_transition 会被拦截
+- **3-step ACK Handoff**: deliver → bind → execute，支持重试/取消
+- **Trace**: 每次工具调用写 JSONL 到 trace.jsonl
+- **归档**: 完成后自动 archive 到 `workflow/archive/{YYYY-MM}/`
+- **自检**: pre-check 验证输入 artifact，post-check 验证输出
 - **read_first**: 节点声明前置阅读文件，AI 执行前先读取上下文
 
 ## 知识包体系

@@ -2,7 +2,8 @@
   "id": "task-mgmt-wf",
   "name": "任务管理工作流",
   "version": "1.0",
-  "description": "pua 写任务说明书 → 用户审核 → arch 写技术方案。标准任务管理流程。",
+  "driver": "planner",
+  "description": "Planner 驱动: pua 写任务说明书 → 用户审核 → arch 写技术方案。",
   "initial": "brief",
 
   "participants": [
@@ -21,8 +22,8 @@
         "编写 task-brief.md：包含背景、目标、范围、预期产出",
         "不写技术方案和测试方案（那是 arch 的事）",
         "如果有疑问，在说明书中标注需要用户确认的点",
-        "用 workflow_emit_artifact 写入 task-brief.md",
-        "完成后调用 workflow_transition('submit') 提交审核"
+        "将 task-brief.md 写入工作流 artifact 目录",
+        "完成后汇报产出给 Planner"
       ],
       "constraints": [
         "不写技术实现细节",
@@ -55,8 +56,8 @@
       "instructions": [
         "读取 task-brief.md 并通过 Telegram 向用户展示",
         "等待用户回复：通过、修改意见、或其他指示",
-        "用户说通过 → 调用 workflow_transition('approved')",
-        "用户说要修改 → 调用 workflow_transition('rejected')"
+        "用户说通过 → 汇报'approved'给 Planner",
+        "用户说要修改 → 汇报'rejected'给 Planner"
       ],
       "constraints": [
         "不要自主决定通过或拒绝",
@@ -90,8 +91,8 @@
         "读取 task-brief.md 理解任务目标",
         "编写 tech-design.md：技术方案、架构设计、测试策略、约束条件",
         "拆分为可执行的小任务列表，每个小任务包含：目标、输入、输出、验收标准",
-        "用 workflow_emit_artifact 写入 tech-design.md",
-        "完成后调用 workflow_transition('done')"
+        "将 tech-design.md 写入工作流 artifact 目录",
+        "完成后汇报产出给 Planner"
       ],
       "constraints": [
         "方案必须基于 task-brief.md 的目标和范围",

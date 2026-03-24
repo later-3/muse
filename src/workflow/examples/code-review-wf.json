@@ -2,7 +2,8 @@
   "id": "code-review-wf",
   "name": "代码审核工作流",
   "version": "1.0",
-  "description": "pua 分析代码 → arch 审核 → pua 执行/修复 → 完成",
+  "driver": "planner",
+  "description": "Planner 驱动: pua 分析代码 → arch 审核 → pua 执行/修复 → 完成",
   "initial": "analyze",
   "participants": [
     {
@@ -27,7 +28,7 @@
       "constraints": [
         "不能修改任何文件",
         "不能执行 bash 命令",
-        "完成后必须向用户汇报分析结果，等待用户确认（说'通过'或'可以'）后才能调用 workflow_transition 推进到下一节点"
+        "完成后向 Planner 汇报分析结果"
       ],
       "capabilities": ["code_read", "workflow_control"],
       "bash_policy": "deny",

@@ -196,24 +196,26 @@ export function cancelHandoff(instanceId) {
 
 export function buildHandoffPrompt(sm, node) {
   const resolvedTools = [...resolveCapabilities(node.capabilities || [])]
-  return `[WORKFLOW HANDOFF — 自主执行]
-你是一个自主执行的 Agent。收到此指令后，你必须立即开始执行，不要等待人类确认。
-完成所有步骤后必须调用 workflow_transition 推进到下一节点。
+  return `[WORKFLOW TASK — Planner 分派]
+你收到了来自 Planner 的任务分派。立即开始执行，不要等待人类确认。
 
-1. TASK: 你进入了 "${node.id}" 节点 — ${node.objective}
+1. TASK: 节点 "${node.id}" — ${node.objective}
 2. EXPECTED OUTCOME: ${node.output?.artifact || '完成节点目标'}
-3. REQUIRED TOOLS: ${resolvedTools.join(', ')}
+3. AVAILABLE TOOLS: ${resolvedTools.join(', ')}
 4. MUST DO:\n${(node.instructions || []).map((s, i) => `   ${i + 1}. ${s}`).join('\n')}
 5. MUST NOT DO:\n${(node.constraints || []).map(c => `   - ${c}`).join('\n')}
 6. CONTEXT:\n   - 工作流: ${sm.workflowId} (instance: ${sm.instanceId})\n   - 工作区: ${process.env.MUSE_ROOT}
-7. ⚠️ 规则: 执行完所有步骤后必须调用 workflow_transition，不要只回复文字`
+7. ⚠️ 完成规则:
+   - 完成所有步骤后，明确汇报你的产出（文件路径、artifact 名）
+   - 不要调用 workflow_transition — Planner 会负责推进工作流
+   - 你只需要执行任务并汇报结果`
 }
 
 // ── 安全网：确保节点执行到完成 ──
 
 /**
- * 等待 target session 完成，如果节点没 transition 走就再催一次
- * ★ 由外部调用（workflow-tools.mjs），不在 executeHandoff 内部调用
+ * 等待 target session 完成，如果节点没完成就再催一次
+ * ★ 由 Planner 的 handoff 后续流程调用
  */
 export async function ensureNodeCompletion(client, sessionId, instanceId, node) {
   // wait_for_user 节点需要人类输入，不催
@@ -229,20 +231,21 @@ export async function ensureNodeCompletion(client, sessionId, instanceId, node) 
   const state = loadInstanceState(instanceId)
   if (!state) return
 
-  // 已经 transition 走了 → 节点完成
+  // Planner 已推进 → 节点完成
   if (state.smState.current_node !== node.id) {
     log.info('ensureNodeCompletion: 节点已完成', { instanceId, node: node.id })
     return
   }
 
-  // 还在当前节点 → 催一次（复用 session，上下文在）
+  // 还在当前节点 → 催一次
   log.info('ensureNodeCompletion: 节点未完成，发送 continue prompt', { instanceId, node: node.id })
   try {
     await client.prompt(sessionId,
       `[WORKFLOW CONTINUE] 你还没有完成节点 "${node.id}" 的任务。` +
-      `请立即完成剩余步骤并调用 workflow_transition 推进到下一节点。不要回复文字，直接执行工具调用。`)
+      `请立即完成剩余步骤并汇报你的产出。Planner 会负责推进工作流。`)
     await client.pollUntilDone(sessionId)
   } catch {
     log.warn('ensureNodeCompletion: continue prompt 超时', { instanceId })
   }
 }
+

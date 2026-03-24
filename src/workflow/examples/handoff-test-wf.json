@@ -2,7 +2,8 @@
   "id": "handoff-test-wf",
   "name": "跨 Muse Handoff 测试",
   "version": "1.0",
-  "description": "最简双角色工作流：pua 写分析 → arch 审查 → 完成。用于测试跨 Muse handoff。",
+  "driver": "planner",
+  "description": "Planner 驱动: 最简双角色工作流：pua 写分析 → arch 审查 → 完成。",
   "initial": "analyze",
 
   "participants": [
@@ -17,8 +18,8 @@
       "objective": "写一句话总结当前项目状态",
       "instructions": [
         "用 read 工具读取 muse/PROJECT_STATE.json",
-        "输出一句话总结到 analysis.txt（用 workflow_emit_artifact）",
-        "完成后调用 workflow_transition('hand_to_arch') 交给 arch"
+        "输出一句话总结到 analysis.txt",
+        "完成后汇报产出给 Planner"
       ],
       "constraints": [
         "不能修改任何文件",
@@ -48,7 +49,7 @@
       "instructions": [
         "读取 analysis.txt（在工作流 artifact 目录中）",
         "回复一句话确认",
-        "调用 workflow_transition('done') 完成"
+        "完成后汇报结果给 Planner"
       ],
       "constraints": [
         "不能修改任何文件"
