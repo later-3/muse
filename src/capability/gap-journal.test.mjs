@@ -108,12 +108,12 @@ describe('T16: Ingress → GapJournal 联动', () => {
     const journal = new GapJournal()
     const ingress = new PerceptionIngress({ orchestrator: mockOrch, gapJournal: journal })
 
-    const perception = createPerception('telegram', 'audio', 'user1', { textFallback: '语音' })
+    const perception = createPerception('telegram', 'file', 'user1', { textFallback: '文件' })
     await ingress.handle(perception)
 
     const gaps = journal.list()
     assert.equal(gaps.length, 1)
-    assert.equal(gaps[0].type, 'audio')
+    assert.equal(gaps[0].type, 'file')
     assert.equal(gaps[0].source, 'telegram')
     assert.equal(gaps[0].reason, 'unsupported')
   })
@@ -138,12 +138,12 @@ describe('T16: Ingress → GapJournal 联动', () => {
     const journal = new GapJournal()
     const ingress = new PerceptionIngress({ orchestrator: mockOrch, gapJournal: journal })
 
-    await ingress.handle(createPerception('telegram', 'audio', 'u1', { textFallback: '语音' }))
+    await ingress.handle(createPerception('telegram', 'file', 'u1', { textFallback: '文件' }))
     await ingress.handle(createPerception('telegram', 'video', 'u2', { textFallback: '视频' }))
-    await ingress.handle(createPerception('telegram', 'audio', 'u1', { textFallback: '又一条语音' }))
+    await ingress.handle(createPerception('telegram', 'file', 'u1', { textFallback: '又一个文件' }))
 
     assert.equal(journal.list().length, 3)
-    assert.equal(journal.stats().byType.audio, 2)
+    assert.equal(journal.stats().byType.file, 2)
     assert.equal(journal.stats().byType.video, 1)
   })
 })

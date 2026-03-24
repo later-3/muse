@@ -204,11 +204,13 @@ describe('T14: TelegramSense', () => {
   })
 
   it('UNSUPPORTED_TG_TYPES 包含正确类型', () => {
-    assert.ok(UNSUPPORTED_TG_TYPES.includes('voice'))
-    assert.ok(UNSUPPORTED_TG_TYPES.includes('audio'))
+    // T38 后 voice/audio 已支持，不在未支持列表中
     assert.ok(UNSUPPORTED_TG_TYPES.includes('video'))
+    assert.ok(UNSUPPORTED_TG_TYPES.includes('video_note'))
     assert.ok(UNSUPPORTED_TG_TYPES.includes('document'))
     assert.ok(UNSUPPORTED_TG_TYPES.includes('sticker'))
+    assert.ok(!UNSUPPORTED_TG_TYPES.includes('voice'), 'voice 已支持')
+    assert.ok(!UNSUPPORTED_TG_TYPES.includes('audio'), 'audio 已支持')
   })
 })
 
@@ -245,18 +247,15 @@ describe('T14: PerceptionIngress', () => {
     assert.ok(orch._lastText.includes('图片'), 'AI 应知道这是图片')
   })
 
-  it('audio → 友好提示，不调 Orchestrator', async () => {
-    const orch = createMockOrchestrator()
+  it('audio → T38 路由到 Orchestrator', async () => {
+    const orch = createMockOrchestrator('收到语音')
     const ingress = new PerceptionIngress({ orchestrator: orch })
 
     const p = createPerception('telegram', 'audio', '123', { textFallback: '语音' })
     const result = await ingress.handle(p)
 
-    assert.equal(result.handled, false)
-    assert.equal(result.sessionId, null)
-    assert.ok(result.text.includes('暂时还不能处理'))
-    assert.ok(result.text.includes('语音'))
-    assert.equal(orch._lastText, '', 'Orchestrator 不应被调用')
+    assert.equal(result.handled, true)
+    assert.equal(orch._lastText.length > 0, true, 'Orchestrator 应被调用')
   })
 
   it('video → 友好提示', async () => {

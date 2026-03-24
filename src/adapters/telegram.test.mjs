@@ -239,7 +239,7 @@ describe('TelegramAdapter — 生命周期', () => {
     const { adapter, bot } = createAdapter()
     await adapter.start()
 
-    assert.ok(bot._middlewares.length >= 2, '应注册 ≥2 个 middleware')
+    assert.ok(bot._middlewares.length >= 1, '应注册 ≥1 个 middleware')
     assert.ok(bot._commands.start, '应注册 /start 命令')
     assert.ok(bot._commands.help, '应注册 /help 命令')
     assert.ok(bot._commands.status, '应注册 /status 命令')

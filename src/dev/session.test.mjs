@@ -17,8 +17,8 @@ import { DevSession, WORKTREE_BASE } from './session.mjs'
 
 const execFileAsync = promisify(execFile)
 
-// 获取项目根目录 (假设测试在 muse/src/dev/ 下运行)
-const PROJECT_ROOT = join(import.meta.dirname, '..', '..', '..')
+// 获取项目根目录 (muse/ 是 git root，测试在 src/dev/ 下)
+const PROJECT_ROOT = join(import.meta.dirname, '..', '..')
 const TEST_TASK_ID_PREFIX = 'test-t01'
 
 async function cleanupTestWorktree(taskId) {

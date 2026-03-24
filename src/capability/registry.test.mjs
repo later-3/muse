@@ -92,12 +92,12 @@ describe('T15: buildRegistry()', () => {
     // 关键 senses 存在
     assert.ok(reg.querySense('telegram_text'))
     assert.ok(reg.querySense('telegram_photo'))
-    assert.equal(reg.querySense('telegram_audio').status, 'unavailable')
+    assert.equal(reg.querySense('telegram_audio').status, 'available')
 
     // 关键 capabilities 存在
     assert.ok(reg.queryCapability('remember_user'))
     assert.ok(reg.queryCapability('search_web'))
-    assert.equal(reg.queryCapability('transcribe_audio').status, 'missing')
+    assert.equal(reg.queryCapability('transcribe_audio').status, 'available')
   })
 
   it('summary() 不报错且非空', () => {

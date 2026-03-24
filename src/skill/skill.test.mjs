@@ -37,7 +37,7 @@ function parseYamlFrontmatter(content) {
 
 describe('T10: Skill 文件结构验证', () => {
 
-  const REQUIRED_SKILLS = ['memory-companion', 'daily-chat']
+  const REQUIRED_SKILLS = ['muse-trace', 'opencode-config']
 
   for (const skillName of REQUIRED_SKILLS) {
     describe(`Skill: ${skillName}`, () => {

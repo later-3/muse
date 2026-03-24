@@ -152,9 +152,10 @@ describe('Pulse', () => {
       stateDir: TEST_DIR,
       onTrigger: () => {},
     })
-    // Before start, state is null
+    // Before start, state is a default snapshot (not null)
     const snap = pulse.state
-    assert.equal(snap, null)
+    assert.ok(snap, 'state should return a snapshot object')
+    assert.deepEqual(snap.triggerHistory, {}, 'triggerHistory should be empty')
   })
 
   it('multiple start/stop is idempotent', async () => {
