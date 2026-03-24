@@ -16,7 +16,7 @@
  * - 跨 muse 共享：所有 member 读写同一 family workflow 目录
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, unlinkSync, readdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, unlinkSync, readdirSync, appendFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { createLogger } from '../logger.mjs'
@@ -90,6 +90,29 @@ export function getDefinitionsDir(workflowRoot) {
   const root = getWorkflowRoot(workflowRoot)
   if (!root) return null
   return join(root, 'definitions')
+}
+
+// ── Trace 日志 ──
+
+/**
+ * 往实例 trace.jsonl 追加一条记录
+ * @param {string} instanceId
+ * @param {object} entry - { tool, args, result, elapsedMs, ... }
+ * @param {string} [workflowRoot]
+ */
+export function appendTrace(instanceId, entry, workflowRoot) {
+  const dir = getInstanceDir(instanceId, workflowRoot)
+  if (!dir) return
+  mkdirSync(dir, { recursive: true })
+  const line = JSON.stringify({
+    ts: new Date().toISOString(),
+    ...entry,
+  })
+  try {
+    appendFileSync(join(dir, 'trace.jsonl'), line + '\n')
+  } catch (e) {
+    log.warn('trace 写入失败', { instanceId, error: e.message })
+  }
 }
 
 /**

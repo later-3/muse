@@ -15,7 +15,7 @@ import { createLogger } from '../logger.mjs'
 import { readFile } from 'node:fs/promises'
 import { join, resolve, isAbsolute } from 'node:path'
 import { initWorkflow } from '../workflow/loader.mjs'
-import { saveInstanceState, loadInstanceState, getArtifactDir, indexSession } from '../workflow/bridge.mjs'
+import { saveInstanceState, loadInstanceState, getArtifactDir, indexSession, appendTrace, archiveInstance } from '../workflow/bridge.mjs'
 import { executeHandoff } from '../family/handoff.mjs'
 import { MemberClient } from '../family/member-client.mjs'
 import { parseWorkflow } from '../workflow/definition.mjs'
@@ -163,6 +163,7 @@ function textResult(text) {
 export async function handleWorkflowCreate(sessionId, args) {
   const { workflow_id, task_id } = args || {}
   if (!workflow_id) return textResult('缺少 workflow_id 参数')
+  const t0 = Date.now()
 
   try {
     // 1. 解析工作流路径（对齐 handleWorkflowInit 策略）
@@ -227,7 +228,17 @@ export async function handleWorkflowCreate(sessionId, args) {
       smState: sm.toState(),
     })
 
-    // 7. 返回
+    // 7. trace
+    appendTrace(sm.instanceId, {
+      tool: 'workflow_create',
+      args: { workflow_id, task_id },
+      result: 'success',
+      instanceId: sm.instanceId,
+      initialNode: sm.getCurrentNode()?.id,
+      elapsedMs: Date.now() - t0,
+    })
+
+    // 8. 返回
     return textResult(JSON.stringify({
       success: true,
       instance_id: sm.instanceId,
@@ -274,6 +285,7 @@ export async function handleWorkflowAdminTransition(sessionId, args) {
     ...(evidence ? { evidence } : {}),
   }
 
+  const t0 = Date.now()
   try {
     const result = sm.transition(event, 'admin', meta)
 
@@ -284,6 +296,27 @@ export async function handleWorkflowAdminTransition(sessionId, args) {
       saveInstanceState(instance_id, state)
     }
 
+    // 5. trace
+    appendTrace(instance_id, {
+      tool: 'workflow_admin_transition',
+      args: { event, on_behalf_of, evidence: evidence?.slice(0, 200) },
+      result: 'success',
+      from: result.from,
+      to: result.to,
+      newStatus: sm.status,
+      elapsedMs: Date.now() - t0,
+    })
+
+    // 6. 归档：工作流完成时自动归档
+    if (sm.status === 'completed') {
+      try {
+        archiveInstance(instance_id)
+        log.info('工作流已完成并归档', { instance_id })
+      } catch (archiveErr) {
+        log.warn('归档失败（不影响 transition）', { instance_id, error: archiveErr.message })
+      }
+    }
+
     return textResult(JSON.stringify({
       success: true,
       ...result,
@@ -291,6 +324,13 @@ export async function handleWorkflowAdminTransition(sessionId, args) {
       meta,
     }, null, 2))
   } catch (e) {
+    appendTrace(instance_id, {
+      tool: 'workflow_admin_transition',
+      args: { event },
+      result: 'error',
+      error: e.message,
+      elapsedMs: Date.now() - t0,
+    })
     return textResult(`transition 失败: ${e.message}`)
   }
 }
@@ -335,6 +375,7 @@ export async function handleWorkflowRollback(sessionId, args) {
   const sm = registry?.getInstance(instance_id)
   if (!sm) return textResult(`实例 ${instance_id} 不存在`)
 
+  const t0 = Date.now()
   try {
     const result = sm.rollback(target_node, 'admin', reason, {
       on_behalf_of: 'planner',
@@ -347,6 +388,15 @@ export async function handleWorkflowRollback(sessionId, args) {
       saveInstanceState(instance_id, state)
     }
 
+    appendTrace(instance_id, {
+      tool: 'workflow_rollback',
+      args: { target_node, reason: reason?.slice(0, 200) },
+      result: 'success',
+      from: result.from,
+      to: result.to,
+      elapsedMs: Date.now() - t0,
+    })
+
     return textResult(JSON.stringify({
       success: true,
       ...result,
@@ -354,6 +404,13 @@ export async function handleWorkflowRollback(sessionId, args) {
       reason,
     }, null, 2))
   } catch (e) {
+    appendTrace(instance_id, {
+      tool: 'workflow_rollback',
+      args: { target_node },
+      result: 'error',
+      error: e.message,
+      elapsedMs: Date.now() - t0,
+    })
     return textResult(`rollback 失败: ${e.message}`)
   }
 }
@@ -379,6 +436,7 @@ export async function handleHandoffToMember(sessionId, args) {
     return textResult(`当前节点 "${currentNode.id}" 的参与者是 "${currentNode.participant}"，不是 "${role}"`)
   }
 
+  const t0 = Date.now()
   try {
     // 1. 从 family registry 查找目标成员（对齐 triggerHandoff 模式）
     const { findByRole } = await import('../family/registry.mjs')
@@ -397,6 +455,26 @@ export async function handleHandoffToMember(sessionId, args) {
       client,
     })
 
+    // 3. 丰富 bindings — 记录 member name + engine 以便跨成员关联
+    const state = loadInstanceState(instance_id)
+    if (state) {
+      const binding = state.bindings.find(b => b.role === role && !b.placeholder)
+      if (binding) {
+        binding.memberName = member.name
+        binding.engine = member.engine
+      }
+      saveInstanceState(instance_id, state)
+    }
+
+    appendTrace(instance_id, {
+      tool: 'handoff_to_member',
+      args: { role, node: currentNode.id },
+      result: 'success',
+      targetMember: member.name,
+      targetEngine: member.engine,
+      elapsedMs: Date.now() - t0,
+    })
+
     return textResult(JSON.stringify({
       success: true,
       target_role: role,
@@ -406,6 +484,13 @@ export async function handleHandoffToMember(sessionId, args) {
       hint: '已向成员发送任务。用 workflow_inspect 跟踪进度。',
     }, null, 2))
   } catch (e) {
+    appendTrace(instance_id, {
+      tool: 'handoff_to_member',
+      args: { role },
+      result: 'error',
+      error: e.message,
+      elapsedMs: Date.now() - t0,
+    })
     return textResult(`handoff 失败: ${e.message}`)
   }
 }
@@ -425,6 +510,12 @@ export async function handleReadArtifact(sessionId, args) {
   const filePath = join(artDir, name)
   try {
     const content = await readFile(filePath, 'utf-8')
+    appendTrace(instance_id, {
+      tool: 'read_artifact',
+      args: { name },
+      result: 'success',
+      size: content.length,
+    })
     return textResult(JSON.stringify({
       name,
       instance_id,
