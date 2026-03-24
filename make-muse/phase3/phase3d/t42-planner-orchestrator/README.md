@@ -141,9 +141,9 @@ if (transitionDef.actor && transitionDef.actor !== actor) {
 }
 ```
 
-这意味着 `actor: 'admin'` 调用 `actor: 'agent'` 的 transition 会被拒绝。
+**T42 改动**（2 处）：
 
-**T42 改动**：admin 可以 override 任何 actor 约束（1 行改动）：
+**改动 1**：admin 可以 override actor 约束：
 
 ```diff
 // state-machine.mjs:110
@@ -153,38 +153,88 @@ if (transitionDef.actor && transitionDef.actor !== actor) {
   }
 ```
 
-**语义**：
-- `actor: 'agent'` → 只有 agent 能触发（T39 不变）
-- `actor: 'user'` → 只有 user 能触发（T39 不变）
-- `actor: 'admin'` → **可以触发任何 transition**，无视 transitionDef.actor 约束
-- `actor: 'system'` → 只能触发 system 或无约束的 transition（T39 不变）
+**改动 2**：transition() 接受可选 `meta` 对象，写入 history：
 
-> `admin` 已在 `ACTOR_TYPES` 中（`definition.mjs:19`），不需要新增枚举值。
+```diff
+// state-machine.mjs:123
+- this.#state.history.push({ from, to, event, actor, ts: Date.now() })
++ this.#state.history.push({ from, to, event, actor, ts: Date.now(), ...(meta ? { meta } : {}) })
+```
 
-### 3.4 transition 权限模型
+### 3.4 user gate 保护（机器约束）
 
-| 主体 | T39 模式 (driver=self) | T42 模式 (driver=planner) |
-|------|----------------------|--------------------------|
-| **active Muse** | ✅ 可调 transition（actor=agent） | ❌ 被 GateEnforcer 拦截 transition 工具 |
-| **Planner** | — | ✅ 通过 `workflow_admin_transition`（actor=admin, override） |
-| **用户** | ✅ /wf approve（actor=user） | ✅ 通过 Planner 中转（Planner admin 代调） |
+> [!IMPORTANT]
+> admin override **不是无条件的**。当 transition 原定 `actor: 'user'` 时，admin 代调必须提供用户确认证据。
 
-**实现方式**：新增 `workflow_admin_transition` MCP 工具：
+`workflow_admin_transition` 的参数和校验逻辑：
 
 ```javascript
 // planner-tools.mjs
 export async function handleAdminTransition(args) {
-  const { instance_id, event, reason } = args
-  // 1. 按 instance_id 找 SM（不依赖 session 绑定）
+  const { instance_id, event, on_behalf_of, evidence } = args
+  //                          ↑ 必填          ↑ 有条件必填
+
   const sm = registry.getByInstanceId(instance_id)
-  // 2. 以 'admin' actor 执行 — admin override 跳过 actor 校验
-  const result = sm.transition(event, 'admin')
-  // 3. 持久化 + handoff 逻辑...
+  const node = sm.getCurrentNode()
+  const transitionDef = node.transitions[event]
+
+  // ★ 硬规则：代调 actor:user 的 transition 时，必须有用户确认证据
+  if (transitionDef.actor === 'user') {
+    if (on_behalf_of !== 'user') {
+      throw new Error('此 transition 需要用户确认，on_behalf_of 必须是 "user"')
+    }
+    if (!evidence || evidence.trim() === '') {
+      throw new Error('代调 user transition 必须提供 evidence（用户的原始消息）')
+    }
+  }
+
+  // 执行 transition，meta 写入 history 供审计
+  const meta = { on_behalf_of, evidence: evidence || null }
+  const result = sm.transition(event, 'admin', meta)
+
+  // 持久化 + handoff...
   return result
 }
 ```
 
-> **注意**：需要在 `WorkflowRegistry` 新增 `getByInstanceId(id)` 方法（当前只有 `getBySession`），以及在 `StateMachine.transition` 中允许 `actor: 'admin'`（当前已支持，`TransitionDef.actor` 已包含 `admin` 在 `ACTOR_TYPES` 中）。
+**参数定义**：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `instance_id` | string | 是 | 工作流实例 ID |
+| `event` | string | 是 | transition 事件名 |
+| `on_behalf_of` | `"user"` \| `"planner"` | 是 | 谁做的决策 |
+| `evidence` | string | 当 transitionDef.actor=user 时必填 | 用户原始消息文本 |
+
+**3 种调用场景**：
+
+| 场景 | on_behalf_of | evidence | history.meta |
+|------|-------------|----------|-------------|
+| Planner 检查产出合格，推进 | `"planner"` | `"pua 产出 task-brief.md, 质量检查通过"` | `{on_behalf_of: "planner", evidence: "..."}` |
+| 用户说"通过"，Planner 代调 | `"user"` | `"用户消息: '通过'"` | `{on_behalf_of: "user", evidence: "用户消息: '通过'"}` |
+| 用户说"退回"，Planner 代调 | `"user"` | `"用户消息: '退回 arch 重新设计'"` | `{on_behalf_of: "user", evidence: "..."}` |
+
+### 3.5 审计 history 格式
+
+```jsonc
+// T39 history 条目（不变）
+{ "from": "brief", "to": "review", "event": "submit", "actor": "agent", "ts": 1774000100 }
+
+// T42 admin transition history 条目（新增 meta）
+{
+  "from": "review", "to": "design", "event": "approve",
+  "actor": "admin",        // 机械层：谁执行的
+  "ts": 1774000200,
+  "meta": {
+    "on_behalf_of": "user",           // 决策层：谁做的决定
+    "evidence": "用户消息: '通过'"      // 证据：凭什么做的决定
+  }
+}
+```
+
+> **审计保证**：通过 `meta.on_behalf_of` 可以区分"用户确认"和"Planner 自主推进"，不会被 `actor: admin` 压扁。
+
+> **注意**：需要在 `WorkflowRegistry` 新增 `getByInstanceId(id)` 方法（当前只有 `getBySession`）。
 
 ### 3.4 两种模式完全兼容
 
@@ -526,7 +576,7 @@ rollback(targetNodeId, actor, reason) {
 |------|------|------|
 | **T39 扩展** | | |
 | `src/workflow/definition.mjs` | 修改 | +driver/max_iterations/rollback_target 校验 |
-| `src/workflow/state-machine.mjs` | 修改 | +rollback() API |
+| `src/workflow/state-machine.mjs` | 修改 | +rollback() API + transition meta 参数 |
 | `src/workflow/registry.mjs` | 修改 | +getByInstanceId() |
 | `src/plugin/hooks/workflow-prompt.mjs` | 修改 | driver=planner 分叉 |
 | `src/workflow/gate-enforcer.mjs` | 修改 | driver=planner 拦截 transition 工具 |
@@ -555,11 +605,11 @@ rollback(targetNodeId, actor, reason) {
 | 文件 | 测试点 |
 |------|--------|
 | `definition.test.mjs` | driver 校验 / max_iterations 校验 / rollback_target 必须是已声明节点 |
-| `state-machine.test.mjs` | rollback / **admin override**（actor=admin 可触发 actor=agent 的 transition） |
+| `state-machine.test.mjs` | admin override / **transition meta 写入 history** |
 | `registry.test.mjs` | getByInstanceId 正确返回 / 不存在返回 null |
 | `workflow-prompt.test.mjs` | driver=self → "调 transition" / driver=planner → "通知 planner" / **driver=planner+wait_for_user → "通知 planner, 不联系用户"** |
 | `gate-enforcer.test.mjs` | driver=planner → 拦截执行者 transition / driver=self → 放行 |
-| `planner-tools.test.mjs` | create/admin_transition/inspect/rollback 各工具单元测试 |
+| `planner-tools.test.mjs` | create / **admin_transition user gate** / inspect / rollback |
 | `create-member.test.sh` | 参数解析 / 目录生成 / 端口分配 / 重复创建拒绝 |
 
 ### E2E 测试
@@ -574,6 +624,8 @@ rollback(targetNodeId, actor, reason) {
 | 6 | create-member → 启动 → handoff | 全链路 |
 | 7 | driver=planner + 执行者调 transition → 被拦截 | 双驱动防护 |
 | 8 | driver=planner + wait_for_user 节点 → prompt 不含"联系用户" | wait_for_user 改写 |
+| 9 | admin_transition actor:user 无 evidence → 拒绝 | **user gate 机器约束** |
+| 10 | admin_transition actor:user 有 evidence → 通过 + history.meta 正确 | **审计完整性** |
 
 ---
 
@@ -584,10 +636,11 @@ rollback(targetNodeId, actor, reason) {
 | # | 子任务 | 改动文件 | 测试 |
 |---|--------|---------|------|
 | 1.1 | `StateMachine.transition()` admin override | `state-machine.mjs:110` | actor=admin 可触发 agent/user transition |
-| 1.2 | `definition.mjs` 新增 `driver` 字段校验 | `definition.mjs` | driver=self/planner 合法，其他拒绝 |
-| 1.3 | `definition.mjs` 新增 `max_iterations`/`rollback_target` 校验 | `definition.mjs` | 正整数 / 必须是已声明节点 |
-| 1.4 | `StateMachine.rollback()` API | `state-machine.mjs` | 回退已访问 ✅ / 未访问 ❌ / history 追加 |
-| 1.5 | `WorkflowRegistry.getByInstanceId()` | `registry.mjs` | 找到 ✅ / 找不到 null |
+| 1.2 | `StateMachine.transition()` meta 参数 | `state-machine.mjs:123` | meta 写入 history |
+| 1.3 | `definition.mjs` 新增 `driver` 字段校验 | `definition.mjs` | driver=self/planner 合法，其他拒绝 |
+| 1.4 | `definition.mjs` 新增 `max_iterations`/`rollback_target` 校验 | `definition.mjs` | 正整数 / 必须是已声明节点 |
+| 1.5 | `StateMachine.rollback()` API | `state-machine.mjs` | 回退已访问 ✅ / 未访问 ❌ / history 追加 |
+| 1.6 | `WorkflowRegistry.getByInstanceId()` | `registry.mjs` | 找到 ✅ / 找不到 null |
 
 ### T42-2: workflow-prompt planner-mode 分叉
 
@@ -611,7 +664,7 @@ rollback(targetNodeId, actor, reason) {
 | # | 子任务 | 改动文件 | 测试 |
 |---|--------|---------|------|
 | 4.1 | `workflow_create` — 校验 + 创建实例 + role→member 解析 | `planner-tools.mjs` | 合法 JSON ✅ / 缺字段 ❌ |
-| 4.2 | `workflow_admin_transition` — admin 级 transition | `planner-tools.mjs` | 触发 agent transition ✅ |
+| 4.2 | `workflow_admin_transition` — admin + user gate | `planner-tools.mjs` | agent transition ✅ / **user transition 无 evidence ❌** / 有 evidence ✅ |
 | 4.3 | `workflow_inspect` — 工作流全貌 | `planner-tools.mjs` | 返回所有节点状态 |
 | 4.4 | `workflow_rollback` — 委托 SM.rollback() | `planner-tools.mjs` | 回退成功 ✅ |
 | 4.5 | `handoff_to_member` + `read_artifact` | `planner-tools.mjs` | prompt 组装 + 文件读取 |
@@ -631,8 +684,10 @@ rollback(targetNodeId, actor, reason) {
 
 | # | 子任务 | 场景 |
 |---|--------|------|
-| 6.1 | 2 节点跑通 | pua 写文档 → admin_transition → 完成 |
+| 6.1 | 2 节点跑通 | pua 写文档 → admin_transition(on_behalf_of:planner) → 完成 |
 | 6.2 | 迭代 | 用户修改 → 转发 → 返工 |
 | 6.3 | 双驱动防护 | 执行者调 transition → 被拦截 |
-| 6.4 | rollback | 连续失败 → 回退 |
-| 6.5 | 持久化 | Planner 重启 → 恢复进度 |
+| 6.4 | user gate | admin_transition(actor:user, 无 evidence) → 拒绝 |
+| 6.5 | 用户审核 | admin_transition(on_behalf_of:user, evidence:"通过") → history.meta 正确 |
+| 6.6 | rollback | 连续失败 → 回退 |
+| 6.7 | 持久化 | Planner 重启 → 恢复进度（含 history.meta） |
