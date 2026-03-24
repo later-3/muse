@@ -1,0 +1,41 @@
+{
+  "id": "t42-e2e-test",
+  "name": "T42 E2E 验证工作流",
+  "version": "1.0",
+  "driver": "planner",
+  "participants": [
+    { "role": "pua", "description": "写文档" }
+  ],
+  "initial": "write_doc",
+  "nodes": {
+    "write_doc": {
+      "id": "write_doc",
+      "type": "action",
+      "participant": "pua",
+      "objective": "编写测试文档",
+      "instructions": ["创建 test-output.md", "包含项目概述"],
+      "constraints": ["不修改 src/ 下的文件"],
+      "capabilities": ["code_read", "code_write", "workflow_control"],
+      "output": { "artifact": "test-output.md" },
+      "transitions": {
+        "doc_done": { "target": "review", "actor": "agent" }
+      }
+    },
+    "review": {
+      "id": "review",
+      "type": "action",
+      "participant": "pua",
+      "objective": "用户审核文档",
+      "wait_for_user": true,
+      "capabilities": ["code_read"],
+      "transitions": {
+        "approved": { "target": "done", "actor": "user" },
+        "rejected": { "target": "write_doc", "actor": "user" }
+      }
+    },
+    "done": {
+      "id": "done",
+      "type": "terminal"
+    }
+  }
+}
