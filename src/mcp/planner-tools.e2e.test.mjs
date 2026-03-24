@@ -1,7 +1,7 @@
 /**
  * T42-6: Planner E2E Validation Tests
  *
- * 7 个场景覆盖 Planner 驱动工作流的完整链路：
+ * 9 个场景覆盖 Planner 驱动工作流的完整链路：
  *   6.1 Happy Path — create → inspect → admin_transition → done
  *   6.2 迭代返工 — rejected → rollback → re-submit
  *   6.3 双驱动防护 — 执行者 transition 被 GateEnforcer 拦截
@@ -9,6 +9,8 @@
  *   6.5 用户审核 + evidence — evidence 写入 history.meta
  *   6.6 Rollback — 已访问节点成功 / 未访问节点拒绝
  *   6.7 持久化恢复 — toState → fromState 状态一致 + meta 保留
+ *   6.8 handoff_to_member — mock 在线成员 + 3-step ACK + bindings 验证
+ *   6.9 read_artifact — 写产出物到 artifact 目录 + Planner 成功读取
  */
 
 import { describe, it, before, after } from 'node:test'
@@ -16,6 +18,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, cpSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { createServer } from 'node:http'
 
 import {
   handleWorkflowCreate,
@@ -28,7 +31,8 @@ import {
 import { GateEnforcer } from '../workflow/gate-enforcer.mjs'
 import { loadWorkflowFromFile } from '../workflow/definition.mjs'
 import { StateMachine } from '../workflow/state-machine.mjs'
-import { loadInstanceState } from '../workflow/bridge.mjs'
+import { loadInstanceState, saveInstanceState, getArtifactDir } from '../workflow/bridge.mjs'
+import { registerMember, unregisterMember } from '../family/registry.mjs'
 
 // ── Test Helpers ──
 
@@ -350,5 +354,144 @@ describe('6.7 Persistence', () => {
     const docDone = state.history.find(h => h.event === 'doc_done')
     assert.ok(docDone?.meta, 'doc_done history 包含 meta')
     assert.equal(docDone.meta.on_behalf_of, 'planner')
+  })
+})
+
+// ── 6.8 handoff_to_member + mock 成员 ──
+
+describe('6.8 handoff_to_member 执行链路', () => {
+  let env
+  let instanceId
+  let mockServer
+  let mockPort
+
+  before(async () => {
+    env = setupEnv()
+
+    // 1. 启动 mock HTTP server 模拟执行者 OpenCode
+    mockServer = createServer((req, res) => {
+      // POST /session → 返回 sessionId
+      if (req.method === 'POST' && req.url === '/session') {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ id: 'mock-session-001' }))
+        return
+      }
+      // POST /session/:id/prompt_async → 204
+      if (req.method === 'POST' && req.url?.includes('/prompt_async')) {
+        res.writeHead(204)
+        res.end()
+
+        // 异步注入 ACK：模拟 target hook 写 acked
+        setTimeout(() => {
+          if (!instanceId) return
+          const state = loadInstanceState(instanceId)
+          if (state?.handoff?.status === 'pending') {
+            state.handoff.status = 'acked'
+            saveInstanceState(instanceId, state)
+          }
+        }, 200)
+        return
+      }
+      res.writeHead(404)
+      res.end()
+    })
+
+    await new Promise(resolve => {
+      mockServer.listen(0, '127.0.0.1', () => {
+        mockPort = mockServer.address().port
+        resolve()
+      })
+    })
+
+    // 2. 注册 mock 成员到 family registry
+    registerMember('mock-pua', {
+      role: 'pua',
+      engine: `http://127.0.0.1:${mockPort}`,
+      pid: process.pid,
+    }, join(env.tmpDir, 'test-family'))
+
+    // 3. 创建工作流实例
+    const data = await createInstance()
+    instanceId = data.instance_id
+  })
+
+  after(async () => {
+    if (mockServer) await new Promise(r => mockServer.close(r))
+    env.cleanup()
+  })
+
+  it('handoff_to_member 成功触发 3-step ACK', async () => {
+    const result = await handleHandoffToMember('planner-session', {
+      instance_id: instanceId,
+      role: 'pua',
+    })
+    const data = JSON.parse(result.content[0].text)
+    assert.equal(data.success, true)
+    assert.equal(data.target_role, 'pua')
+    assert.equal(data.target_member, 'mock-pua')
+    assert.equal(data.handoff_status, 'triggered')
+  })
+
+  it('bridge 状态包含 bindings 和 handoff 记录', () => {
+    const state = loadInstanceState(instanceId)
+    assert.ok(state, '实例状态存在')
+
+    // bindings 含 mock-session-001
+    const binding = state.bindings.find(b => b.sessionId === 'mock-session-001')
+    assert.ok(binding, 'bindings 中有 targetSession')
+    assert.equal(binding.role, 'pua')
+
+    // handoff 状态
+    assert.ok(state.handoff, 'handoff 记录存在')
+    assert.equal(state.handoff.target, 'pua')
+    assert.equal(state.handoff.targetSession, 'mock-session-001')
+    assert.equal(state.handoff.source, 'planner')
+    // status 应为 executing（ACK 已通过，prompt 已发送）
+    assert.ok(['acked', 'executing'].includes(state.handoff.status),
+      `handoff.status 应为 acked 或 executing，实际: ${state.handoff.status}`)
+  })
+})
+
+// ── 6.9 read_artifact 成功链路 ──
+
+describe('6.9 read_artifact 成功链路', () => {
+  let env
+  let instanceId
+
+  before(async () => {
+    env = setupEnv()
+    const data = await createInstance()
+    instanceId = data.instance_id
+  })
+  after(() => { env.cleanup() })
+
+  it('Planner 能读取执行者产出的 artifact', async () => {
+    // 1. 模拟执行者写入产出物
+    const artDir = getArtifactDir(instanceId)
+    assert.ok(artDir, 'artifact 目录可解析')
+    mkdirSync(artDir, { recursive: true })
+
+    const content = '# 测试文档\n\n这是 pua 的产出物。\n'
+    writeFileSync(join(artDir, 'test-output.md'), content)
+
+    // 2. Planner 读取 artifact
+    const result = await handleReadArtifact('planner-session', {
+      instance_id: instanceId,
+      name: 'test-output.md',
+    })
+    const data = JSON.parse(result.content[0].text)
+    assert.equal(data.name, 'test-output.md')
+    assert.equal(data.instance_id, instanceId)
+    assert.equal(data.content, content)
+    assert.equal(data.size, content.length)
+  })
+
+  it('读取不存在的 artifact → 报错', async () => {
+    const result = await handleReadArtifact('planner-session', {
+      instance_id: instanceId,
+      name: 'nonexistent.md',
+    })
+    const text = result.content[0].text
+    assert.ok(text.includes('失败') || text.includes('ENOENT'))
   })
 })
