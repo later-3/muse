@@ -29,7 +29,6 @@ import { Goals } from '../core/goals.mjs'
 import { Threads } from '../core/threads.mjs'
 import { DevStore } from '../dev/store.mjs'
 import { DEV_TOOLS, handleStartDevTask, handleDevStatus, handleApproveDev, handleRejectDev } from './dev-tools.mjs'
-import { WORKFLOW_TOOLS, handleWorkflowList, handleWorkflowInit, handleWorkflowLoad, handleWorkflowStatus, handleWorkflowTransition, handleWorkflowEmitArtifact, handleWorkflowReset, handleWorkflowRetryHandoff, handleWorkflowCancelHandoff } from './workflow-tools.mjs'
 import { PLANNER_TOOLS, handleWorkflowCreate, handleWorkflowAdminTransition, handleWorkflowInspect, handleWorkflowRollback, handleHandoffToMember, handleReadArtifact } from './planner-tools.mjs'
 
 // --- Config ---
@@ -856,13 +855,7 @@ async function main() {
   )
 
   // List tools
-  const memberRole = process.env.MUSE_ROLE || 'unknown'
-  const allTools = [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...WORKFLOW_TOOLS]
-
-  // T42-4: Planner 专属工具
-  if (memberRole === 'planner') {
-    allTools.push(...PLANNER_TOOLS)
-  }
+  const allTools = [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...PLANNER_TOOLS]
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: allTools,
@@ -925,29 +918,7 @@ async function main() {
           return await handleGenerateImage(args || {})
         case 'search_image':
           return await handleSearchImage(args || {})
-        // T39: Workflow tools
-        case 'workflow_list':
-          return handleWorkflowList()
-        case 'workflow_init':
-          return await handleWorkflowInit(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown',
-            args || {},
-            process.env.MUSE_ROOT || process.cwd()
-          )
-        case 'workflow_load':
-          return await handleWorkflowLoad(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown')
-        case 'workflow_status':
-          return await handleWorkflowStatus(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown')
-        case 'workflow_transition':
-          return await handleWorkflowTransition(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
-        case 'workflow_emit_artifact':
-          return await handleWorkflowEmitArtifact(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
-        case 'workflow_reset':
-          return await handleWorkflowReset()
-        case 'workflow_retry_handoff':
-          return await handleWorkflowRetryHandoff(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
-        case 'workflow_cancel_handoff':
-          return await handleWorkflowCancelHandoff(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown')
+        // T42: Planner workflow tools (旧 WORKFLOW_TOOLS 已移除)
         // T42-4: Planner tools
         case 'workflow_create':
           return await handleWorkflowCreate(

@@ -13,8 +13,6 @@ import { createMessageHook } from './hooks/message-hook.mjs'
 import { createToolAudit, createToolStartHook } from './hooks/tool-audit.mjs'
 import { createSystemPrompt } from './hooks/system-prompt.mjs'
 import { TraceAggregator } from './hooks/trace-aggregator.mjs'
-import { createWorkflowGate } from './hooks/workflow-gate.mjs'
-import { createWorkflowPrompt } from './hooks/workflow-prompt.mjs'
 
 /**
  * T39: 工作流 transition 推送通知
@@ -121,23 +119,19 @@ export default async function musePlugin(input) {
     } catch { /* 降级 */ }
   }
 
-  // T39: 工作流 hooks
-  const workflowGate = createWorkflowGate()
+  // T39: system prompt hook
   const toolStartHook = createToolStartHook({ logDir })
   const systemPromptHook = createSystemPrompt()
-  const workflowPrompt = createWorkflowPrompt()
 
   return {
     event: eventHook,
     'chat.message': createMessageHook({ logDir }),
     'tool.execute.before': async (input) => {
       await toolStartHook(input)
-      await workflowGate(input)  // T39: 工作流拦截（抛错阻断）
     },
     'tool.execute.after': toolAuditHook,
     'experimental.chat.system.transform': async (input, output) => {
       await systemPromptHook(input, output)
-      await workflowPrompt(input, output)  // T39: 节点指令注入
     },
   }
 }
