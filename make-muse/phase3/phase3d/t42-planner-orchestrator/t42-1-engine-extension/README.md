@@ -15,7 +15,8 @@
 | 1.3 driver 字段校验 | `src/workflow/definition.mjs` | ~10 行 |
 | 1.4 max_iterations / rollback_target 校验 | `src/workflow/definition.mjs` | ~15 行 |
 | 1.5 rollback() API | `src/workflow/state-machine.mjs` | ~30 行 |
-| 1.6 getByInstanceId() | `src/workflow/registry.mjs` | ~5 行 |
+
+> **注意**：`WorkflowRegistry` 已有 `getInstance(instanceId)` 方法（`registry.mjs:134`），不需要新增任何 registry 代码。后续 T42-4 的 `workflow_admin_transition` 直接使用 `registry.getInstance(instance_id)` 即可。
 
 ---
 
@@ -405,7 +406,10 @@ rollback(targetNodeId, actor, reason, meta) {
 
   log.info('工作流回退', { instance: this.instanceId, from, to: targetNodeId, reason })
 
-  return { from, to: targetNodeId }
+  // 7. ★ 触发 listener（与 transition() 一致的可观测性）
+  const result = { from, to: targetNodeId, event: 'rollback' }
+  this.#fireListeners(result)
+  return result
 }
 ```
 
@@ -520,60 +524,30 @@ describe('StateMachine — Rollback', () => {
     const entry = sm2.history.at(-1)
     assert.equal(entry.event, 'rollback')
   })
+
+  it('rollback 触发 onTransition listener', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')  // → review
+    const events = []
+    sm.onTransition((e) => events.push(e))
+    sm.rollback('analyze', 'admin', 'test')
+    assert.equal(events.length, 1)
+    assert.equal(events[0].event, 'rollback')
+    assert.equal(events[0].from, 'review')
+    assert.equal(events[0].to, 'analyze')
+    assert.equal(events[0].status, 'running')
+    assert.equal(events[0].instanceId, sm.instanceId)
+  })
 })
 ```
 
 ---
 
-## 子任务 1.6: WorkflowRegistry.getByInstanceId()
+## 关于 Registry
 
-### 现状
-
-`registry.mjs` 有 `#instances = new Map()` 存储 `instanceId → StateMachine`，但只有 `getBySession(sessionId)` 间接查找。
-
-### 改动
-
-```javascript
-/**
- * 根据 instanceId 直接获取状态机
- * @param {string} instanceId
- * @returns {import('./state-machine.mjs').StateMachine | null}
- */
-getByInstanceId(instanceId) {
-  return this.#instances.get(instanceId) || null
-}
-```
-
-### 测试用例
-
-```javascript
-// 新增到 registry.test.mjs
-
-describe('WorkflowRegistry — getByInstanceId', () => {
-  it('已注册实例 → 返回 SM', () => {
-    const registry = new WorkflowRegistry()
-    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
-    registry.register(sm, [{ role: 'orchestrator', sessionId: 's1' }])
-    const found = registry.getByInstanceId(sm.instanceId)
-    assert.equal(found, sm)
-  })
-
-  it('未注册实例 → 返回 null', () => {
-    const registry = new WorkflowRegistry()
-    const found = registry.getByInstanceId('nonexistent')
-    assert.equal(found, null)
-  })
-
-  it('unregister 后 → 返回 null', () => {
-    const registry = new WorkflowRegistry()
-    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
-    registry.register(sm, [{ role: 'orchestrator', sessionId: 's1' }])
-    registry.unregister(sm.instanceId)
-    const found = registry.getByInstanceId(sm.instanceId)
-    assert.equal(found, null)
-  })
-})
-```
+> **不需要新增 registry 代码。** `WorkflowRegistry` 已有 `getInstance(instanceId)` 方法（`registry.mjs:134`），签名和行为完全符合需求。后续 T42-4 的 `workflow_admin_transition` 直接调用 `registry.getInstance(instance_id)` 即可。
+>
+> 已有调用点参考：`telegram.mjs:406`、`loader.mjs:92`。
 
 ---
 
@@ -591,6 +565,7 @@ describe('WorkflowRegistry — getByInstanceId', () => {
 2. **decision 节点的递归 transition** — `transition()` 在遇到 decision 节点时会递归调用自己。确保 meta 参数在递归路径中正确传播（当前 decision 递归调用 `sm.transition(event, 'system')`，meta 不需要传递，因为 decision 是自动路由）
 3. **toState/fromState** — `toState()` 是深拷贝，`fromState()` 恢复。新增的 meta 字段会自动随 history 一起序列化/反序列化，不需要额外处理
 4. **ACTOR_TYPES** — `admin` 已在 `definition.mjs:19` 的 `ACTOR_TYPES` 中，不需要新增
+5. **#fireListeners** — `transition()` 在 L142 调用 `#fireListeners(result)` 通知监听者。`rollback()` 必须保持同样的可观测性，否则 bridge / trace / planner 审计挂监听时 rollback 会静默失踪
 
 ### ⚠️ 项目规范
 
@@ -608,21 +583,20 @@ describe('WorkflowRegistry — getByInstanceId', () => {
 |---|--------|---------|
 | 1 | 所有现有测试通过 | `node --test src/workflow/state-machine.test.mjs` 0 failures |
 | 2 | 所有现有测试通过 | `node --test src/workflow/definition.test.mjs` 0 failures |
-| 3 | 所有现有测试通过 | `node --test src/workflow/registry.test.mjs` 0 failures |
-| 4 | admin override 测试通过 | admin 可触发 agent/user transition |
-| 5 | system 不受 admin override 影响 | system 仍然不能触发 agent transition |
-| 6 | meta 写入 history | transition 带 meta → history 包含 meta |
-| 7 | meta 不影响逻辑 | 带 meta 的 transition 结果和不带一样 |
-| 8 | meta 持久化 | toState/fromState 后 meta 保留 |
-| 9 | driver 校验 | self/planner 合法，xxx 报错 |
-| 10 | driver 默认值 | 省略 → self |
-| 11 | max_iterations 校验 | 正整数合法，0/负数/小数报错 |
-| 12 | rollback_target 校验 | 已有节点合法，不存在报错 |
-| 13 | rollback 基本功能 | 回退到已访问节点成功 |
-| 14 | rollback 未访问拒绝 | 回退到未访问节点报错 |
-| 15 | rollback actor 限制 | agent/user 不能 rollback |
-| 16 | rollback history | event=rollback, 带 reason |
-| 17 | rollback 后可继续 | rollback 后正常 transition |
-| 18 | rollback 持久化 | toState/fromState 后 rollback 记录保留 |
-| 19 | getByInstanceId | 已注册返回 SM，未注册返回 null |
-| 20 | getByInstanceId unregister | 注销后返回 null |
+| 3 | admin override 测试通过 | admin 可触发 agent/user transition |
+| 4 | system 不受 admin override 影响 | system 仍然不能触发 agent transition |
+| 5 | meta 写入 history | transition 带 meta → history 包含 meta |
+| 6 | meta 不影响逻辑 | 带 meta 的 transition 结果和不带一样 |
+| 7 | meta 持久化 | toState/fromState 后 meta 保留 |
+| 8 | driver 校验 | self/planner 合法，xxx 报错 |
+| 9 | driver 默认值 | 省略 → self |
+| 10 | max_iterations 校验 | 正整数合法，0/负数/小数报错 |
+| 11 | rollback_target 校验 | 已有节点合法，不存在报错 |
+| 12 | rollback 基本功能 | 回退到已访问节点成功 |
+| 13 | rollback 未访问拒绝 | 回退到未访问节点报错 |
+| 14 | rollback actor 限制 | agent/user 不能 rollback |
+| 15 | rollback history | event=rollback, 带 reason |
+| 16 | rollback 后可继续 | rollback 后正常 transition |
+| 17 | rollback 持久化 | toState/fromState 后 rollback 记录保留 |
+| 18 | **rollback 触发 listener** | onTransition 回调被调用，event=rollback |
+| 19 | 无新增 registry 代码 | 使用已有 `getInstance()` |

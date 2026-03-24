@@ -639,8 +639,9 @@ rollback(targetNodeId, actor, reason) {
 | 1.2 | `StateMachine.transition()` meta 参数 | `state-machine.mjs:123` | meta 写入 history |
 | 1.3 | `definition.mjs` 新增 `driver` 字段校验 | `definition.mjs` | driver=self/planner 合法，其他拒绝 |
 | 1.4 | `definition.mjs` 新增 `max_iterations`/`rollback_target` 校验 | `definition.mjs` | 正整数 / 必须是已声明节点 |
-| 1.5 | `StateMachine.rollback()` API | `state-machine.mjs` | 回退已访问 ✅ / 未访问 ❌ / history 追加 |
-| 1.6 | `WorkflowRegistry.getByInstanceId()` | `registry.mjs` | 找到 ✅ / 找不到 null |
+| 1.5 | `StateMachine.rollback()` API + `#fireListeners` | `state-machine.mjs` | 回退已访问 ✅ / 未访问 ❌ / listener 触发 |
+
+> `WorkflowRegistry` 已有 `getInstance(instanceId)`（`registry.mjs:134`），不需要新增代码。
 
 ### T42-2: workflow-prompt planner-mode 分叉
 
