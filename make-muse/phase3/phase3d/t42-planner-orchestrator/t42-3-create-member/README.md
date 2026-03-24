@@ -200,69 +200,126 @@ cd muse/
 
 ---
 
-## 子任务 3.6: 定制 Planner 的 opencode.json
+## 子任务 3.6: 配置 Planner 为自定义 primary agent
 
-### 现状
+### 设计决策
 
-create-member.sh 生成的 opencode.json 模板硬编码了 **coding 模型** 和 **全开放权限**：
+Planner **不是** build 的变种，也不是 plan 的皮肤。他是一个**全新的角色**，需要自己的：
+
+- 模型（reasoning-first，不要 coder-first）
+- 权限（plan 级只读）
+- prompt（指挥官人设）
+- MCP 工具（workflow_create / workflow_admin_transition / handoff 等）
+
+OpenCode 支持在 `opencode.json` 中通过 `agent` 字段定义自定义 primary agent。
+
+### 改动
+
+脚本创建完成后，手动修改 `families/.../members/planner/opencode.json`，加入 `agent` 配置：
 
 ```json
 {
+  "$schema": "https://opencode.ai/config.json",
   "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
   "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
+  "username": "Later",
+
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "planner": {
+      "description": "工作流指挥官，负责任务拆解、调度推进和质量检查",
+      "mode": "primary",
+      "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
+      "temperature": 0.1,
+      "prompt": "{file:./.agents/prompt.md}",
+      "permission": {
+        "bash": "deny",
+        "edit": "deny"
+      },
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "apply_patch": false,
+        "workflow_transition": false
+      }
+    }
+  },
+
   "permission": {
-    "bash": "allow",
-    "edit": "allow",
+    "bash": "deny",
+    "edit": "deny",
     "read": "allow",
     "glob": "allow",
     "grep": "allow"
+  },
+
+  "plugin": [
+    "file://../../shared/plugin/index.mjs"
+  ],
+
+  "skills": {
+    "paths": [
+      "../../shared/skills",
+      "./.agents/skills"
+    ]
+  },
+
+  "mcp": {
+    "memory-server": {
+      "type": "local",
+      "command": ["node", "../../shared/mcp/memory.mjs"],
+      "environment": {
+        "MEMORY_DB_PATH": "./data/memory.db",
+        "TELEGRAM_BOT_TOKEN": "{env:TELEGRAM_BOT_TOKEN}",
+        "TELEGRAM_CHAT_ID": "{env:TELEGRAM_CHAT_ID}",
+        "PEXELS_API_KEY": "{env:PEXELS_API_KEY}"
+      }
+    }
   }
 }
 ```
 
-这对 Planner 不适用。Planner 是指挥官，需要强推理模型，且必须只读。
+> **注意**：这是完整替换，不是增量修改。create-member.sh 生成的默认 opencode.json 直接覆盖。
 
-### 改动
+### 关键配置说明
 
-脚本创建完成在后，手动修改 `families/.../members/planner/opencode.json`：
+| 配置项 | 值 | 原因 |
+|--------|-----|------|
+| `agent.build.disable` | `true` | Planner 不需要 build agent |
+| `agent.plan.disable` | `true` | Planner 不需要 plan agent，他自己就是 |
+| `agent.planner.mode` | `"primary"` | 自定义 primary agent |
+| `agent.planner.temperature` | `0.1` | 低温度 = 更确定性，适合调度决策 |
+| `agent.planner.prompt` | `"{file:./.agents/prompt.md}"` | 指挥官 prompt（T42-5 编写） |
+| `agent.planner.permission.bash` | `"deny"` | 不执行命令 |
+| `agent.planner.permission.edit` | `"deny"` | 不修改文件 |
+| `agent.planner.tools.workflow_transition` | `false` | 禁用执行者的 transition，用 admin_transition |
 
-```diff
-  {
--   "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
--   "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
-+   "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
-+   "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
+### 模型选择
 
-    "permission": {
--     "bash": "allow",
--     "edit": "allow",
-+     "bash": "deny",
-+     "edit": "deny",
-      "read": "allow",
-      "glob": "allow",
--     "grep": "allow",
--     "webfetch": "ask",
--     "websearch": "ask"
-+     "grep": "allow"
-    }
-  }
+**原则**：Planner 要 reasoning-first，不要 coder-first。
+
+| 维度 | Planner 需要 | Coder 需要 |
+|------|-------------|-----------|
+| 核心能力 | 判断、拆解、审查、汇报 | 写代码 |
+| 模型类型 | 通用推理模型 | 编码模型 |
+| temperature | 0.1~0.2 | 0.3~0.5 |
+
+> **当前方案**：`model` 暂用 `qwen3-coder-plus`（当前可用池最强），后续 later 确认可切换为更偏推理的模型。Planner 的模型和 Coder 的模型**必须独立配置**，互不影响。
+
+### prompt.md 骨架
+
+`families/.../members/planner/.agents/prompt.md` 由 T42-5 编写，此处只需创建空目录：
+
+```bash
+mkdir -p families/.../members/planner/.agents/
+touch families/.../members/planner/.agents/prompt.md
 ```
-
-### 模型选择说明
-
-Planner 的工作是任务拆解、质量检查、调度决策，**不写代码**。模型应当强调推理可靠性而非编码能力。
-
-> **注意**：具体模型名由 later 确认。如果 later 没有明确指定，暂时沿用脑版模型（qwen3-coder-plus），后续可切换。
-
-### 权限说明
-
-| 权限 | 值 | 原因 |
-|------|-----|------|
-| bash | **deny** | Planner 不执行 shell 命令 |
-| edit | **deny** | Planner 不修改文件，通过 handoff 派发 |
-| read | allow | Planner 需要读取产出物进行质量检查 |
-| glob | allow | 配合 read |
-| grep | allow | 配合 read |
 
 ---
 
