@@ -79,12 +79,14 @@ export function createWorkflowGate() {
     const node = sm.getCurrentNode()
     if (!node) return
 
+    const driver = sm.definition?.driver || 'self'
     const result = GateEnforcer.check({
       tool,
       args,
       node,
       participantStatus,
       workspaceRoot: registry.workspaceRoot,
+      driver,
     })
 
     if (!result.allowed) {

@@ -1,23 +1,57 @@
 #!/bin/bash
 # Muse Member 初始化脚本
-# 用法: ./init-member.sh <family> <member> <role>
-# 示例: ./init-member.sh later-muse-family coder coder
+# 用法: ./create-member.sh <family> <member> <role> [--bot-token <token>] [--chat-id <id>]
+# 示例: ./create-member.sh later-muse-family planner planner --bot-token 123:ABC --chat-id 456
 
 set -e
 
 MUSE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ $# -lt 3 ]; then
-  echo "用法: ./init-member.sh <family> <member> <role>"
-  echo "示例: ./init-member.sh later-muse-family coder coder"
+  echo "用法: ./create-member.sh <family> <member> <role> [--bot-token <token>] [--chat-id <id>]"
+  echo "示例: ./create-member.sh later-muse-family planner planner --bot-token 123:ABC --chat-id 456"
   echo ""
-  echo "可用 role: nvwa, pua, architect, coder"
+  echo "可用 role: nvwa, pua, architect, coder, planner"
   exit 1
 fi
 
 FAMILY="$1"
 MEMBER="$2"
 ROLE="$3"
+shift 3
+
+BOT_TOKEN=""
+CHAT_ID=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --bot-token)
+      BOT_TOKEN="$2"
+      shift 2
+      ;;
+    --chat-id)
+      CHAT_ID="$2"
+      shift 2
+      ;;
+    *)
+      echo "❌ 未知参数: $1"
+      exit 1
+      ;;
+  esac
+done
+
+# --- 必填项校验 ---
+if [ -z "$BOT_TOKEN" ]; then
+  echo "❌ 缺少 --bot-token 参数"
+  echo "   每个 Muse 成员需要独立的 Telegram Bot Token"
+  exit 1
+fi
+
+if [ -z "$CHAT_ID" ]; then
+  echo "❌ 缺少 --chat-id 参数"
+  echo "   指运行 Muse 的 Telegram Chat ID"
+  exit 1
+fi
 FAMILY_DIR="$MUSE_ROOT/families/$FAMILY"
 MEMBER_DIR="$FAMILY_DIR/members/$MEMBER"
 
@@ -75,8 +109,8 @@ cat > "$MEMBER_DIR/config.json" << EOF
 {
   "role": "$ROLE",
   "telegram": {
-    "botToken": "",
-    "chatId": "",
+    "botToken": "$BOT_TOKEN",
+    "chatId": "$CHAT_ID",
     "allowedUsers": []
   },
   "engine": {

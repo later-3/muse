@@ -335,3 +335,80 @@ describe('WorkflowDefinition — 复杂定义', () => {
     assert.equal(def.getNode('review').transitions.approve.actor, 'user')
   })
 })
+
+describe('WorkflowDefinition — driver 校验', () => {
+  it('driver=self → 合法', () => {
+    const def = parseWorkflow({ ...minimalWorkflow(), driver: 'self' })
+    assert.equal(def.driver, 'self')
+  })
+
+  it('driver=planner → 合法', () => {
+    const def = parseWorkflow({ ...minimalWorkflow(), driver: 'planner' })
+    assert.equal(def.driver, 'planner')
+  })
+
+  it('driver 省略 → 默认 self', () => {
+    const def = parseWorkflow(minimalWorkflow())
+    assert.equal(def.driver, 'self')
+  })
+
+  it('driver=xxx → 报错', () => {
+    assert.throws(
+      () => parseWorkflow({ ...minimalWorkflow(), driver: 'xxx' }),
+      (err) => err.errors?.some(e => e.includes('driver')),
+    )
+  })
+})
+
+describe('WorkflowDefinition — max_iterations / rollback_target', () => {
+  it('max_iterations=3 → 合法', () => {
+    const wf = minimalWorkflow()
+    wf.nodes.start.max_iterations = 3
+    const def = parseWorkflow(wf)
+    assert.ok(def)
+  })
+
+  it('max_iterations=0 → 报错', () => {
+    const wf = minimalWorkflow()
+    wf.nodes.start.max_iterations = 0
+    assert.throws(
+      () => parseWorkflow(wf),
+      (err) => err.errors?.some(e => e.includes('max_iterations')),
+    )
+  })
+
+  it('max_iterations=-1 → 报错', () => {
+    const wf = minimalWorkflow()
+    wf.nodes.start.max_iterations = -1
+    assert.throws(
+      () => parseWorkflow(wf),
+      (err) => err.errors?.some(e => e.includes('max_iterations')),
+    )
+  })
+
+  it('max_iterations=1.5 → 报错', () => {
+    const wf = minimalWorkflow()
+    wf.nodes.start.max_iterations = 1.5
+    assert.throws(
+      () => parseWorkflow(wf),
+      (err) => err.errors?.some(e => e.includes('max_iterations')),
+    )
+  })
+
+  it('rollback_target 指向已有节点 → 合法', () => {
+    const wf = minimalWorkflow()
+    // start 节点的 rollback_target 指向 end 节点
+    wf.nodes.start.rollback_target = 'end'
+    const def = parseWorkflow(wf)
+    assert.ok(def)
+  })
+
+  it('rollback_target 指向不存在的节点 → 报错', () => {
+    const wf = minimalWorkflow()
+    wf.nodes.start.rollback_target = 'nonexistent'
+    assert.throws(
+      () => parseWorkflow(wf),
+      (err) => err.errors?.some(e => e.includes('rollback_target')),
+    )
+  })
+})

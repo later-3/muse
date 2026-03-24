@@ -472,4 +472,150 @@ describe('T41-4: compileNodePrompt 系统通知头', () => {
   })
 })
 
+// ── Planner Mode 测试 ──
+
+function mockSm(driver = 'self') {
+  return {
+    instanceId: 'test-instance',
+    workflowId: 'test-wf',
+    taskId: 't1',
+    status: 'running',
+    definition: {
+      name: 'Test Workflow',
+      description: '',
+      driver,
+    },
+  }
+}
+
+function mockNode(overrides = {}) {
+  return {
+    id: 'test-node',
+    type: 'action',
+    participant: 'worker',
+    objective: '测试目标',
+    capabilities: ['code_read'],
+    bash_policy: 'deny',
+    transitions: {
+      done: { target: 'next', actor: 'agent' },
+    },
+    ...overrides,
+  }
+}
+
+describe('compileNodePrompt — Planner Mode', () => {
+  it('driver=self → 包含 "workflow_transition"', () => {
+    const prompt = compileNodePrompt(mockNode(), mockSm('self'), 'active')
+    assert.ok(prompt.includes('workflow_transition'))
+    assert.ok(!prompt.includes('通知 Planner'))
+  })
+
+  it('driver=planner → 包含 "通知 Planner"', () => {
+    const prompt = compileNodePrompt(mockNode(), mockSm('planner'), 'active')
+    assert.ok(prompt.includes('通知 Planner'))
+    assert.ok(prompt.includes('不要调用 workflow_transition'))
+    assert.ok(prompt.includes('不要直接通过 Telegram 联系用户'))
+  })
+
+  it('driver=planner → 不包含 "workflow_transition" 调用指令', () => {
+    const prompt = compileNodePrompt(mockNode(), mockSm('planner'), 'active')
+    // 注意：只检查「执行指令」部分不含 transition 调用
+    // 状态流转列表可能仍然显示可用 transition（见 2.2）
+    assert.ok(!prompt.includes('完成后立即调用 workflow_transition'))
+    assert.ok(!prompt.includes('完成后调 workflow_transition 推进'))
+  })
+
+  it('driver=planner + wait_for_user=true → 同样走 planner 分支', () => {
+    const node = mockNode({ wait_for_user: true })
+    const prompt = compileNodePrompt(node, mockSm('planner'), 'active')
+    assert.ok(prompt.includes('通知 Planner'))
+    // 不应包含 T39 的 "等待用户指令" 分支
+    assert.ok(!prompt.includes('等待用户通过 Telegram 回复'))
+  })
+
+  it('driver=self + wait_for_user=true → T39 原逻辑', () => {
+    const node = mockNode({ wait_for_user: true })
+    const prompt = compileNodePrompt(node, mockSm('self'), 'active')
+    assert.ok(prompt.includes('等待用户通过 Telegram 回复'))
+    assert.ok(!prompt.includes('通知 Planner'))
+  })
+
+  it('driver=self + wait_for_user=false → T39 原逻辑', () => {
+    const node = mockNode()
+    const prompt = compileNodePrompt(node, mockSm('self'), 'active')
+    assert.ok(prompt.includes('完成后立即调用 workflow_transition'))
+  })
+
+  it('frozen 状态 → 不受 planner mode 影响', () => {
+    const prompt = compileNodePrompt(mockNode(), mockSm('planner'), 'frozen')
+    assert.ok(prompt.includes('冻结状态'))
+    assert.ok(!prompt.includes('通知 Planner'))
+  })
+})
+
+describe('compileNodePrompt — Planner Mode Transition Display', () => {
+  it('driver=self → 显示 transition 调用', () => {
+    const node = mockNode({
+      transitions: { done: { target: 'next', actor: 'agent' } },
+    })
+    const prompt = compileNodePrompt(node, mockSm('self'), 'active')
+    assert.ok(prompt.includes('workflow_transition("done")'))
+  })
+
+  it('driver=planner → 不显示 transition 调用', () => {
+    const node = mockNode({
+      transitions: { done: { target: 'next', actor: 'agent' } },
+    })
+    const prompt = compileNodePrompt(node, mockSm('planner'), 'active')
+    assert.ok(!prompt.includes('workflow_transition("done")'))
+  })
+})
+
+function plannerWorkflow() {
+  return parseWorkflow({
+    id: 'planner-task', name: 'Planner Test', version: '1.0',
+    driver: 'planner',  // ★ T42 新增
+    initial: 'work',
+    participants: [{ role: 'worker' }],
+    nodes: {
+      work: {
+        type: 'action', participant: 'worker', objective: '干活',
+        capabilities: ['code_read', 'workflow_control'],
+        bash_policy: 'deny',
+        transitions: { done: { target: 'end', actor: 'agent' } },
+      },
+      end: { type: 'terminal' },
+    },
+  })
+}
+
+describe('workflow-gate hook — Planner Mode', () => {
+  let gate, reg, sm
+
+  beforeEach(() => {
+    reg = new WorkflowRegistry({ workspaceRoot: '/test' })
+    sm = new StateMachine(plannerWorkflow(), { taskId: 't-planner' })
+    reg.register(sm, [{ role: 'worker', sessionId: 'ses_worker' }])
+    setRegistry(reg)
+    gate = createWorkflowGate()
+  })
+
+  afterEach(() => setRegistry(null))
+
+  it('driver=planner: active 调 workflow_transition → 拦截', async () => {
+    await assert.rejects(
+      () => gate({ tool: 'workflow_transition', args: {}, sessionID: 'ses_worker' }),
+      /Planner/,
+    )
+  })
+
+  it('driver=planner: active 调 workflow_status → 放行', async () => {
+    await gate({ tool: 'workflow_status', args: {}, sessionID: 'ses_worker' })
+  })
+
+  it('driver=planner: active 调 read → 放行', async () => {
+    await gate({ tool: 'read', args: {}, sessionID: 'ses_worker' })
+  })
+})
+
 

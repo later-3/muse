@@ -63,9 +63,10 @@ export class GateEnforcer {
    * @param {object} opts.node - 当前节点定义
    * @param {string} opts.participantStatus - 'active' | 'frozen' | 'unbound'
    * @param {string} [opts.workspaceRoot] - 工作区根目录（路径校验用）
+   * @param {string} [opts.driver] - 工作流驱动模式 ('self' | 'planner')
    * @returns {{ allowed: boolean, reason?: string }}
    */
-  static check({ tool, args, node, participantStatus, workspaceRoot }) {
+  static check({ tool, args, node, participantStatus, workspaceRoot, driver }) {
     // 1. 未绑定 → 全部放行
     if (participantStatus === 'unbound') {
       return { allowed: true }
@@ -100,7 +101,16 @@ export class GateEnforcer {
       }
     }
 
-    // 4. bash 策略检查
+    // 4.5 ★ Planner 模式：拦截 active Muse 的 workflow_transition
+    if (driver === 'planner' && tool === 'workflow_transition') {
+      log.info('planner-mode 拦截 transition', { tool, node: node.id })
+      return {
+        allowed: false,
+        reason: '当前工作流由 Planner 驱动，workflow_transition 只能由 Planner 调用。请通知 Planner 你已完成工作。',
+      }
+    }
+
+    // 5. bash 策略检查
     if (tool === 'bash') {
       const bashResult = checkBashPolicy(node.bash_policy || 'deny', args?.command || '')
       if (!bashResult.allowed) {
@@ -109,7 +119,7 @@ export class GateEnforcer {
       }
     }
 
-    // 5. file_scope 路径检查（code_write 工具）
+    // 6. file_scope 路径检查（code_write 工具）
     if (['edit', 'write', 'apply_patch'].includes(tool) && node.file_scope) {
       const pathResult = checkFilePath(tool, args, node.file_scope, workspaceRoot)
       if (!pathResult.allowed) {

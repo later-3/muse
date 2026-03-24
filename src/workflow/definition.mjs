@@ -18,6 +18,8 @@ export const NODE_TYPES = new Set(['action', 'gate', 'handoff', 'decision', 'ter
 
 export const ACTOR_TYPES = new Set(['agent', 'user', 'admin', 'system'])
 
+export const DRIVER_TYPES = new Set(['self', 'planner'])
+
 export const BASH_POLICIES = new Set(['deny', 'read_only', 'test_build', 'scoped_write', 'full'])
 
 // ── 校验错误 ──
@@ -44,6 +46,7 @@ export class WorkflowDefinition {
   get version()      { return this.#raw.version }
   get initial()      { return this.#raw.initial }
   get participants() { return this.#raw.participants }
+  get driver()       { return this.#raw.driver || 'self' }
 
   getNode(nodeId) {
     return this.#raw.nodes[nodeId] || null
@@ -148,6 +151,13 @@ function validateWorkflow(raw) {
     }
   }
 
+  // 校验 driver
+  if (raw.driver !== undefined) {
+    if (!DRIVER_TYPES.has(raw.driver)) {
+      errors.push(`未知 driver "${raw.driver}"，合法值: ${[...DRIVER_TYPES].join(', ')}`)
+    }
+  }
+
   // 校验每个节点
   for (const [nodeId, node] of Object.entries(raw.nodes)) {
     const prefix = `节点 "${nodeId}"`
@@ -218,6 +228,22 @@ function validateWorkflow(raw) {
     if (node.output) {
       if (!node.output.artifact || typeof node.output.artifact !== 'string') {
         errors.push(`${prefix}: output.artifact 应为非空字符串`)
+      }
+    }
+
+    // max_iterations（可选，正整数）
+    if (node.max_iterations !== undefined) {
+      if (!Number.isInteger(node.max_iterations) || node.max_iterations < 1) {
+        errors.push(`${prefix}: "max_iterations" 必须是正整数`)
+      }
+    }
+
+    // rollback_target（可选，必须指向已声明的节点）
+    if (node.rollback_target !== undefined) {
+      if (typeof node.rollback_target !== 'string') {
+        errors.push(`${prefix}: "rollback_target" 必须是字符串`)
+      } else if (!nodeIds.has(node.rollback_target)) {
+        errors.push(`${prefix}: "rollback_target" 指向不存在的节点 "${node.rollback_target}"`)
       }
     }
   }

@@ -351,3 +351,205 @@ describe('StateMachine — Decision 节点自动路由', () => {
   })
 })
 
+describe('StateMachine — Admin Override', () => {
+  it('admin 触发 actor=agent 的 transition → 成功', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    // analyze → review, transition actor=agent
+    const result = sm.transition('submit', 'admin')
+    assert.equal(result.to, 'review')
+    assert.equal(sm.currentNodeId, 'review')
+  })
+
+  it('admin 触发 actor=user 的 transition → 成功', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')  // → review
+    // review → execute, transition actor=user
+    const result = sm.transition('approve', 'admin')
+    assert.equal(result.to, 'execute')
+    assert.equal(sm.currentNodeId, 'execute')
+  })
+
+  it('system 触发 actor=agent 的 transition → 仍然拒绝', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    assert.throws(
+      () => sm.transition('submit', 'system'),
+      (err) => {
+        assert.ok(err instanceof TransitionError)
+        assert.equal(err.details.required, 'agent')
+        assert.equal(err.details.actual, 'system')
+        return true
+      },
+    )
+  })
+
+  it('admin override 的 history 记录 actor=admin', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'admin')
+    const entry = sm.history.at(-1)
+    assert.equal(entry.actor, 'admin')
+    assert.equal(entry.event, 'submit')
+  })
+})
+
+describe('StateMachine — Transition Meta', () => {
+  it('不传 meta → history 无 meta 字段', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    const entry = sm.history.at(-1)
+    assert.equal(entry.meta, undefined)
+  })
+
+  it('传入 meta → history 包含 meta', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'admin', {
+      on_behalf_of: 'planner',
+      evidence: '质量检查通过',
+    })
+    const entry = sm.history.at(-1)
+    assert.deepEqual(entry.meta, {
+      on_behalf_of: 'planner',
+      evidence: '质量检查通过',
+    })
+  })
+
+  it('meta 不影响 transition 逻辑', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'admin', { on_behalf_of: 'user', evidence: '通过' })
+    assert.equal(sm.currentNodeId, 'review')
+  })
+
+  it('toState/fromState 保留 meta', () => {
+    const def = devWorkflow()
+    const sm1 = new StateMachine(def, { taskId: 't1' })
+    sm1.transition('submit', 'admin', { on_behalf_of: 'user', evidence: '通过' })
+    const state = sm1.toState()
+    const sm2 = StateMachine.fromState(def, state)
+    const entry = sm2.history.at(-1)
+    assert.deepEqual(entry.meta, { on_behalf_of: 'user', evidence: '通过' })
+  })
+})
+
+describe('StateMachine — Rollback', () => {
+  it('回退到已访问的节点 → 成功', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')  // analyze → review
+    const result = sm.rollback('analyze', 'admin', '产出不合格')
+    assert.equal(result.from, 'review')
+    assert.equal(result.to, 'analyze')
+    assert.equal(sm.currentNodeId, 'analyze')
+  })
+
+  it('回退到未访问的节点 → 拒绝', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    // 只访问了 analyze，还没到 execute
+    assert.throws(
+      () => sm.rollback('execute', 'admin', 'test'),
+      (err) => {
+        assert.ok(err instanceof TransitionError)
+        assert.ok(err.message.includes('未访问'))
+        return true
+      },
+    )
+  })
+
+  it('agent 不能触发 rollback → 拒绝', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    assert.throws(
+      () => sm.rollback('analyze', 'agent', 'test'),
+      (err) => {
+        assert.ok(err instanceof TransitionError)
+        assert.ok(err.message.includes('system 或 admin'))
+        return true
+      },
+    )
+  })
+
+  it('user 不能触发 rollback → 拒绝', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    assert.throws(
+      () => sm.rollback('analyze', 'user', 'test'),
+      TransitionError,
+    )
+  })
+
+  it('rollback 的 history 记录', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    sm.rollback('analyze', 'admin', '产出不合格')
+    const entry = sm.history.at(-1)
+    assert.equal(entry.event, 'rollback')
+    assert.equal(entry.from, 'review')
+    assert.equal(entry.to, 'analyze')
+    assert.equal(entry.actor, 'admin')
+    assert.equal(entry.reason, '产出不合格')
+  })
+
+  it('rollback 带 meta', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    sm.rollback('analyze', 'admin', '用户要求退回', {
+      on_behalf_of: 'user',
+      evidence: '用户消息: "退回"',
+    })
+    const entry = sm.history.at(-1)
+    assert.equal(entry.meta.on_behalf_of, 'user')
+  })
+
+  it('已完成的工作流 → rollback 拒绝', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    sm.transition('approve', 'user')
+    sm.transition('done', 'agent')
+    assert.equal(sm.status, 'completed')
+    assert.throws(
+      () => sm.rollback('analyze', 'admin', 'test'),
+      TransitionError,
+    )
+  })
+
+  it('rollback 后可以继续正常 transition', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')  // → review
+    sm.rollback('analyze', 'admin', '重做')  // → analyze
+    sm.transition('submit', 'agent')  // → review again
+    assert.equal(sm.currentNodeId, 'review')
+  })
+
+  it('paused 状态下 rollback → 恢复为 running', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')
+    sm.pause()
+    assert.equal(sm.status, 'paused')
+    sm.rollback('analyze', 'admin', 'test')
+    assert.equal(sm.status, 'running')
+  })
+
+  it('toState/fromState 保留 rollback 记录', () => {
+    const def = devWorkflow()
+    const sm1 = new StateMachine(def, { taskId: 't1' })
+    sm1.transition('submit', 'agent')
+    sm1.rollback('analyze', 'admin', 'test')
+    const state = sm1.toState()
+    const sm2 = StateMachine.fromState(def, state)
+    assert.equal(sm2.currentNodeId, 'analyze')
+    const entry = sm2.history.at(-1)
+    assert.equal(entry.event, 'rollback')
+  })
+
+  it('rollback 触发 onTransition listener', () => {
+    const sm = new StateMachine(devWorkflow(), { taskId: 't1' })
+    sm.transition('submit', 'agent')  // → review
+    const events = []
+    sm.onTransition((e) => events.push(e))
+    sm.rollback('analyze', 'admin', 'test')
+    assert.equal(events.length, 1)
+    assert.equal(events[0].event, 'rollback')
+    assert.equal(events[0].from, 'review')
+    assert.equal(events[0].to, 'analyze')
+    assert.equal(events[0].status, 'running')
+    assert.equal(events[0].instanceId, sm.instanceId)
+  })
+})
+

@@ -30,6 +30,7 @@ import { Threads } from '../core/threads.mjs'
 import { DevStore } from '../dev/store.mjs'
 import { DEV_TOOLS, handleStartDevTask, handleDevStatus, handleApproveDev, handleRejectDev } from './dev-tools.mjs'
 import { WORKFLOW_TOOLS, handleWorkflowList, handleWorkflowInit, handleWorkflowLoad, handleWorkflowStatus, handleWorkflowTransition, handleWorkflowEmitArtifact, handleWorkflowReset, handleWorkflowRetryHandoff, handleWorkflowCancelHandoff } from './workflow-tools.mjs'
+import { PLANNER_TOOLS, handleWorkflowCreate, handleWorkflowAdminTransition, handleWorkflowInspect, handleWorkflowRollback, handleHandoffToMember, handleReadArtifact } from './planner-tools.mjs'
 
 // --- Config ---
 
@@ -855,8 +856,16 @@ async function main() {
   )
 
   // List tools
+  const memberRole = process.env.MUSE_ROLE || 'unknown'
+  const allTools = [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...WORKFLOW_TOOLS]
+
+  // T42-4: Planner 专属工具
+  if (memberRole === 'planner') {
+    allTools.push(...PLANNER_TOOLS)
+  }
+
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...WORKFLOW_TOOLS],
+    tools: allTools,
   }))
 
   // Handle tool calls
@@ -939,6 +948,25 @@ async function main() {
           return await handleWorkflowRetryHandoff(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
         case 'workflow_cancel_handoff':
           return await handleWorkflowCancelHandoff(args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown')
+        // T42-4: Planner tools
+        case 'workflow_create':
+          return await handleWorkflowCreate(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+        case 'workflow_admin_transition':
+          return await handleWorkflowAdminTransition(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+        case 'workflow_inspect':
+          return await handleWorkflowInspect(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+        case 'workflow_rollback':
+          return await handleWorkflowRollback(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+        case 'handoff_to_member':
+          return await handleHandoffToMember(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+        case 'read_artifact':
+          return await handleReadArtifact(
+            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
         default:
           return errorResult(`Unknown tool: ${name}`)
       }

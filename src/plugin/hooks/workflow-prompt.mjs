@@ -191,15 +191,25 @@ export function compileNodePrompt(node, sm, participantStatus) {
   // ★ T41-4: 系统通知头（只对 active 参与者生效）
   // frozen / 输入缺失 分支已在上方提前 return，不会执行到此处
   const wfDisplayName = sm.definition?.name || sm.workflowId
+  const isPlannerMode = sm.definition?.driver === 'planner'
+
   sections.push(
     `[系统通知] 你在工作流「${wfDisplayName}」的「${node.id}」节点。` +
     `当前任务行为以节点要求为准（P2 日常行为让位），安全/身份边界持续生效。` +
-    (node.wait_for_user ? '' : `完成后调 workflow_transition 推进。`)
+    (isPlannerMode ? `完成后通知 Planner。` : (node.wait_for_user ? '' : `完成后调 workflow_transition 推进。`))
   )
   sections.push('')
 
-  // ★ 执行模式（自主执行 vs 等待用户）
-  if (node.wait_for_user) {
+  // ★ 执行模式（自主执行 vs 等待用户 vs Planner 驱动）
+  if (isPlannerMode) {
+    // ★ Planner 模式：统一行为，不区分 wait_for_user
+    sections.push(`\n## ⚠️ 执行规则（Planner 驱动）`)
+    sections.push(`你由 Planner 指挥官调度。你必须：`)
+    sections.push(`- 按照步骤指引完成所有操作`)
+    sections.push(`- 完成后通知 Planner，说明产出和结果`)
+    sections.push(`- ⛔ 不要调用 workflow_transition，由 Planner 统一推进`)
+    sections.push(`- ⛔ 不要直接通过 Telegram 联系用户，由 Planner 中转`)
+  } else if (node.wait_for_user) {
     sections.push(`\n## ⏸️ 等待用户指令`)
     sections.push(`此节点需要用户参与。你必须：`)
     sections.push(`- 向用户展示需要审核的内容`)
@@ -260,12 +270,15 @@ export function compileNodePrompt(node, sm, participantStatus) {
   }
 
   // 可用的 transition（只显示 agent 可触发的）
-  const agentTransitions = Object.entries(node.transitions || {})
-    .filter(([_, t]) => t.actor === 'agent')
-  if (agentTransitions.length) {
-    sections.push(`\n## 状态流转`)
-    agentTransitions.forEach(([event, t]) =>
-      sections.push(`- workflow_transition("${event}") → 进入 "${t.target}"`))
+  // ★ Planner 模式下不显示 transition 调用指令
+  if (!isPlannerMode) {
+    const agentTransitions = Object.entries(node.transitions || {})
+      .filter(([_, t]) => t.actor === 'agent')
+    if (agentTransitions.length) {
+      sections.push(`\n## 状态流转`)
+      agentTransitions.forEach(([event, t]) =>
+        sections.push(`- workflow_transition("${event}") → 进入 "${t.target}"`))
+    }
   }
 
   // 自定义 prompt

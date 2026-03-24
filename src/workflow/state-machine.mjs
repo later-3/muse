@@ -84,10 +84,13 @@ export class StateMachine {
    * 执行状态流转
    * @param {string} event - transition 事件名
    * @param {string} actor - 触发者身份（agent/user/admin/system）
+   * @param {object} [meta] - 可选的审计元数据，会写入 history
+   * @param {string} [meta.on_behalf_of] - 实际决策者（user/planner）
+   * @param {string} [meta.evidence] - 决策证据
    * @returns {{ from: string, to: string, event: string }}
    * @throws {TransitionError}
    */
-  transition(event, actor) {
+  transition(event, actor, meta) {
     const node = this.getCurrentNode()
 
     if (this.#state.status !== 'running') {
@@ -106,8 +109,8 @@ export class StateMachine {
 
     const transitionDef = node.transitions[event]
 
-    // Actor 校验
-    if (transitionDef.actor && transitionDef.actor !== actor) {
+    // Actor 校验（admin 可覆盖）
+    if (transitionDef.actor && transitionDef.actor !== actor && actor !== 'admin') {
       throw new TransitionError(
         `Transition "${event}" 需要 ${transitionDef.actor} 触发，当前 actor 是 ${actor}`,
         { node: node.id, event, required: transitionDef.actor, actual: actor },
@@ -120,7 +123,7 @@ export class StateMachine {
     const targetNode = this.#definition.getNode(to)
 
     this.#state.current_node = to
-    this.#state.history.push({ from, to, event, actor, ts: Date.now() })
+    this.#state.history.push({ from, to, event, actor, ts: Date.now(), ...(meta ? { meta } : {}) })
 
     log.info('状态流转', { instance: this.instanceId, from, to, event, actor })
 
@@ -264,6 +267,80 @@ export class StateMachine {
       this.#state.status = 'running'
       log.info('工作流恢复', { instance: this.instanceId, node: this.currentNodeId })
     }
+  }
+
+  /**
+   * 回退到之前访问过的节点
+   * @param {string} targetNodeId - 目标节点 ID（必须在 history 中出现过）
+   * @param {string} actor - 触发者（必须是 'system' 或 'admin'）
+   * @param {string} reason - 回退原因
+   * @param {object} [meta] - 可选审计元数据
+   * @returns {{ from: string, to: string }}
+   * @throws {TransitionError}
+   */
+  rollback(targetNodeId, actor, reason, meta) {
+    // 1. 状态校验
+    if (this.#state.status !== 'running' && this.#state.status !== 'paused') {
+      throw new TransitionError(
+        `工作流已 ${this.#state.status}，不能 rollback`,
+        { status: this.#state.status },
+      )
+    }
+
+    // 2. targetNodeId 必须在 history 中出现过
+    const visited = new Set()
+    for (const h of this.#state.history) {
+      if (h.to) visited.add(h.to)
+      if (h.from) visited.add(h.from)
+    }
+    if (!visited.has(targetNodeId)) {
+      throw new TransitionError(
+        `不能回退到未访问过的节点 "${targetNodeId}"`,
+        { targetNodeId, visited: [...visited] },
+      )
+    }
+
+    // 3. 目标节点必须存在于定义中
+    const targetNode = this.#definition.getNode(targetNodeId)
+    if (!targetNode) {
+      throw new TransitionError(
+        `目标节点 "${targetNodeId}" 不存在`,
+        { targetNodeId },
+      )
+    }
+
+    // 4. actor 只能是 system 或 admin
+    if (!['system', 'admin'].includes(actor)) {
+      throw new TransitionError(
+        `rollback 只能由 system 或 admin 触发，当前: ${actor}`,
+        { actor },
+      )
+    }
+
+    // 5. 执行回退
+    const from = this.#state.current_node
+    this.#state.current_node = targetNodeId
+    this.#state.history.push({
+      from,
+      to: targetNodeId,
+      event: 'rollback',
+      actor,
+      reason,
+      ts: Date.now(),
+      ...(meta ? { meta } : {}),
+    })
+
+    // 6. 恢复状态
+    if (this.#state.status === 'paused') {
+      this.#state.status = 'running'
+    }
+
+    log.info('工作流回退', { instance: this.instanceId, from, to: targetNodeId, reason })
+
+    // 7. 触发 listener（与 transition() 一致的可观测性）
+    const result = { from, to: targetNodeId, event: 'rollback' }
+    this.#fireListeners(result)
+    return result
   }
 
   abort(reason = '') {

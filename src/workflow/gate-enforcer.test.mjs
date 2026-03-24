@@ -360,3 +360,77 @@ describe('parsePatchPaths', () => {
     assert.deepEqual(parsePatchPaths(''), [])
   })
 })
+
+describe('GateEnforcer — Planner Mode', () => {
+  const activeNode = {
+    id: 'test-node',
+    capabilities: ['code_read', 'workflow_control'],
+    bash_policy: 'deny',
+  }
+
+  it('driver=self → workflow_transition 放行', () => {
+    const result = GateEnforcer.check({
+      tool: 'workflow_transition',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+      driver: 'self',
+    })
+    assert.equal(result.allowed, true)
+  })
+
+  it('driver=planner → workflow_transition 拦截', () => {
+    const result = GateEnforcer.check({
+      tool: 'workflow_transition',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+      driver: 'planner',
+    })
+    assert.equal(result.allowed, false)
+    assert.ok(result.reason.includes('Planner'))
+  })
+
+  it('driver=planner → workflow_status 仍然放行', () => {
+    const result = GateEnforcer.check({
+      tool: 'workflow_status',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+      driver: 'planner',
+    })
+    assert.equal(result.allowed, true)
+  })
+
+  it('driver=planner → workflow_emit_artifact 仍然放行', () => {
+    const result = GateEnforcer.check({
+      tool: 'workflow_emit_artifact',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+      driver: 'planner',
+    })
+    assert.equal(result.allowed, true)
+  })
+
+  it('driver=planner → read 工具不受影响', () => {
+    const result = GateEnforcer.check({
+      tool: 'read',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+      driver: 'planner',
+    })
+    assert.equal(result.allowed, true)
+  })
+
+  it('driver 不传（兼容 T39）→ 不拦截', () => {
+    const result = GateEnforcer.check({
+      tool: 'workflow_transition',
+      args: {},
+      node: activeNode,
+      participantStatus: 'active',
+    })
+    assert.equal(result.allowed, true)
+  })
+})
