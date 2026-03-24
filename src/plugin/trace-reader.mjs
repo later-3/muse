@@ -13,7 +13,7 @@
  *   node muse/src/plugin/trace-reader.mjs --date 2026-03-18   # 指定日期的日志
  *
  * logDir 来源（同 plugin）:
- *   MUSE_TRACE_DIR env var 或 ./data/hook-logs (fallback)
+ *   MUSE_TRACE_DIR env var 或 ./data/trace (fallback)
  *
  * 日志按日归档：{logDir}/YYYY-MM-DD/{events,messages,tool-calls,tool-starts}.jsonl
  */
@@ -26,7 +26,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
 
 // --- logDir 解析 ---
-const logDir = process.env.MUSE_TRACE_DIR || join(ROOT, 'data', 'hook-logs')
+const logDir = process.env.MUSE_TRACE_DIR || join(ROOT, 'data', 'trace')
 const tracesDir = join(logDir, 'traces')
 
 // --- 参数解析 ---

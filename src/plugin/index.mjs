@@ -3,7 +3,7 @@
  *
  * logDir 优先级:
  *   1. MUSE_TRACE_DIR env var（family member 专属路径）
- *   2. fallback: {opencode directory}/muse/data/hook-logs
+ *   2. fallback: {CWD}/data/trace (member 家目录下)
  */
 
 import { mkdirSync, readFileSync } from 'node:fs'
@@ -65,7 +65,7 @@ async function notifyWorkflowTransition(info) {
 
 export default async function musePlugin(input) {
   const { directory } = input
-  const logDir = process.env.MUSE_TRACE_DIR || join(directory, 'muse', 'data', 'hook-logs')
+  const logDir = process.env.MUSE_TRACE_DIR || join(directory, 'data', 'trace')
 
   try { mkdirSync(logDir, { recursive: true }) } catch { /* 降级 */ }
 

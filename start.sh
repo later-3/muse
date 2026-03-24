@@ -24,7 +24,7 @@ DEFAULT_MEMBER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$MU
 if [ "$1" = "stop" ]; then
   FAMILY="${FAMILY:-$DEFAULT_FAMILY}"
   MEMBER="$DEFAULT_MEMBER"
-  PID_FILE="$MUSE_ROOT/families/$FAMILY/$MEMBER/data/muse.pid"
+  PID_FILE="$MUSE_ROOT/families/$FAMILY/members/$MEMBER/data/muse.pid"
   if [ -f "$PID_FILE" ]; then
     MUSE_PID=$(cat "$PID_FILE")
     echo "⏹  停止 Muse $MEMBER (PID: $MUSE_PID)..."
@@ -52,7 +52,7 @@ else
   MEMBER="$DEFAULT_MEMBER"
 fi
 
-MEMBER_DIR="$MUSE_ROOT/families/$FAMILY/$MEMBER"
+MEMBER_DIR="$MUSE_ROOT/families/$FAMILY/members/$MEMBER"
 SRC_DIR="$MUSE_ROOT/src"
 
 # --- 验证目录存在 ---
@@ -82,7 +82,7 @@ if [ "$3" = "stop" ] || [ "$2" = "stop" ]; then
 fi
 
 # --- 确保目录存在 ---
-mkdir -p "$MEMBER_DIR/data/logs" "$MEMBER_DIR/data/trace" "$MEMBER_DIR/.opencode"
+mkdir -p "$MEMBER_DIR/data/logs" "$MEMBER_DIR/data/trace" "$MEMBER_DIR/workspace"
 
 # --- 清理上一次的进程 ---
 if [ -f "$PID_FILE" ]; then
@@ -112,64 +112,26 @@ if lsof -ti:"$MUSE_PORT" > /dev/null 2>&1; then
   sleep 1
 fi
 
-# --- 生成 nvwa/.opencode/opencode.json（动态绝对路径：plugin + mcp + skills）---
-MEMORY_DB="$MEMBER_DIR/data/memory.db"
-MEMBER_IMG_DIR="$MEMBER_DIR/data/images"
-PEXELS_KEY=$(node -e "
-try {
-  const cfg = JSON.parse(require('fs').readFileSync('$MEMBER_DIR/config.json','utf8'))
-  console.log(cfg.pexels?.apiKey || '')
-} catch(e) { console.log('') }
-")
-BOT_TOKEN=$(node -e "
+# --- 从 config.json 提取 secrets → export 为环境变量 ---
+# member 的 opencode.json 使用 {env:VAR} 引用这些值
+export TELEGRAM_BOT_TOKEN=$(node -e "
 try {
   const cfg = JSON.parse(require('fs').readFileSync('$MEMBER_DIR/config.json','utf8'))
   console.log(cfg.telegram?.botToken || '')
 } catch(e) { console.log('') }
 ")
-CHAT_ID=$(node -e "
+export TELEGRAM_CHAT_ID=$(node -e "
 try {
   const cfg = JSON.parse(require('fs').readFileSync('$MEMBER_DIR/config.json','utf8'))
   console.log(cfg.telegram?.chatId || '')
 } catch(e) { console.log('') }
 ")
-
-node -e "
-const mem = '$MEMBER_DIR';
-const src = '$SRC_DIR';
-const root = '$MUSE_ROOT';
-
-// 读取 member 的 adminSkills 字段（基础设施决定能力边界，不依赖 AI 自律）
-let isAdmin = false;
+export PEXELS_API_KEY=$(node -e "
 try {
-  const cfg = JSON.parse(require('fs').readFileSync(mem + '/config.json', 'utf8'));
-  isAdmin = !!cfg.adminSkills;
-} catch(e) {}
-
-// Skills 三层：引擎级 → admin-skills（仅管理员）→ member 专属
-const skillPaths = [root + '/.agents/skills'];
-if (isAdmin) skillPaths.push(root + '/.agents/admin-skills');
-skillPaths.push(mem + '/.agents/skills');
-
-const config = {
-  plugin: ['file://' + src + '/plugin/index.mjs'],
-  skills: { paths: skillPaths },
-  mcp: {
-    'memory-server': {
-      type: 'local',
-      command: ['node', src + '/mcp/memory.mjs'],
-      environment: {
-        MEMORY_DB_PATH: '$MEMORY_DB',
-        TELEGRAM_BOT_TOKEN: '$BOT_TOKEN',
-        TELEGRAM_CHAT_ID: '$CHAT_ID',
-        PEXELS_API_KEY: '$PEXELS_KEY'
-      }
-    }
-  }
-};
-require('fs').writeFileSync(mem + '/.opencode/opencode.json', JSON.stringify(config, null, 2));
-console.log('✅ .opencode/opencode.json 已生成, admin=' + isAdmin + ', skills=' + skillPaths.length + '层');
-"
+  const cfg = JSON.parse(require('fs').readFileSync('$MEMBER_DIR/config.json','utf8'))
+  console.log(cfg.pexels?.apiKey || '')
+} catch(e) { console.log('') }
+")
 
 # --- 日志 ---
 TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")

@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
-const LOG_DIR = join(ROOT, 'muse', 'data', 'hook-logs')
+const LOG_DIR = join(ROOT, 'data', 'trace')
 
 function isOcAvailable() {
   try {
