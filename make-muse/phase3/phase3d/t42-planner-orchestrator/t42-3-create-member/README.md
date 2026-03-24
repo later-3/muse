@@ -15,6 +15,7 @@
 | 3.3 必填项缺失时报错退出 | `create-member.sh` | ~5 行 |
 | 3.4 identity.mjs 增加 planner 角色默认值 | `src/core/identity.mjs` | ~15 行 |
 | 3.5 创建 Planner 成员（运行脚本） | 运行 | — |
+| 3.6 定制 Planner 的 opencode.json | `families/.../planner/opencode.json` | ~10 行 |
 
 ---
 
@@ -199,13 +200,79 @@ cd muse/
 
 ---
 
+## 子任务 3.6: 定制 Planner 的 opencode.json
+
+### 现状
+
+create-member.sh 生成的 opencode.json 模板硬编码了 **coding 模型** 和 **全开放权限**：
+
+```json
+{
+  "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
+  "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
+  "permission": {
+    "bash": "allow",
+    "edit": "allow",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow"
+  }
+}
+```
+
+这对 Planner 不适用。Planner 是指挥官，需要强推理模型，且必须只读。
+
+### 改动
+
+脚本创建完成在后，手动修改 `families/.../members/planner/opencode.json`：
+
+```diff
+  {
+-   "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
+-   "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
++   "model": "alibaba-coding-plan-cn/qwen3-coder-plus",
++   "small_model": "alibaba-coding-plan-cn/qwen3.5-plus",
+
+    "permission": {
+-     "bash": "allow",
+-     "edit": "allow",
++     "bash": "deny",
++     "edit": "deny",
+      "read": "allow",
+      "glob": "allow",
+-     "grep": "allow",
+-     "webfetch": "ask",
+-     "websearch": "ask"
++     "grep": "allow"
+    }
+  }
+```
+
+### 模型选择说明
+
+Planner 的工作是任务拆解、质量检查、调度决策，**不写代码**。模型应当强调推理可靠性而非编码能力。
+
+> **注意**：具体模型名由 later 确认。如果 later 没有明确指定，暂时沿用脑版模型（qwen3-coder-plus），后续可切换。
+
+### 权限说明
+
+| 权限 | 值 | 原因 |
+|------|-----|------|
+| bash | **deny** | Planner 不执行 shell 命令 |
+| edit | **deny** | Planner 不修改文件，通过 handoff 派发 |
+| read | allow | Planner 需要读取产出物进行质量检查 |
+| glob | allow | 配合 read |
+| grep | allow | 配合 read |
+
+---
+
 ## 注意事项
 
 ### ⚠️ 不要改的
 
 1. **不改现有成员的目录结构** — 只影响新创建的成员
 2. **不改 config.json 的其他字段** — 端口计算、memory、daemon 等保持不变
-3. **不改 opencode.json 模板** — Planner 的特殊权限配置（bash:deny、edit:deny）在 T42-5 手动修改
+3. **不改 opencode.json 模板** — 模板保持通用，Planner 的差异化在 3.6 手动修改
 4. **不改 AGENTS.md 生成逻辑** — create-member 只生成骨架，T42-5 手动替换
 
 ### ⚠️ 容易踩的坑
@@ -240,4 +307,5 @@ cd muse/
 | 10 | 创建 planner 成员成功 | 目录结构 + config.json + AGENTS.md 正确 |
 | 11 | 端口不冲突 | planner 端口不与 nvwa/arch 冲突 |
 | 12 | opencode.json 正确 | plugin/mcp 路径指向 shared/ |
-| 13 | 文档引用更新 | `grep -r 'init-member' muse/` 无残留（或已更新） |
+| 13 | **Planner opencode.json 权限** | bash=deny, edit=deny, read/glob/grep=allow |
+| 14 | 文档引用更新 | `grep -r 'init-member' muse/` 无残留（或已更新） |
