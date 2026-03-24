@@ -26,7 +26,7 @@ Planner 需要自己的 MCP 工具集。现有 `workflow-tools.mjs` 的工具是
 |------|------|------|
 | workflow-tools.mjs (现有) | `src/mcp/workflow-tools.mjs` | 执行者工具，655行 |
 | planner-tools.mjs (新建) | `src/mcp/planner-tools.mjs` | Planner 专属工具 |
-| server.mjs (注册入口) | `src/mcp/server.mjs` | 需要注册新工具 |
+| memory.mjs (注册入口) | `src/mcp/memory.mjs` | L858 ListTools + L863 CallTool switch |
 
 ## 关键代码模式
 
