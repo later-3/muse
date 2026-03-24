@@ -41,7 +41,7 @@
       "objective": "编写测试文档",
       "instructions": ["创建 test-output.md", "包含项目概述"],
       "constraints": ["不修改 src/ 下的文件"],
-      "capabilities": ["code"],
+      "capabilities": ["code_read", "code_write", "workflow_control"],
       "output": { "artifact": "test-output.md" },
       "transitions": {
         "doc_done": { "target": "review", "actor": "agent" }
@@ -53,7 +53,7 @@
       "participant": "pua",
       "objective": "用户审核文档",
       "wait_for_user": true,
-      "capabilities": ["code"],
+      "capabilities": ["code_read"],
       "transitions": {
         "approved": { "target": "done", "actor": "user" },
         "rejected": { "target": "write_doc", "actor": "user" }
@@ -247,7 +247,7 @@ describe('6.3 Dual-Drive Protection', () => {
     const result = GateEnforcer.check({
       tool: 'workflow_transition',
       args: {},
-      node: { id: 'write_doc', capabilities: ['code', 'workflow_control'] },
+      node: { id: 'write_doc', capabilities: ['code_read', 'code_write', 'workflow_control'] },
       participantStatus: 'active',
       driver: 'planner',
     })
@@ -259,7 +259,7 @@ describe('6.3 Dual-Drive Protection', () => {
     const result = GateEnforcer.check({
       tool: 'workflow_transition',
       args: {},
-      node: { id: 'write_doc', capabilities: ['code', 'workflow_control'] },
+      node: { id: 'write_doc', capabilities: ['code_read', 'code_write', 'workflow_control'] },
       participantStatus: 'active',
       driver: 'self',
     })
