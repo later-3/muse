@@ -231,11 +231,11 @@
 
 | 产出类型 | 具体形式 | 存放位置 |
 |---------|---------|---------|
-| **研究笔记** | Markdown 笔记，按统一模板 | `make-muse/research/` |
+| **研究笔记** | Markdown 笔记，按 `.agents/workflows/research-note.md` 标准 | `user/research/` |
 | **KI 知识条目** | 经过提炼的可复用知识 | KI Store |
-| **Spike 代码** | 验证性的小项目（零依赖可运行） | `make-muse/spikes/` |
-| **设计决策** | ADR (Architecture Decision Record) | `make-muse/architecture-blueprint/adr/` |
-| **技能实践** | hands-on 练习项目 | `make-muse/exercises/` |
+| **Spike 代码** | 验证性的小项目（零依赖可运行） | `user/spikes/` |
+| **设计决策** | ADR (Architecture Decision Record) | `user/adr/` |
+| **技能实践** | hands-on 练习项目 | `user/exercises/` |
 
 ---
 
@@ -341,9 +341,9 @@
 | **Phase 2.5** | ① 3 个锚点场景有用户故事 + AC ② Spike 与场景映射表完成 | ~月 2 初 |
 | **Phase 3** | ① 3 个 Spike 中至少 2 个跑通 ② 每个 Spike 有验证报告（含失败分析） | ~月 2 末 |
 | **Phase 4** | ① 新 Blueprint 对应 3 个锚点场景 ② 现有资产 Retain/Refactor/Rewrite/Archive 矩阵完成 ③ Blueprint v2 reviewed | ~月 3 初 |
-| **Phase 5** | ① S1（日常对话）端到端跑通 ② S2（任务协作）端到端跑通 ③ S3（审批链路）跑通 ④ 至少 1 个可公开演示的 demo + 1 份 failure postmortem | ~月 3 末 |
+| **Phase 5** | ① S1（日常对话）端到端跑通 ② S2（任务协作）端到端跑通 ③ S3（审批链路）跑通 ④ **S2b（自开发闭环）跑通** ⑤ **最小可观测性达标（trace 全覆盖 + 指标可查）** ⑥ 至少 1 个可公开演示的 demo + 1 份 failure postmortem — 即 **Muse Basic v1 全部 5 项能力达标** | ~月 3 末 |
 | **Phase 6** | ① Eval 框架可复用 ② 基准报告产出 | ~月 4 初 |
-| **Phase 7** | ① Portfolio 完整（Muse + 博客 + 面试故事） ② 可以面试 | ~月 4 末 |
+| **Phase 7** | ① Portfolio 完整（Muse demo + 博客 + 面试故事 + **Capstone 非 Muse 小 Agent 应用**） ② 可以面试 | ~月 4 末 |
 
 ---
 
@@ -440,7 +440,7 @@ Agent Engineer 技能树（4 个月达标路线）
 
 如果你同意这个方向，我们立即开始：
 
-1. **创建研究目录结构**：`make-muse/research/` + `make-muse/spikes/` + `make-muse/exercises/`
+1. **创建研究目录结构**：`user/research/` + `user/spikes/` + `user/exercises/`
 2. **Phase 0 启动**：从 Anthropic Building Effective Agents 开始精读
 3. **建立研究笔记模板**
 4. **每完成一个研究项，产出一个 KI**；仅当研究导致重大架构决策时才产出 ADR（如 Core Loop 模式选型、Memory 分层方案、Handoff 协议选择、Governance 拦截点定位）

@@ -36,7 +36,14 @@
   - `user/portfolio/demo/` (录屏)
   - `user/portfolio/blog-draft.md`
 
-### 第 9 天：面试准备
+### 第 9 天：Capstone — 非 Muse 小 Agent 应用
+
+- [ ] 用同一套 RDD + Spike + Eval 方法，1-2 天做一个非 Muse 的小 Agent 应用
+  - 例如：自动 PR Review Agent / 简历筛选 Agent / 研报摘要 Agent
+  - 目的：证明你的方法可迁移，不是只会做 Muse
+- [ ] 产出：`user/portfolio/capstone/`（代码 + 简短设计说明）
+
+### 第 10 天：面试准备 + 最终复盘
 
 - [ ] 整理面试故事清单：
   - "设计一个 Agent 系统" → Muse 架构故事
@@ -44,13 +51,11 @@
   - "Agent 的记忆如何设计" → Memory Spike 故事
   - "遇到过什么 Agent 失败" → postmortem 故事
   - "如何评估 Agent 质量" → Eval 框架故事
+  - **"你的方法能迁移到别的项目吗" → Capstone 故事**
 - [ ] 产出：`user/portfolio/interview-stories.md`
-
-### 第 10 天：最终复盘
-
 - [ ] 4 个月回顾：
-  - [ ] 目标 A 达标？（3 个 MVP 场景跑通）
-  - [ ] 目标 B 达标？（有 demo + postmortem + 博客 + 面试故事）
+  - [ ] 目标 A 达标？（Muse Basic v1 全部 5 项能力达标）
+  - [ ] 目标 B 达标？（demo + postmortem + 博客 + 面试故事 + **Capstone**）
   - [ ] 掌握了哪些 Agent 工程技能？
   - [ ] 还有什么不足需要补？
 - [ ] 写最终复盘：`user/sprint-8-retro.md`
@@ -74,7 +79,8 @@
 
 ```
 user/portfolio/
-├── demo/                    ← S1+S2+S3 端到端演示
+├── demo/                    ← S1+S2+S2b+S3 端到端演示
+├── capstone/               ← 非 Muse 小 Agent 应用（证明可迁移）
 ├── failure-postmortem.md    ← 可讲的失败故事
 ├── blog-draft.md            ← 技术博客
 └── interview-stories.md     ← 面试故事清单

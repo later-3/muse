@@ -12,27 +12,27 @@
 
 - [ ] 从 3 个 Spike 中提取架构约束（什么必须有、什么不需要）
 - [ ] 从 Design Principles v1 中提取设计准则
-- [ ] 产出：`user/architecture/spike-to-architecture-notes.md`
+- [ ] 产出：`make-muse/architecture-v2/spike-to-architecture-notes.md`
 
 ### 第 3-5 天：Muse Architecture v2
 
 - [ ] 写 Muse Architecture v2（轻量化，不超过现有 blueprint 的一半篇幅）
 - [ ] 要求：每个模块必须标注服务哪个 MVP 锚点场景（S1/S2/S3）
 - [ ] 要求：每个设计决策必须可追溯到 Spike 验证结果或研究证据
-- [ ] 产出：`user/architecture/muse-architecture-v2.md`
+- [ ] 产出：`make-muse/architecture-v2/muse-architecture-v2.md`
 
 ### 第 6-7 天：资产处置矩阵
 
 - [ ] 逐模块审查 `muse/src/` 现有代码
 - [ ] 用四分法分类：🟢 Retain / 🟡 Refactor / 🔴 Rewrite / ⚫ Archive
 - [ ] 对每个 Refactor/Rewrite 模块写出改造要点
-- [ ] 产出：`user/architecture/asset-disposition-matrix.md`
+- [ ] 产出：`make-muse/architecture-v2/asset-disposition-matrix.md`
 
 ### 第 8 天：Technical Design 规划
 
 - [ ] 基于 Architecture v2 + 资产矩阵，列出 S1/S2/S3 各需要的 Technical Design
 - [ ] 确定实现顺序（先 S2 harness？先 S1 对话？）
-- [ ] 产出：`user/architecture/implementation-order.md`
+- [ ] 产出：`make-muse/architecture-v2/implementation-order.md`
 
 ### 第 9-10 天：Sprint 5 复盘
 
@@ -49,10 +49,10 @@
 
 | # | 交付物 | 状态 |
 |---|-------|------|
-| 1 | `user/architecture/spike-to-architecture-notes.md` | [ ] |
-| 2 | `user/architecture/muse-architecture-v2.md` | [ ] |
-| 3 | `user/architecture/asset-disposition-matrix.md` | [ ] |
-| 4 | `user/architecture/implementation-order.md` | [ ] |
+| 1 | `make-muse/architecture-v2/spike-to-architecture-notes.md` | [ ] |
+| 2 | `make-muse/architecture-v2/muse-architecture-v2.md` | [ ] |
+| 3 | `make-muse/architecture-v2/asset-disposition-matrix.md` | [ ] |
+| 4 | `make-muse/architecture-v2/implementation-order.md` | [ ] |
 | 5 | `user/sprint-5-retro.md` | [ ] |
 
 ## 不做清单

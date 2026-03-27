@@ -44,9 +44,10 @@
 |---|------|---------|------------|
 | **S1** | **单 Muse 日常对话** | Later 和 pua 聊天，pua 有性格、有记忆、会主动关心 | 最基础的 Agent 能力验证 |
 | **S2** | **muse-harness 工作流** | Later 下达任务，planner 建工作流，推动 arch/coder/reviewer 在不同节点完成任务 | **你最想要的功能** |
+| **S2b** | **Muse 自开发闭环** | **Muse 发现自身问题 → planner 立项 → worker 修改自己的 docs/code/test → reviewer 审查 → 汇报** | **自演化核心能力** |
 | **S3** | **高风险动作审批** | arch 要改核心文件，planner 拦截审批 | 治理能力验证 |
 
-**扩展场景（MVP 之后）：**
+**扩展场景（MVP 之后，非锚点）：**
 
 | # | 场景 | 用户故事 | 为什么是扩展 |
 |---|------|---------|-------------|
@@ -180,11 +181,15 @@
 
 ### 🟫 域 10: Eval & Observability — 贯穿全程
 
+> ⚠️ **最小可观测性是 Muse Basic v1 的硬验收标准（能力 5）**
+
 | Muse 功能 | 所需知识 | 理论来源 | 代码参考 | 实践 | Phase |
 |-----------|---------|---------|---------|------|-------|
 | 全链路追踪 | Tracing / Span | A1 §追踪; LangSmith | LangSmith; 现有 muse-trace | 每 Spike 有 trace | 贯穿 |
+| **关键指标看板** | **成功率/延迟/错误率采集** | **Prometheus/自定义** | **muse-trace + Web Cockpit** | **Sprint 7 实现最小版** | **5 (硬验收)** |
 | LLM-as-Judge | 自动评估 | A1 §LLM-as-Judge | DeepEval; Ragas | Phase 6 固化 | 贯穿→6 |
-| Mini-eval | 退出条件验证 | RDD v1 각 Phase exit criteria | — | 每 Phase 结束 | 贯穿 |
+| Mini-eval | 退出条件验证 | RDD v1 各 Phase exit criteria | — | 每 Phase 结束 | 贯穿 |
+| **S2b 自开发可观测** | **自开发循环 trace + 回放** | **域 3 + 域 4** | **S2 harness trace 扩展** | **Sprint 7 验证** | **5** |
 
 ---
 
@@ -197,7 +202,7 @@ Step 1: 理论 📖
   你: "我们来看域 3 的 Orchestrator-Worker"
   AI: 读取 Anthropic A1 → 提取关键概念 → 对比 Muse harness 的设计需求
   你: 验证理解 → 用自己的话复述 → 记录到研究笔记
-  产出: make-muse/research/[domain]-[topic].md
+  产出: user/research/[domain]-[topic].md
 
 Step 2: 经验 🔍
   你: "我们来看 Swarm 的 Handoff 怎么实现的"
@@ -212,11 +217,13 @@ Step 3: 实践 🔨
   产出: Spike 代码 + 验证报告
 ```
 
+> **研究笔记标准：** 所有笔记必须遵循 `.agents/workflows/research-note.md` 中定义的格式。
+
 ### 三类结果同时产出
 
 | 每完成一行 | 项目结果 🏗️ | 学习结果 🎓 | 面试证据 💼 |
 |-----------|-----------|-----------|-----------|
-| 储存位置 | `make-muse/spikes/` 或 `src/` | `make-muse/research/` + KI | `make-muse/portfolio/` |
+| 储存位置 | `user/spikes/` 或 `src/` | `user/research/` + KI | `user/portfolio/` |
 | 例子 | Spike 3 Handoff 原型 | "Handoff 协议对比分析" 笔记 | "我如何设计多 Agent 任务委派" |
 
 ---
@@ -238,8 +245,9 @@ Step 3: 实践 🔨
 |------|---------|
 | 方向和阶段定义 | `user/Research-Driven Development.md`（L1 总路线）|
 | 学什么、对应什么功能 | **本文档**（全景图）|
-| 当前在做什么、SOP | `user/README.md`（操作手册）|
+| 流程、SOP、编号体系 | `user/README.md` §六§七 |
 | 今天干什么 | `user/sprint-X.md`（当前 Sprint 清单）|
+| 正式架构/设计 | `make-muse/`（唯一架构真相源）|
 
-> **一句话原则：** 全景图只管「Muse 有什么功能 × 需要什么知识」，不管「今天做什么」。
+> **本文档只管「Muse 有什么功能 × 需要什么知识」，不管「今天做什么」和「怎么做」。**
 

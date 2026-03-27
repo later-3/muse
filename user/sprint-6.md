@@ -15,7 +15,7 @@
   - planner/arch/coder/reviewer 的角色如何通过 OpenCode session 实现
   - Handoff 协议如何通过 MCP/Hook 实现
   - 工作流状态如何管理
-- [ ] 产出：`user/technical-design/td-s2-harness.md`
+- [ ] 产出：`make-muse/technical-design/td-s2-harness.md`
 
 ### 第 3-5 天：S2 核心实现
 
@@ -32,7 +32,7 @@
 ### 第 7 天：S1 Technical Design（日常对话）
 
 - [ ] 写 S1 技术设计：pua 的对话、记忆、主动触发实现方案
-- [ ] 产出：`user/technical-design/td-s1-conversation.md`
+- [ ] 产出：`make-muse/technical-design/td-s1-conversation.md`
 
 ### 第 8-9 天：S1 核心实现
 
@@ -46,6 +46,7 @@
 - [ ] mini-eval：
   - [ ] S2 harness 端到端跑通？
   - [ ] S1 日常对话跑通（多轮 + 跨 session 记忆）？
+  - [ ] 全链路 trace 已接通（S1 + S2 的关键路径有 trace）？
 - [ ] 写复盘：`user/sprint-6-retro.md`
 - [ ] 开始收集 demo 材料（录屏/截图）
 
@@ -55,10 +56,11 @@
 
 | # | 交付物 | 状态 |
 |---|-------|------|
-| 1 | `user/technical-design/td-s2-harness.md` | [ ] |
+| 1 | `make-muse/technical-design/td-s2-harness.md` | [ ] |
 | 2 | S2 harness 代码（合入 `muse/src/`） | [ ] |
 | 3 | S2 端到端验证通过 | [ ] |
-| 4 | `user/technical-design/td-s1-conversation.md` | [ ] |
+| 4 | `make-muse/technical-design/td-s1-conversation.md` | [ ] |
 | 5 | S1 对话代码（合入 `muse/src/`） | [ ] |
 | 6 | S1 端到端验证通过 | [ ] |
-| 7 | `user/sprint-6-retro.md` | [ ] |
+| 7 | 全链路 trace 接通（S1+S2 关键路径） | [ ] |
+| 8 | `user/sprint-6-retro.md` | [ ] |
