@@ -389,4 +389,165 @@ Anthropic 发现 Agent 使用相对路径时经常出错。解决方案不是在
 ---
 
 *精读完成于 Sprint 1 Day 1 · 2026-03-27*  
-*→ 接下来读 [Part 2: 面试准备 + 开源项目分析](./anthropic-bea-part2.md)*
+*→ 接下来读 [Part 2: 面试准备 + 开源项目分析](./01b-study-anthropic-bea-projects.md)*
+
+---
+
+## 📚 c 轨道：Anthropic Cookbook — basic_workflows 课程笔记
+
+> **文件位置：** `make-muse/reference/anthropic-cookbook/patterns/agents/basic_workflows.ipynb`  
+> **内容：** 3 种基础多 LLM 工作流的代码实现
+
+### 实现了什么
+
+Cookbook 用 ~50 行 Python 实现了 BEA 论文提到的 3 种基础 Workflow：
+
+#### 1. Prompt Chaining（链式调用）
+
+```python
+def chain(input, prompts):
+    """链式调用：每一步的输出是下一步的输入"""
+    result = input
+    for prompt in prompts:
+        result = llm_call(f"{prompt}\nInput: {result}")
+    return result
+```
+
+**用例：** 从产品公告中 ① 提取数据 → ② 分类 → ③ 格式化成表格。每步都是一次 LLM 调用。
+
+**关键设计决策：** 每步之间设置 Gate（检查点），如果中间步骤失败可以提前停止。
+
+#### 2. Parallelization（并行化）
+
+```python
+def parallel(input, prompts):
+    """并行调用：多任务同时发送给不同 LLM"""
+    with ThreadPoolExecutor() as pool:
+        results = list(pool.map(
+            lambda p: llm_call(f"{p}\nInput: {input}"), prompts
+        ))
+    return results
+```
+
+**用例：** 分析一个政策对「客户 / 员工 / 股东」三个利益相关方的影响 — 三路并行。
+
+**关键洞察：** 并行不只是快。更重要的是**每个 LLM 只关注自己的视角**，减少了上下文干扰。
+
+#### 3. Routing（路由分发）
+
+```python
+def route(input, routes: dict):
+    """路由：先分类，再走对应的专家路径"""
+    # Step 1: 用 LLM 判断输入属于哪个类别
+    selector_prompt = f"Classify: {list(routes.keys())}"
+    category = llm_call(selector_prompt)
+    # Step 2: 用对应类别的专家 prompt 处理
+    return llm_call(f"{routes[category]}\nInput: {input}")
+```
+
+**用例：** 客服系统 — 「账单/技术/退款」三类票据走不同处理流程。
+
+### 💡 和 BEA 精读的对照
+
+| BEA 概念 | Cookbook 实现 | 抽象层级 |
+|---------|-------------|---------|
+| Prompt Chaining | `chain()` 函数 | 最简实现 ~10 行 |
+| 并行化 | `parallel()` + ThreadPool | 最简实现 ~8 行 |
+| 路由 | `route()` + LLM 分类器 | 最简实现 ~10 行 |
+
+### 🎯 Muse 启发
+
+- **Muse 的 harness 流程本质上是一个 Chain**：planner → arch → coder → reviewer
+- **并行化机会**：coder 和 reviewer 是否可以并行？arch 分析多个文件时是否可以并行？
+- **路由就是 Muse 的场景分发**：判断用户意图（闲聊 vs 下任务 vs 审批）→ 走不同处理链路
+
+---
+
+## 📰 e 轨道：大佬追踪
+
+### 姚顺雨 Shunyu Yao — ReAct (2022)
+
+> **论文：** *ReAct: Synergizing Reasoning and Acting in Language Models*  
+> **身份：** Princeton → OpenAI 研究员
+
+#### 核心思想（一句话）
+
+**让 LLM 在"想"和"做"之间交替执行** — 不是先想完再做，也不是只做不想，而是：想一步 → 做一步 → 观察结果 → 再想 → 再做。
+
+#### ReAct 循环
+
+```
+Thought: 我需要查找 X 的信息    ← 推理（Reasoning）
+Action:  search("X")              ← 行动（Acting）
+Observation: X 是一个...          ← 世界反馈
+Thought: 现在我知道了 X，但还需要 Y
+Action:  search("Y")
+Observation: ...
+Thought: 综合 X 和 Y，答案是...
+Action:  finish("答案")
+```
+
+#### 为什么重要
+
+| 之前的方法 | 问题 | ReAct 怎么解决 |
+|-----------|------|--------------|
+| Chain-of-Thought (只想不做) | 幻觉！推理链基于模型自身知识 | 推理中间插入 Action 去查外部真实信息 |
+| Action-only (只做不想) | 盲目行动，不会反思 | 每次行动前先 Thought，可以回溯 |
+
+#### 关键数据
+
+- HotpotQA：ReAct 比纯 CoT **减少了 6% 的幻觉错误**
+- ALFWorld（交互任务）：ReAct **成功率 71%**，比模仿学习 baseline 高 34%
+
+#### 🎯 Muse 启发
+
+- **Muse 的每个 agent 内部就是 ReAct 模式**：OpenCode 底层的 Agentic Loop 就是 Thought → Tool Call → Observation 循环
+- Muse 最可以从 ReAct 借鉴的是：**让 agent 在行动前显式输出 Thought**，方便 trace 和 debug
+- 面试时被问到「什么是 Agent」，ReAct 是最经典的回答起点
+
+---
+
+### Lilian Weng — 《LLM Powered Autonomous Agents》(2023.06)
+
+> **身份：** OpenAI VP of Research  
+> **博客：** https://lilianweng.github.io/posts/2023-06-23-agent/
+
+#### 核心框架（Agent 三要素）
+
+Weng 把 Agent 系统分为 3 个核心组件：
+
+```
+┌─────────────────────────────────┐
+│         🧠 LLM (大脑)           │
+├─────────┬─────────┬─────────────┤
+│ Planning│ Memory  │  Tool Use   │
+│ 规划    │ 记忆    │  工具使用    │
+└─────────┴─────────┴─────────────┘
+```
+
+| 组件 | 细分 | 代表技术 |
+|------|------|---------|
+| **Planning** | 任务分解 + 自我反思 | CoT, ToT, ReAct, Reflexion |
+| **Memory** | 短期（上下文）+ 长期（外部存储） | RAG, 向量DB |
+| **Tool Use** | 调用外部 API/工具 | Toolformer, HuggingGPT |
+
+#### 关键观点
+
+1. **Planning 不等于 Prompting** — 真正的规划需要分解(Decomposition) + 反思(Reflection) + 调整
+2. **Memory 是 Agent 和 Chatbot 的本质区别** — Chatbot 没有跨 session 记忆
+3. **Tool Use 扩展了 LLM 的能力边界** — 不再受限于训练数据
+
+#### 🎯 和我们的对照
+
+| Weng 框架 | Muse 对应 | 状态 |
+|----------|----------|------|
+| Planning | Planner agent + harness workflow | Sprint 6 实现 |
+| Memory (短期) | OpenCode session context | ✅ 已有 |
+| Memory (长期) | memory.mjs + MCP memory 工具 | 🟡 需 Refactor |
+| Tool Use | MCP 工具服务器 | ✅ 已有 |
+| Reflection | S2b 自开发闭环 | Sprint 7 实现 |
+
+---
+
+> **c/e 轨道完成于 Sprint 1 Day 1 · 2026-03-28**
+
