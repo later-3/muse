@@ -11,5 +11,5 @@
 - [ ] Step 3 沉淀：Agent vs Workflow / 5 种编排模式
 
 ## 🤖 AI 并行产出
-- [ ] 🧪 `make-muse/experiments/exp01-chain-parallel-route.mjs`
-- [ ] 🔧 `make-muse/pre-validation/R1-notify-planner-reliability.md`
+- [x] 🧪 `user/experiments/exp01-chain-parallel-route.mjs` — 链式/并行/路由 3 种模式 (10/10 tests ✅)
+- [x] 🔧 `user/pre-validation/R1-notify-planner-reliability.md` — 可靠性评估 5/10，3 个高风险点
