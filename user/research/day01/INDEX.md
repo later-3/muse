@@ -11,5 +11,8 @@
 - [ ] Step 3 沉淀：Agent vs Workflow / 5 种编排模式
 
 ## 🤖 AI 并行产出
-- [x] 🧪 `user/experiments/exp01-chain-parallel-route.mjs` — 链式/并行/路由 3 种模式 (10/10 tests ✅)
-- [x] 🔧 `user/pre-validation/R1-notify-planner-reliability.md` — 可靠性评估 5/10，3 个高风险点
+- [x] 🧪 `exp01-chain-parallel-route.mjs` — 链式/并行/路由 3 种模式 (10/10 tests ✅)
+- [x] 🧪 `exp01-chain-parallel-route.test.mjs` — 测试（node --test 直接跑）
+- [x] 🔧 `R1-notify-planner-reliability.md` — 可靠性评估 5/10，3 个高风险点
+
+> 本天所有文件都在 `user/research/day01/` 下，不用去别的目录找。
