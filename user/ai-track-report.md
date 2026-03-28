@@ -1,71 +1,47 @@
 # AI 并行轨道 — 任务看板
 
-> **你忙完了来这里看 AI 干了啥。每个任务有状态 + 结论 + 链接到对应天的文件夹。**
-> **所有文件都在对应的 `user/research/dayXX/` 下，和你的任务放在一起。**
+> **你忙完了来这里看 AI 干了啥。所有文件都在对应的 `dayXX/` 下。**
 
 ---
 
-## Sprint 1 实验（🧪 巩固学习）
+## Sprint 1 实验（🧪 巩固学习）— 全部完成 ✅
 
-| # | 实验 | 对应 Day | 状态 | 结论 | 文件位置 |
-|---|------|---------|------|------|---------|
-| exp01 | 链式/并行/路由 | Day 01 | ✅ | 10/10 pass | `day01/exp01-*.mjs` |
-| exp02 | Orchestrator 动态分配 | Day 02 | [ ] | — | `day02/` |
-| exp03 | 人类审批 Gate | Day 03 | [ ] | — | `day03/` |
-| exp04 | JS 迷你 Swarm | Day 04 | [ ] | — | `day04/` |
-| exp05 | 最简状态机 | Day 05 | [ ] | — | `day05/` |
-| exp06 | 角色 Prompt 模板 | Day 06 | [ ] | — | `day06/` |
-| exp07 | Prompt 分层注入 | Day 07 | [ ] | — | `day07/` |
+| # | 实验 | Day | Tests | 核心验证 |
+|---|------|-----|-------|---------|
+| exp01 | 链式/并行/路由 | 01 | 10/10 ✅ | Chain 传递完整 / Parallel 并行~20ms / Route 分类准确 |
+| exp02 | Orchestrator | 02 | 4/4 ✅ | 动态匹配 Worker / 多轮编排 / maxRounds 保护 |
+| exp03 | HITL Gate | 03 | 6/6 ✅ | 低风险自动放行 / 高风险拦截 / approve+reject / 防重复 |
+| exp04 | Mini Swarm | 04 | 5/5 ✅ | Agent Handoff / 多级传递 / 缺失目标处理 |
+| exp05 | 状态机 | 05 | 6/6 ✅ | 状态转换 / Guard 条件 / History / Muse 工作流模拟 |
+| exp06 | 角色 Prompt | 06 | 3/3 ✅ | Role 定义 / Team 组装 / Muse 4角色 prompt 生成 |
+| exp07 | Prompt 分层 | 07 | 5/5 ✅ | 7 层顺序 / 动态增删 / Token 估算 |
 
-## Sprint 1 消险（🔧 Muse 真用）
-
-| # | 消险项 | 对应 Day | 状态 | 风险 | 结论 | 文件位置 |
-|---|--------|---------|------|------|------|---------|
-| R1 | notify_planner 可靠性 | Day 01 | ✅ | 🟡 5/10 | session 失效/无重试/无超时 | `day01/R1-*.md` |
-| R2 | handoff 超时 | Day 02 | [ ] | — | — | `day02/` |
-| R3 | MCP 注册完整性 | Day 03 | [ ] | — | — | `day03/` |
-| R4 | prompt 注入风险 | Day 04 | [ ] | — | — | `day04/` |
-| R5 | harness 端到端 | Day 05 | [ ] | — | — | `day05/` |
-| R6 | memory 持久化 | Day 06 | [ ] | — | — | `day06/` |
+**总计: 39/39 tests pass** 🎉
 
 ---
 
-## 查看方式
+## Sprint 1 消险（🔧 Muse 真用）— 全部完成 ✅
+
+| # | 消险项 | Day | 评分 | 核心发现 | Sprint 接手须知 |
+|---|--------|-----|------|---------|---------------|
+| R1 | notify_planner | 01 | 🟡 5/10 | session 失效/无重试/无超时 | Sprint 4: 加超时+重试+session检测 |
+| R2 | handoff 超时 | 02 | 🟡 6/10 | prompt 无超时/无全局 handoff 超时 | Sprint 4: 加全局超时+retry自动重执行 |
+| R3 | MCP 工具完整性 | 03 | 🟢 7/10 | 23个工具已审计/角色隔离不足/API Key暴露 | Sprint 4: 按角色注册工具+移除硬编码Key |
+| R4 | Prompt 注入 | 04 | 🟡 5/10 | workflow_json 无 schema/回调消息可注入 | Sprint 4+: 加 schema 校验+sanitize |
+| R5 | Harness E2E | 05 | 🟡 6/10 | 正常~80%/异常~30%/LLM不遵守指令是最大风险 | Sprint 4: 加催促机制+强制检查 |
+| R6 | Memory 持久化 | 06 | 🟢 7/10 | 无备份/无迁移，但数据模型设计好 | Sprint 2: 加定期备份+长度限制 |
+
+---
+
+## 风险热力图
 
 ```
-你做完 Day XX 的任务
-  → 打开 user/research/dayXX/INDEX.md
-  → 里面有三块：📖 AI交付 / 🎯 你的产出 / 🤖 AI并行
-  → 所有文件都在同一个目录下
-  → 或者回这个看板看全局进度
+           正常路径   Planner重启   网络抖动   LLM不遵守
+notify      🟢        🔴           🔴         —
+handoff     🟢        🟡           🟡         —
+MCP工具     🟢        🟢           🟢         🟡
+Memory      🟢        🟢           🟢         —
+E2E整体     🟢        🔴           🟡         🔴
 ```
 
----
-
-## 已完成任务报告
-
-### exp01 — 链式/并行/路由 (Day 01)
-
-**验证结果**: 10/10 tests pass
-
-| 模式 | Muse 场景 | 结论 |
-|------|----------|------|
-| Chain | planner→arch→coder→reviewer | ✅ 上下文完整传递 |
-| Parallel | 多 reviewer 并行打分 | ✅ 聚合正确，并行~20ms |
-| Route | Orchestrator 意图分类 | ✅ chat/task/approval 分流 |
-
-**对 Muse 的启发**: Chain 最适合 planner→worker 流水线，Route 对应意图分类，三种可组合
-
----
-
-### R1 — notify_planner 可靠性 (Day 01)
-
-**整体评分**: 🟡 5/10
-
-| 🔴 高风险 | 说明 |
-|-----------|------|
-| session 失效 | Planner 重启后旧 session 消失，回调静默失败 |
-| 无重试 | 网络抖动一次就断链 |
-| HTTP 无超时 | Planner 卡住时 Worker 永远等待 |
-
-**Sprint 4 接手须知**: 先修超时+重试+session检测，再做 Spike 3
+**一句话总结**: Happy Path 基本可用，**Planner 重启** 和 **LLM 不遵守指令** 是两个最大的系统性风险。Sprint 4 Spike 3 时集中修复。
