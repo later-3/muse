@@ -37,6 +37,7 @@ user/
 | 学什么对应做什么 | `map.md` |
 | 大方向、Phase 退出条件 | `Research-Driven Development.md` |
 | 怎么写研究笔记 | `.agents/workflows/research-note.md` |
+| AI 实验/消险怎么写 | `.agents/workflows/ai-parallel-task.md` |
 
 ### 文档边界规则
 

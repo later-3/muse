@@ -3,6 +3,10 @@
 > **定位：** 研究阶段（Sprint 1-2）的方法论和资源索引。  
 > **每日产出在** `dayXX/INDEX.md`，三轨道（你的+AI的）都在同一个文件夹。  
 > **Sprint 3+ 转为：** Spike → 实现 → 验证 → 复盘。
+>
+> **格式标准（必须遵循）：**
+> - 📖 研究笔记 → `.agents/workflows/research-note.md`
+> - 🤖 AI 并行任务 → `.agents/workflows/ai-parallel-task.md`
 
 ---
 
