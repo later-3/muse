@@ -32,12 +32,23 @@
 user/
 ├── README.md              ← 你正在看（唯一入口）
 │
-├── foundations/            ← Part 0: 大模型基础（前置知识）
-│   ├── F1-llm-intro.md       Karpathy: LLM 全貌
-│   ├── F2-build-gpt.md       Karpathy: Transformer 从零
-│   ├── F3-state-of-gpt.md    Karpathy: 训练管线
-│   ├── F9-distill-finetune.md 蒸馏/LoRA/3090
-│   └── F10-local-deploy.md   GGUF/量化/部署
+├── foundations/            ← Part 0: 大模型基础（按需查，不通读）
+│   ├── INDEX.md               知识层级图 + Unit 速查表
+│   ├── F1  ✅ LLM 全貌         (Karpathy: next-token/CoT/R1/o1)
+│   ├── F2  ✅ Transformer      (Karpathy: Attention/QKV)
+│   ├── F3  ✅ 训练管线          (Karpathy: SFT→RLHF)
+│   ├── F4  ⏳ 李宏毅           (中文大模型课)
+│   ├── F5  ⏳ 神经网络          (3Blue1Brown: backprop)
+│   ├── F6  ⏳ Prompt Eng       (吴恩达: 系统化技巧)
+│   ├── F7  ⏳ Building Systems (吴恩达: LLM 应用)
+│   ├── F8  ⏳ RAG              (Embedding/向量搜索)
+│   ├── F9  ✅ 蒸馏/微调         (KD/LoRA/3090)
+│   ├── F10 ✅ 本地部署          (GGUF/量化/ollama)
+│   ├── F11 ⏳ Tokenization     (BPE/中文成本)
+│   ├── F12 ⏳ 评测基准          (MMLU/Arena/SWE-Bench)
+│   ├── F13 ⏳ 推理优化          (Flash Attention/KV-Cache)
+│   ├── F14 ⏳ 多模态           (Vision-Language)(低优)
+│   └── F15 ⏳ AI Safety        (对齐/红队)(低优)
 │
 ├── unit01-agent-core/     ← Part 1: Agent 核心循环
 ├── unit02-multi-agent/    ← Part 2: 多 Agent 协作

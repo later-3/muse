@@ -1,44 +1,68 @@
-# Day 00 大模型基础（前置知识）
+# Foundations — 大模型知识全景
 
-> **这里放的是 Agent 之前的底层知识。Day 01-07 会链接到这里。**
-> 不需要一次看完，按需引用。优先看 F1-F3（Karpathy 三件套）。
+> **用法：从 unit 入手，碰到不懂的回来查。不需要通读。**
 
-## 📖 AI 交付（你来吸收）
+---
 
-### ⭐ 优先（Karpathy 三件套 + 蒸馏部署）
-
-| # | 课程 | 讲师 | 核心收获 | 状态 |
-|---|------|------|---------|------|
-| [AI✓] F1 | Intro to LLMs | Karpathy | LLM 全貌：训练/推理/能力边界/DeepSeek R1 原理 | 已交付 |
-| [AI✓] F2 | Let's build GPT | Karpathy | 从零理解 Transformer/Attention | 已交付 |
-| [AI✓] F3 | State of GPT | Karpathy | 预训练→SFT→RLHF+Function Calling 内部机制 | 已交付 |
-| [AI✓] F9 | 蒸馏与微调 | 综合 | KD/LoRA/QLoRA/DPO + 3090 能力矩阵 | 已交付 |
-| [AI✓] F10 | 小模型本地部署 | 综合 | GGUF/量化/llama.cpp/ollama + 3090 实操路线 | 已交付 |
-
-### 推荐（按需看）
-
-| # | 课程 | 讲师 | 核心收获 | 状态 |
-|---|------|------|---------|------|
-| [ ] F4 | 大模型原理 | 李宏毅 | Transformer 到 Agent（中文最佳） | 待写 |
-| [ ] F5 | Neural Networks | 3Blue1Brown | 直觉理解 backprop | 待写 |
-| [ ] F6 | Prompt Engineering | 吴恩达+OpenAI | 系统化 prompt 技巧 | 待写 |
-| [ ] F7 | Building Systems | 吴恩达 | LLM 应用工程化 | 待写 |
-| [ ] F8 | LangChain + RAG | 吴恩达 | 检索增强生成 | 待写 |
-
-## 怎么用这个目录
+## 知识层级图
 
 ```
-场景 1: 你在 Day 03 读到"工具使用"
-  → 不理解 LLM 怎么学会调工具的
-  → 来 day00/F3-state-of-gpt.md §2（SFT 教会 Function Calling）
-  → 理解了 → 回到 Day 03 继续
+Layer 0: 数学/神经网络基础
+  └─ F5  Neural Networks (backprop/gradient)              ⏳ 占位
 
-场景 2: 你想在 3090 上跑 qwen 蒸馏模型
-  → F9: 理解蒸馏原理（Teacher 教 Student）
-  → F10: 部署实操（ollama 一行命令）
-  → Sprint 2 真跑
+Layer 1: Transformer 内部
+  ├─ F2  Transformer 架构 (Attention/FFN)                 ✅ 已写
+  └─ F11 Tokenization (BPE/分词/中文成本)                 ⏳ 占位
 
-场景 3: 面试被问"DeepSeek R1 思考怎么实现的"
-  → F1 §4: RL reward → 模型自动输出 <think>
-  → F9 §1.3: 推理蒸馏 → 小模型也能推理
+Layer 2: LLM 训练
+  ├─ F1  LLM 全貌 (next-token/能力边界/CoT/R1/o1)        ✅ 已写
+  ├─ F3  训练管线 (预训练→SFT→RLHF/Function Calling)     ✅ 已写
+  └─ F9  蒸馏与微调 (KD/LoRA/QLoRA/DPO)                  ✅ 已写
+
+Layer 3: LLM 使用
+  ├─ F4  李宏毅大模型课 (中文深入)                        ⏳ 占位
+  ├─ F6  Prompt Engineering (吴恩达)                      ⏳ 占位
+  ├─ F7  Building Systems (吴恩达)                        ⏳ 占位
+  └─ F12 评测与基准 (MMLU/Arena/SWE-Bench)                ⏳ 占位
+
+Layer 4: LLM 增强
+  ├─ F8  RAG + Embedding + 向量搜索                       ⏳ 占位
+  └─ F13 推理优化 (Flash Attention/KV-Cache)              ⏳ 占位
+
+Layer 5: LLM 部署
+  └─ F10 量化/GGUF/本地部署 (3090实操)                    ✅ 已写
+
+Layer 6: LLM 前沿
+  ├─ F14 多模态 (Vision-Language)                         ⏳ 占位
+  └─ F15 AI Safety & 对齐                                ⏳ 占位
 ```
+
+---
+
+## 从 Unit 来查的速查表
+
+| 你在看 | 碰到什么不懂 | 来这里 |
+|--------|------------|--------|
+| unit01 Agent 核心 | LLM 怎么"规划"的 | F1 §4 (CoT/R1/o1) |
+| unit01 Agent 核心 | 上下文窗口为什么有限 | F2 §3 (Attention O(n²)) |
+| unit01 Agent 核心 | Function Calling 怎么来的 | F3 §2 (SFT) |
+| unit01 Agent 核心 | temperature=0.1 为什么 | F6 §4 (参数选择) |
+| unit01 Agent 核心 | util.py 里 XML 为什么比 JSON 好 | F6 §2 (结构化输出) |
+| unit02 多 Agent | Prompt Injection 怎么防 | F15 §3-4 |
+| unit03 状态/记忆 | 向量数据库怎么工作 | F8 §2-3 |
+| unit03 状态/记忆 | 记忆 ≠ Attention 怎么理解 | F2 §2 + F1 §3 |
+| unit04 Prompt | Prompt 基本原则是什么 | F6 §1-2 |
+| 想跑本地模型 | 蒸馏是什么原理 | F9 §1 |
+| 想跑本地模型 | 3090 能跑什么模型 | F10 §3-4 |
+| 想跑本地模型 | 量化后怎么评估质量 | F12 |
+| 准备面试 | Token 成本怎么算 | F11 §3 |
+| 准备面试 | 怎么评价模型好坏 | F12 §4-6 |
+
+---
+
+## 状态统计
+
+| 状态 | 数量 | 文件 |
+|------|------|------|
+| ✅ 已写 | 5 | F1, F2, F3, F9, F10 |
+| ⏳ 占位 | 10 | F4, F5, F6, F7, F8, F11, F12, F13, F14, F15 |

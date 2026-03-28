@@ -2,7 +2,15 @@
 
 > **对应 Sprint 1 Day 01-02** · BEA 精读 + Orchestrator + ReAct
 
-## 学习目标
+### 📚 前置基础（碰到不懂来这里查）
+
+| 看到什么不懂 | 去哪里 |
+|------------|--------|
+| LLM 怎么"规划"的 | `foundations/F1` §4 (CoT → R1 → o1) |
+| 上下文窗口为什么有限 | `foundations/F2` §3 (Attention O(n²)) |
+| Function Calling 怎么来的 | `foundations/F3` §2 (SFT 训练) |
+| temperature=0.1 为什么 | `foundations/F6` §4 |
+| XML 为什么比 JSON 可靠 | `foundations/F6` §2 |
 
 读完本单元，你能回答：
 1. Agent 的核心循环是什么？（Reason → Action → Observe）
