@@ -1,24 +1,41 @@
 # Muse RDD 总览：目标 + Sprint + 每日计划
 
 > **4 个月 = 8 个 Phase = ~80 天**  
-> **总目标 A：** 完成 Muse 的 3 个锚点场景 MVP（日常对话 / 任务协作 / 审批治理）  
+> **总目标 A：** 完成 Muse 的 3 个锚点场景 MVP（日常对话 / 任务协作 / 审批治理）+ S2b 自开发闭环  
 > **总目标 B：** 形成可面试展示的项目证明包（demo + postmortem + 技术博客）  
-> **执行哲学：** AI 做重活，你做高价值吸收。放大你的每一分钟。
+> **执行哲学：** AI 做重活，你做高价值吸收。放大你的每一分钟。  
+> **并行模式：** 你学习的同时，AI 并行做验证/消险/预建。你到手时已是清过的路。
+
+---
+
+## 双轨并行模式
+
+```
+你的轨道（学习+判断）:  理论精读 → 吸收 → Muse 设计判断 → 动手实践
+AI 的轨道（验证+消险）:  精华提取 → 代码验证 → Bug发现 → 坑点文档 → 预设计
+
+两条轨同时跑，不是你学完了 AI 才开始验证。
+你到手时，路已经清过、坑已经标好、代码已经预验过。
+```
 
 ---
 
 ## Phase → Sprint → Day 映射
 
 ```
-Phase 0  基础理论         = Sprint 1  (Day 01-10)   ← 你在这里
-Phase 1  案例剖析         = Sprint 2  (Day 11-20)
-Phase 2  设计原则提炼     = Sprint 3  (Day 21-25)
-Phase 2.5 MVP 场景锚定    = Sprint 3  (Day 26-30)
-Phase 3  Spike 验证       = Sprint 4-5 (Day 31-50)  ← 开始写代码！
-Phase 4  架构重设计       = Sprint 6  (Day 51-60)
-Phase 5  迭代开发         = Sprint 7  (Day 61-70)
-Phase 6  Eval 体系化      = Sprint 7-8 (Day 71-75)
-Phase 7  复盘与Portfolio  = Sprint 8  (Day 76-80)
+                         你做什么                    AI 并行做什么
+Phase 0  Sprint 1  (01-10)  学理论+吸收            │ ├─ 测 Muse 现有链路，发现 Bug
+                             ← 你在这里           │ ├─ 预跑 Spike 1 概念验证
+                                                  │ └─ 坑点报告: notify_planner 可靠性
+Phase 1  Sprint 2  (11-20)  案例剖析+深化          │ ├─ Spike 1 (Core Loop) 原型
+                                                  │ ├─ Spike 2 (Memory) 概念验证
+                                                  │ └─ Handoff 可靠性修复验证
+Phase 2  Sprint 3  (21-30)  设计原则+场景锚定      │ ├─ Spike 3 (Handoff) 原型
+                                                  │ └─ S3 审批流程预建
+Phase 3  Sprint 4-5 (31-50) 你动手 Spike（路已清）  │ ← 你接手时 Spike 已预验过
+Phase 4  Sprint 6   (51-60) 架构重设计              │
+Phase 5  Sprint 7   (61-70) S1/S2/S3 + S2b 跑通   │ ← 📱 手机指挥 Muse 干活!
+Phase 6-7 Sprint 8  (71-80) Eval + Portfolio       │
 ```
 
 ---
@@ -66,14 +83,14 @@ Phase 7  复盘与Portfolio  = Sprint 8  (Day 76-80)
 
 ## Sprint 3-8 里程碑总览
 
-| Sprint | Phase | 关键交付 | 里程碑 |
-|--------|-------|---------|--------|
-| **3** | 2+2.5 | Design Principles v2 + 3 个 MVP 场景锚定 | 🎯 设计收敛 |
-| **4** | 3 | Spike 1 (Core Loop) + Spike 2 (Memory) | 🧪 **第一行 Muse 新代码！** |
-| **5** | 3 | Spike 3 (Handoff) + Spike 验证报告 | 🧪 3 个 Spike 至少 2 个 pass |
-| **6** | 4 | Muse Architecture v2 + 资产处置矩阵 | 📐 架构定稿 |
-| **7** | 5+6 | S1/S2/S3 端到端跑通 + Eval 框架 | 🚀 **Muse Basic v1** |
-| **8** | 7 | Portfolio + 博客 + 面试准备 | 📦 可面试 |
+| Sprint | Phase | 你做什么 | AI 并行做什么 | 里程碑 |
+|--------|-------|---------|------------|--------|
+| **3** | 2+2.5 | 设计原则定稿 + 3 场景锚定 | Spike 3 原型 + S3 预建 | 🎯 设计收敛 |
+| **4** | 3 | 你接手 Spike 1+2（路已清） | 你做的同时 AI 测边缘用例 | 🧪 动手写代码 |
+| **5** | 3 | 你接手 Spike 3 (Handoff) | 端到端集成测试 | 🧪 3 Spike 至少 2 pass |
+| **6** | 4 | 架构重设计 + 资产矩阵 | 重构代码 + 回归测试 | 📐 架构定稿 |
+| **7** | 5+6 | S1/S2/S3/S2b 端到端跑通 | Eval 框架 + 基准测试 | 🚀 **Muse Basic v1** + 📱手机指挥 |
+| **8** | 7 | Portfolio + 博客 + 面试 | 文档整理 + demo 录制 | 📦 可面试 |
 
 ---
 
