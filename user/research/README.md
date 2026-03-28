@@ -95,6 +95,8 @@
 | F6 | Prompt Engineering | 吴恩达+OpenAI | 系统化 prompt 技巧 | `day00/F6-prompt-eng.md` |
 | F7 | Building Systems | 吴恩达 | LLM 应用工程化 | `day00/F7-llm-systems.md` |
 | F8 | LangChain + RAG | 吴恩达 | 检索增强生成 | `day00/F8-rag.md` |
+| F9 | ⭐ 蒸馏与微调 | 综合 | KD/LoRA/QLoRA/DPO + 3090 矩阵 | `day00/F9-distill-finetune.md` |
+| F10 | ⭐ 小模型本地部署 | 综合 | GGUF/量化/llama.cpp/ollama 实操 | `day00/F10-local-deploy.md` |
 
 ### Agent 专项课程
 
