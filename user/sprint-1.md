@@ -4,8 +4,9 @@
 > **服务于：** 全景图域 1（Core Loop）+ 域 3（Multi-Agent / Harness）  
 > **退出条件：** 对齐 RDD Phase 0 — 能用自己的话解释 10 个 Agent 核心概念  
 > **总览地图：** `user/overview.md`（Phase/Sprint/Day 全局对照）  
+> **AI并行计划：** `make-muse/ai-parallel-track.md`（实验 + 消险清单）  
 > **研究产出索引：** `user/research/README.md`  
-> **每日流程：** AI 先交付精华笔记/流程图/对照表 → 你负责吸收/复述/判断
+> **每日流程：** 你看“你的任务”→ AI 看“AI 并行轨道”→ 两轨同时跑
 
 ---
 
@@ -31,8 +32,13 @@
 
 ### 研究增强（c/d/e）
 
-- [ ] 📚c: 跟练 Anthropic Cookbook `patterns/agents/basic-workflows`
-- [ ] 📰e: 速读姚顺雨 ReAct 论文摘要 + Lilian Weng 博客《LLM Powered Autonomous Agents》概要
+- [x] 📚c: 跟练 Anthropic Cookbook `patterns/agents/basic-workflows`
+- [x] 📰e: 速读姚顺雨 ReAct 论文摘要 + Lilian Weng 博客《LLM Powered Autonomous Agents》概要
+
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp01-chain-parallel-route.mjs` — 用 JS 实现 3 种基础模式 (~60行)
+- [ ] 🔧 **R1: notify_planner 可靠性测试** — 连续调 20 次，记录成功率，产出坑点报告
 
 ---
 
@@ -60,6 +66,11 @@
 - [ ] 📰e: Andrew Ng 4 Agentic Patterns 核心观点
 - [ ] 🔧OC: **OpenCode Agent 系统解读** — Primary/Subagent/Session 隔离机制 + 对 Muse 角色系统的启发
 - [ ] 🔍Muse: **Muse harness 代码审查** — 实际审查 `src/mcp/planner-tools.mjs` + `src/family/handoff.mjs`
+
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp02-orchestrator.mjs` — 最简 Orchestrator 动态分配 Worker (~80行)
+- [ ] 🔧 **R2: handoff_to_member 超时测试** — 故意让 Worker 不回调，观察 Planner 行为
 
 ---
 
@@ -89,6 +100,11 @@
 - [ ] 🔧OC: **OpenCode MCP 配置深度解读** — 本地/远程 MCP + 对 Muse MCP 工具注册的启发
 - [ ] 🔍Muse: **Muse S3 审批流程与 OpenCode Permission 机制对比**
 
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp03-hitl-gate.mjs` — 模拟审批暂停/继续 (~50行)
+- [ ] 🔧 **R3: MCP 工具注册完整性** — 启动 Muse，列出所有注册工具对比期望
+
 ---
 
 ## Day 04：OpenAI Swarm 源码走读
@@ -114,6 +130,11 @@
 - [ ] 🔬d: **Swarm 源码拆解** — `run()` 循环 + Handoff 机制
 - [ ] 🔧OC: **OpenCode Hook 系统详解** — 46+ Hooks 机制 + 对 Muse Plugin 的启发
 - [ ] 🔍Muse: **Muse Handoff 机制 vs Swarm Handoff 代码对比**
+
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp04-swarm-mini.mjs` — JS 版 Swarm Handoff 核心逻辑 (~100行)
+- [ ] 🔧 **R4: prompt 注入正确性** — trace 完整对话，检查 identity/persona 是否正确注入
 
 ---
 
@@ -141,6 +162,11 @@
 - [ ] 📚c: HF Agents Course Unit 2 精华提取
 - [ ] 🔬d: **LangGraph 拆解** — Graph + Checkpointer 模块
 - [ ] 🔧OC: **OpenCode Compaction(上下文压缩) 机制** — 对 Muse 长对话管理的启发
+
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp05-state-machine.mjs` — 最简状态机 (~40行)
+- [ ] 🔧 **R5: harness 端到端链路验证** — planner→arch→coder→reviewer 完整跑一遍，记录每步状态
 
 ---
 
@@ -171,6 +197,11 @@
 - [ ] 🔧OC: **OpenCode System Prompt 组装机制** — Provider Prompt + AGENTS.md 注入流程
 - [ ] 🔍Muse: **Muse 角色卡片 vs OpenCode Agent 定义 对比审查**
 
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp06-role-prompt.mjs` — 同一 LLM 不同角色 prompt 效果对比 (~60行)
+- [ ] 🔧 **R6: memory 跨 session 持久化** — set_memory → 重启 → search_memory 验证
+
 ---
 
 ## Day 07：Prompt Engineering 基础
@@ -198,6 +229,10 @@
 - [ ] 🔧OC: **OpenCode Prompt 模板对比** — anthropic.txt vs beast.txt vs qwen.txt 设计差异
 - [ ] 🔍Muse: **Muse pua prompt vs OpenCode 最佳实践 审查**
 
+### 🤖 AI 并行轨道
+
+- [ ] 🧪 `exp07-prompt-layers.mjs` — 7层 prompt vs 扁平 prompt 效果对比 (~80行)
+
 ---
 
 ## Day 08-09：总结 + Design Principles 草稿
@@ -212,6 +247,11 @@
   - Spike 3 (Handoff) 需要什么协议定义？
 - [ ] 6. 产出：`user/design-principles-draft.md`（含 Spike 输入清单）
 - [ ] 🔬d: **OpenCode 拆解（第一轮）** — Session Engine 模块源码走读
+
+### 🤖 AI 并行轨道
+
+- [ ] 🔧 **汇总消险报告** — R1-R6 结果汇总，列出“Later 接手时要注意”清单
+- [ ] 🔧 **Spike 1 预评估** — 基于 R1-R6 结果评估 Spike 1 可行性
 
 ---
 
