@@ -1,113 +1,168 @@
-# Muse 学习与开发指南
+# Muse 学习路线 — Later 的 AI Agent 修炼手册
 
-> **任何 AI 接手时必读。** Later 正在通过 RDD 方法，同时推进 Muse 项目和 AI Agent 工程能力。
+> **4 个月** · 8 个 Sprint · 北极星：Muse 自开发闭环 (S2b)
 
 ---
 
-## 一、我是谁、我要干什么
+## 🚀 核心准则：放大你的一分钟
 
-- **我是** Later，Muse 项目的创建者
-- **Muse 是** 一个 AI 生命体引擎，基于 OpenCode 底座，代码在 `muse/src/`
-- **核心目标：** 做出一个能自开发自己的 Muse（S2b 自开发闭环）
-- **副目标：** 形成可面试 AI Agent 开发岗位的项目证明包
+> [!IMPORTANT]
+> **你的每一分钟，必须产出 10 倍价值。所有 AI 协作必须遵循。**
 
-## 二、文件导航
+| AI 做什么（重活） | 你做什么（高价值） |
+|------------------|-------------------|
+| 读源码 → 提取精华 | 看精华 → 理解 → 能复述 |
+| 读论文 → 摘要 + 图表 | 看图 → 理解逻辑 → 能口述 |
+| 跨项目对比 → 对照表 | 看表 → 判断哪个更好 |
+| 实验 + 消险 → 代码 + 报告 | 看报告 → 知道坑在哪 |
 
-> **先看什么 → 后看什么 → 日常看什么，一目了然。**
+**6 条准则：**
+1. AI 精华总结，你来吸收（不是"你去看 xxx"）
+2. 每篇文档 = 第一性原理 + 大白话 + 示例
+3. 边做边回顾（理论立即压回 Muse）
+4. 保证质量（面试能用、开发能指导）
+5. OpenCode 是贯穿线（每天至少 1 个 OC 关联）
+6. 双轨并行，AI 先踩坑
+
+---
+
+## 📂 目录结构
 
 ```
 user/
-├── README.md             ← 你正在看。AI 入口，每次新对话必读
-├── overview.md           ← 总览：目标+Sprint+北极星+每日计划
-├── Research-Driven Development.md  ← RDD 方法论全文（Phase 定义+退出条件）
-├── map.md                ← 知识-功能全景图（15个愿景×域×知识）
-├── ai-track-report.md    ← AI 并行任务看板（你忙完看这里）
-├── sprint-1.md ~ sprint-8.md  ← 各 Sprint 每日任务清单
-└── research/
-    ├── README.md          ← ⭐ 研究手册（方法论+参考仓库+核心准则）
-    └── day01/ ~ day07/    ← 每日产出（你的+AI的都在同一个文件夹）
-        └── INDEX.md       ← 当天三轨道索引
+├── README.md              ← 你正在看（唯一入口）
+│
+├── foundations/            ← Part 0: 大模型基础（前置知识）
+│   ├── F1-llm-intro.md       Karpathy: LLM 全貌
+│   ├── F2-build-gpt.md       Karpathy: Transformer 从零
+│   ├── F3-state-of-gpt.md    Karpathy: 训练管线
+│   ├── F9-distill-finetune.md 蒸馏/LoRA/3090
+│   └── F10-local-deploy.md   GGUF/量化/部署
+│
+├── unit01-agent-core/     ← Part 1: Agent 核心循环
+├── unit02-multi-agent/    ← Part 2: 多 Agent 协作
+├── unit03-state-memory/   ← Part 3: 状态 + 记忆
+├── unit04-prompt-eng/     ← Part 4: Prompt 工程
+│
+├── track/                 ← 项目管理（进度/看板）
+│   ├── sprint-1.md ~ sprint-8.md
+│   ├── ai-report.md          AI 并行任务看板
+│   └── map.md                知识-功能全景图
+│
+└── archive/               ← 归档（历史文档）
 ```
 
-| 场景 | 看什么 |
-|------|--------|
-| 刚接手，要快速了解 | 本文件 → `overview.md` |
-| 今天要干什么 | `sprint-X.md`（找第一个 `[ ]`） |
-| AI 干了啥 | `ai-track-report.md` 或 `research/dayXX/INDEX.md` |
-| 学什么对应做什么 | `map.md` |
-| 大方向、Phase 退出条件 | `Research-Driven Development.md` |
-| 怎么写研究笔记 | `.agents/workflows/research-note.md` |
-| AI 实验/消险怎么写 | `.agents/workflows/ai-parallel-task.md` |
+---
 
-### 文档边界规则
+## 🎯 北极星：S2b 自开发闭环
 
-| 目录 | 只放 | 不放 |
-|-----|------|------|
-| `user/` | 学习计划、研究笔记、设计草案、AI 实验 | 正式架构文档 |
-| `make-muse/` | 架构设计、ADR、技术 design | 学习计划 |
-| `src/` + `test/` | 实现代码和测试 | 文档、计划 |
+> Muse 能自己发现问题 → 立项 → 修改代码 → 审查 → 汇报给 Later
 
-## 三、编号体系
+S1(会话记忆) + S2(任务协作) + S3(审批治理) = S2b 的基础设施
 
-| 编号 | 含义 | 例子 |
-|------|------|------|
-| **S1/S2/S3/S2b/S4** | 锚点场景 | S2b = 自开发闭环 |
-| **Phase 0-7** | RDD Phase（退出条件驱动） | Phase 0 = 基础理论 |
-| **Sprint 1-8** | 双周 Sprint | Sprint 1 → Phase 0 |
-| **Day 1-10** | Sprint 内工作日 | Day 1 = 精读 BEA |
-| **Spike 1-3** | Phase 3 最小验证原型 | Spike 3 = Handoff |
+| 场景 | 一句话 | Sprint |
+|------|--------|--------|
+| S1 | 有性格有记忆的日常对话 | 6 |
+| S2 | planner→worker 工作流 | 6 |
+| S3 | 高风险动作审批 | 7 |
+| **S2b** | **Muse 自开发自己** | **7** |
 
-## 四、日常工作流 SOP
+---
 
-### 每次对话开始（AI 必做）
+## 📚 学习路线
+
+### Sprint → Phase → Unit 映射
+
+| Sprint | Phase | 做什么 | 对应 Unit |
+|--------|-------|--------|----------|
+| **→ S1** | 0 | 理论：Agent Core + Multi-Agent | foundations + unit01-04 |
+| S2 | 1 | 深化：Memory + Prompt + 工具 | unit03-04 扩展 |
+| S3 | 3 | 实践：Spike 1(Core) + Spike 3(Handoff) | 代码 |
+| S4 | 3 | 实践：Spike 2(Memory) + 场景锚定 | 代码 |
+| S5 | 4 | 设计：Architecture v2 | make-muse/ |
+| S6 | 5 | 实现：S1 + S2 | src/ |
+| S7 | 5 | 实现：S3 + S2b | src/ |
+| S8 | 6-7 | 收尾：Eval + Portfolio | 面试 |
+
+### Unit 内容总览
+
+| Unit | 主题 | 学习内容 | 实验 | 消险 |
+|------|------|---------|------|------|
+| **foundations** | 大模型基础 | F1-F3 Karpathy + F9 蒸馏 + F10 部署 | — | — |
+| **unit01** | Agent 核心循环 | BEA + Cookbook + ReAct + Weng | exp01 链式/并行/路由 | R1 notify |
+| **unit02** | 多 Agent 协作 | Orchestrator + OpenAI/Google + Swarm | exp02-04 | R2-R4 |
+| **unit03** | 状态 + 记忆 | LangGraph + CrewAI + 角色系统 | exp05-06 | R5-R6 |
+| **unit04** | Prompt 工程 | 7 层结构 + pua 骨架 | exp07 | — |
+
+---
+
+## 🔄 双轨并行模式
+
+```
+你的轨道:  📖 吸收 → 🎯 Muse任务 → ✏️ 沉淀
+AI 轨道:   🧪 实验（巩固学习）+ 🔧 消险（服务 Muse）
+```
+
+### 每次对话 SOP（AI 必做）
 
 ```
 1. 读本文件 → 了解背景
-2. 看 overview.md §Sprint映射 → 确认当前 Sprint
-3. 打开 sprint-X.md → 找第一个未完成 [ ]
-4. 告诉 Later："当前是 Sprint X Day N，今天的任务是 XXX"
+2. 看 track/sprint-X.md → 确认当前 Sprint，找第一个 [ ]
+3. 告诉 Later："当前 Sprint X，今天任务是 XXX"
 ```
 
-### 每日双轨流程
+### 状态标记
 
-> **核心准则详见 `research/README.md` §核心方法论。这是必须遵守的。**
+| 标记 | 含义 |
+|------|------|
+| `[ ]` | 未开始 |
+| `[AI✓]` | AI 已交付，你未吸收 |
+| `[/]` | 你正在吸收 |
+| `[x]` | 你已完成 |
 
-| 步骤 | 谁做 | 内容 |
+---
+
+## 📏 编号体系
+
+| 编号 | 含义 | 例子 |
 |------|------|------|
-| Step 1: 📖 吸收 | Later | AI 已交付精华笔记，读+理解+能复述 |
-| Step 2: 🎯 Muse 小任务 | Later | 把学到的压回 Muse 设计（不改代码） |
-| Step 3: ✏️ 沉淀 | Later | 面试题回答、关键概念复述 |
-| Step 4: 🤖 AI 并行 | AI | 🧪 实验（巩固学习）+ 🔧 消险（Muse 真用） |
-
-### 进度状态
-
-- `[ ]` = 未开始
-- `[AI✓]` = AI 已交付，Later 未吸收
-- `[/]` = Later 正在吸收
-- `[x]` = Later 已吸收完成
-
-### Sprint 收尾（Day 10）
-
-```
-1. mini-eval 自检（对齐 RDD Phase 退出条件）
-2. 复盘 → sprint-X-retro.md
-3. 更新本文件 §当前状态
-4. 创建 sprint-(X+1).md
-```
+| S1-S4, S2b | 锚点场景 | S2b = 自开发闭环 |
+| Phase 0-7 | RDD 阶段 | Phase 0 = 理论基础 |
+| Sprint 1-8 | 双周迭代 | Sprint 1 → Phase 0 |
+| Unit 01-04 | 知识单元 | Unit 01 = Agent Core |
+| Spike 1-3 | 最小验证原型 | Spike 3 = Handoff |
+| exp/R | AI 实验/消险 | exp01/R1 |
 
 ---
 
-## 五、当前状态
+## 📋 格式标准（所有文档必须遵循）
 
-**→ Sprint 1**（Phase 0: 理论基础）
+| 文档类型 | 规范文件 | 核心要求 |
+|---------|---------|---------|
+| 📖 研究笔记 | `.agents/workflows/research-note.md` | 速读版 + 上下文定位 + 三栏原理表 + 面试题 |
+| 🤖 AI 实验/消险 | `.agents/workflows/ai-parallel-task.md` | 文件头 JSDoc + 设计注释 + Muse 映射 |
 
-> 详见 `sprint-1.md` 和 `overview.md`
+### 三栏原理表（强制）
+
+| 概念 | 能力来源（怎么获得的） | 激活方式（怎么触发的） | 类比（仅类比） |
+|------|---------------------|---------------------|--------------|
+| XXX | 预训练/RLHF/... | Prompt/微调/... | 像人的XXX（**仅类比**） |
 
 ---
 
-## 六、注意事项
+## 🗂️ 文档边界
 
-- `user/` 是 Later 的学习空间，不是引擎代码
-- 不要修改 `AGENTS.md`（引擎开发规范）
-- 不要修改 `src/` 代码，除非在实践阶段且 Later 明确要求
-- 引擎代码在 `muse/src/`，架构文档在 `muse/make-muse/`
+| 目录 | 放什么 | 不放 |
+|------|--------|------|
+| `user/` | 学习、研究、设计草案、AI 实验 | 正式架构文档 |
+| `make-muse/` | 架构设计、ADR | 学习笔记 |
+| `src/` + `test/` | 实现代码 | 文档 |
+
+---
+
+## ⚠️ 注意事项
+
+- 不修改 `AGENTS.md`（引擎规范）
+- 研究阶段不改 `src/` 代码
+- 类比永远标注"仅类比"，不写成原理定义
+- 引用外部代码必须标注来源和位置
