@@ -81,6 +81,23 @@
 
 ## 课程清单
 
+### 大模型基础（前置知识） → `day00/`
+
+> 不只学 Agent，必须从底层理解 LLM 原理。精华摘要在 `day00/FX-*.md`。
+
+| # | 课程 | 讲师 | 核心收获 | 摘要 |
+|---|------|------|---------|------|
+| F1 | ⭐ Intro to LLMs | Karpathy | LLM 全貌：next-token + 训练 + 能力边界 | `day00/F1-llm-intro.md` |
+| F2 | ⭐ Let's build GPT | Karpathy | Transformer/Attention 从零理解 | `day00/F2-build-gpt.md` |
+| F3 | ⭐ State of GPT | Karpathy | 预训练→SFT→RLHF 全管线 | `day00/F3-state-of-gpt.md` |
+| F4 | 大模型原理 | 李宏毅 | Transformer 到 Agent（中文最佳） | `day00/F4-lihongyi-llm.md` |
+| F5 | Neural Networks | 3Blue1Brown | 直觉理解 backprop/gradient | `day00/F5-neural-net-viz.md` |
+| F6 | Prompt Engineering | 吴恩达+OpenAI | 系统化 prompt 技巧 | `day00/F6-prompt-eng.md` |
+| F7 | Building Systems | 吴恩达 | LLM 应用工程化 | `day00/F7-llm-systems.md` |
+| F8 | LangChain + RAG | 吴恩达 | 检索增强生成 | `day00/F8-rag.md` |
+
+### Agent 专项课程
+
 | # | 课程 | 来源 | 用于 |
 |---|------|------|------|
 | 1 | Anthropic Courses | Anthropic 官方 | S1 Day1-3 |

@@ -1,15 +1,43 @@
-# 📚 c 课程：Anthropic Cookbook — Agent 基础工作流详解
+# 📚 c 课程：Agent 编排模式 — 代码精读
 
 > **Sprint 1 · Day 1 · 类型：课程跟练**  
-> **源文件：** `make-muse/reference/anthropic-cookbook/patterns/agents/basic_workflows.ipynb`  
-> **前置知识：** 你已精读 BEA，知道了 5 种编排模式。本文带你看**官方代码怎么实现前 3 种。**  
+> **前置知识：** 你已精读 BEA，知道了 5 种编排模式。本文带你看**代码怎么实现前 3 种。**  
 > **学习目标：** 看完这篇，你能自己写出 chain / parallel / route 三种模式的代码。
+> **大模型基础：** 如果不理解 LLM 调用的底层原理，先看 `day00/F1-llm-intro.md`。
+
+---
+
+## 📍 上下文定位
+
+### 主要来源：Anthropic Cookbook
+
+本文的核心代码来自 **Anthropic 官方 Cookbook** 的 Agent 模式章节：
+
+```
+make-muse/reference/anthropic-cookbook/
+└── patterns/
+    └── agents/
+        ├── util.py                         ← 共用基础（LLM 调用 + XML 解析）
+        ├── basic_workflows.ipynb           ← 📌 本文精读的 3 种模式
+        ├── orchestrator_workers.ipynb      ← Day 02 精读
+        └── autonomous_agent.ipynb          ← Day 04 参考
+```
+
+如果你没有这个仓库：`cd make-muse/reference && git clone --depth 1 https://github.com/anthropics/anthropic-cookbook.git`
+
+### 补充来源
+
+| 课程 | 对应本文哪段 | 精华摘要在 |
+|------|-----------|----------|
+| Hello-Agents Ch1-2 | Chain/Parallel 概念对比 | 本文 §五 |
+| 吴恩达 Prompt Engineering | `temperature` 参数选择 | `day00/F6-prompt-eng.md` |
 
 ---
 
 ## 一、基础设施：`util.py`
 
-在看 3 种模式之前，先搞清楚它们共用的底层工具：
+> **📍 来源：** `anthropic-cookbook/patterns/agents/util.py`
+> **作用：** 所有 3 种模式共用的 LLM 调用函数。先搞清楚这个，后面的模式代码才看得懂。
 
 ```python
 # util.py — 两个函数，是整个 Cookbook 的地基
@@ -338,6 +366,49 @@ python3 -c "from util import llm_call; print(llm_call('Hello, who are you?'))"
 ```
 
 如果没有 API Key 也没关系 — **读代码 + 理解流程**比跑 demo 更重要。
+
+---
+
+## 七、其他课程怎么讲这些模式
+
+> 不只有 Anthropic 一家在讲 Agent 编排。以下是其他优质课程的精华对比。完整摘要在 `day00/` 对应文件。
+
+### Hello-Agents (Datawhale) — Ch1-2
+
+```
+核心差异: 用中文 + 更贴近国内工程实践
+Chain: 强调"链条越短越好"，每个环节的失败率会累乘 → P(成功) = 0.95^n
+Parallel: 额外讲了 MapReduce 模式 — 先 Map(拆) → 各自执行 → Reduce(合)
+亮点: 有从零构建 Agent 的完整代码（Python），不依赖 LangChain
+```
+
+### 吴恩达 — Building with LLMs (DeepLearning.AI)
+
+```
+核心差异: 更关注工程实践和 prompt 优化
+Chain: 强调用"分类器"在链条中做质检（Gate），而不是盲目串联
+Route: 强调"evaluation-driven routing" — 先评估 → 再路由，不是先路由 → 再评估
+关键洞察: "Start with the simplest solution. Only add complexity when needed."
+```
+
+### HuggingFace Agents Course — Unit 1
+
+```
+核心差异: 框架无关，讲原理
+链式调用: 强调"工具链"概念 — 每个工具的输出自动变成下个工具的输入
+路由: 用 ReAct 模式做动态路由，不是预定义路由表
+亮点: 用 smolagents 库演示，非常轻量
+```
+
+### 对同一模式的多角度对照
+
+| 模式 | Anthropic (本文) | Hello-Agents | 吴恩达 | HuggingFace |
+|------|-----------------|-------------|--------|-----------|
+| **Chain** | `for step in steps: result = llm_call(step + result)` | 强调失败率累乘风险 | 加 Gate 质检 | 工具链自动串联 |
+| **Parallel** | `ThreadPoolExecutor` 同时发 | MapReduce 模式 | — | — |
+| **Route** | LLM分类器 + XML | — | 评估驱动路由 | ReAct 动态路由 |
+
+> 详细精华在各 `day00/FX-*.md` 中。本文只做对比速览。
 
 ---
 
