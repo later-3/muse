@@ -3,65 +3,259 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Muse Cockpit — Family Dashboard</title>
-  <style>
-    body {
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: linear-gradient(180deg, #FFF0E6 0%, #FFF8F3 100%);
-      color: #3D2B1F;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .placeholder {
-      text-align: center;
-      padding: 60px 40px;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(120,80,40,0.10);
-      border: 1px solid #F0DDD2;
-      max-width: 480px;
-    }
-    .placeholder h1 {
-      font-size: 2rem;
-      background: linear-gradient(135deg, #E05A2D, #FF8A65);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
-    .placeholder p { color: #8B7260; line-height: 1.6; }
-    .placeholder .status {
-      margin-top: 24px;
-      padding: 12px 24px;
-      background: linear-gradient(135deg, #FF8A65, #FF6E40);
-      color: white;
-      border-radius: 24px;
-      display: inline-block;
-      font-weight: 600;
-    }
-  </style>
+  <title>Muse Family Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="placeholder">
-    <h1>🌸 Muse Cockpit</h1>
-    <p>Standalone service is running.<br>
-    Full dashboard UI coming in T44.</p>
-    <div class="status" id="status">Loading members...</div>
-  </div>
-  <script>
-    fetch('/api/family/members')
-      .then(r => r.json())
-      .then(data => {
-        const online = data.members.filter(m => m.status === 'online').length
-        document.getElementById('status').textContent =
-          `${data.family}: ${online}/${data.members.length} members online`
-      })
-      .catch(() => {
-        document.getElementById('status').textContent = 'API unavailable'
-      })
-  </script>
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🎭</span>
+        <span class="logo-text">Muse Family</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="#overview" class="nav-item active" data-page="overview">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-text">概览</span>
+      </a>
+      <a href="#chat" class="nav-item" data-page="chat">
+        <span class="nav-icon">💬</span>
+        <span class="nav-text">对话</span>
+      </a>
+      <a href="#workflows" class="nav-item" data-page="workflows">
+        <span class="nav-icon">📋</span>
+        <span class="nav-text">工作流</span>
+      </a>
+      <a href="#memory" class="nav-item" data-page="memory">
+        <span class="nav-icon">🧠</span>
+        <span class="nav-text">记忆</span>
+      </a>
+      <a href="#settings" class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-text">配置</span>
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="family-info">
+        <span class="family-name" id="familyName">Loading...</span>
+        <span class="family-version">v1.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 移动端底部导航 -->
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="#overview" class="mobile-nav-item active" data-page="overview">
+      <span class="mobile-nav-icon">🏠</span>
+      <span class="mobile-nav-text">概览</span>
+    </a>
+    <a href="#chat" class="mobile-nav-item" data-page="chat">
+      <span class="mobile-nav-icon">💬</span>
+      <span class="mobile-nav-text">对话</span>
+    </a>
+    <a href="#workflows" class="mobile-nav-item" data-page="workflows">
+      <span class="mobile-nav-icon">📋</span>
+      <span class="mobile-nav-text">工作流</span>
+    </a>
+    <a href="#memory" class="mobile-nav-item" data-page="memory">
+      <span class="mobile-nav-icon">🧠</span>
+      <span class="mobile-nav-text">记忆</span>
+    </a>
+    <a href="#settings" class="mobile-nav-item" data-page="settings">
+      <span class="mobile-nav-icon">⚙️</span>
+      <span class="mobile-nav-text">配置</span>
+    </a>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 顶栏 -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <h1 class="page-title" id="pageTitle">家族概览</h1>
+      </div>
+      <div class="top-bar-right">
+        <div class="online-badge">
+          <span class="online-dot"></span>
+          <span class="online-count" id="onlineCount">0</span>
+          <span class="online-text">在线</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+      <!-- 概览页 -->
+      <section class="page active" id="page-overview">
+        <div class="page-header">
+          <h2>成员状态</h2>
+          <div class="last-update">
+            上次更新: <span id="lastUpdate">--</span>
+          </div>
+        </div>
+        
+        <!-- 加载骨架屏 -->
+        <div class="skeleton-grid" id="skeletonGrid">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+        
+        <!-- 成员卡片网格 -->
+        <div class="member-grid" id="memberGrid" style="display: none;">
+          <!-- 动态生成 -->
+        </div>
+        
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">👻</div>
+          <h3>暂无成员</h3>
+          <p>使用 create-member.sh 创建新成员</p>
+        </div>
+      </section>
+
+      <!-- 对话页 -->
+      <section class="page" id="page-chat">
+        <div class="chat-layout">
+          <!-- 左侧联系人面板 -->
+          <div class="chat-contact-panel" id="chatContactPanel">
+            <div class="chat-contact-header">
+              <div class="chat-contact-title">成员</div>
+              <button class="chat-contact-search-btn" id="chatSearchToggle" title="搜索">🔍</button>
+            </div>
+            <div class="chat-contact-search" id="chatSearchBar" style="display:none;">
+              <input type="text" class="chat-search-input" id="chatSearchInput" placeholder="搜索对话内容…">
+            </div>
+            <div class="chat-contact-list" id="chatContactList">
+              <div class="chat-contact-empty">加载成员…</div>
+            </div>
+          </div>
+
+          <!-- 右侧对话面板 -->
+          <div class="chat-conversation-panel" id="chatConversationPanel">
+            <!-- 欢迎占位 -->
+            <div class="chat-welcome" id="chatWelcome">
+              <div class="chat-welcome-icon">
+                <span>💬</span>
+              </div>
+              <h3>选择成员开始对话</h3>
+              <p>在左侧选择一个在线成员，创建或继续一段对话</p>
+              <div class="chat-welcome-tips">
+                <div class="chat-tip"><span class="chat-tip-icon">⌨️</span> Enter 发送，Shift+Enter 换行</div>
+                <div class="chat-tip"><span class="chat-tip-icon">📝</span> 支持 Markdown 格式</div>
+                <div class="chat-tip"><span class="chat-tip-icon">🤖</span> 与 AI 成员实时对话</div>
+              </div>
+            </div>
+
+            <!-- 活跃对话区 -->
+            <div class="chat-active" id="chatActive" style="display:none;">
+              <!-- 对话头部 -->
+              <div class="chat-conv-header">
+                <div class="chat-conv-header-left">
+                  <div class="chat-conv-avatar" id="chatConvAvatar">🤖</div>
+                  <div class="chat-conv-info">
+                    <div class="chat-conv-name" id="chatConvName">Member</div>
+                    <div class="chat-conv-session" id="chatConvSession">
+                      <span id="chatConvSessionName">Session</span>
+                      <span class="chat-conv-status" id="chatConvStatus">● 在线</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-conv-header-right">
+                  <button class="chat-header-btn" id="chatNewSessionBtn" title="新对话">
+                    <span>＋</span> 新对话
+                  </button>
+                </div>
+              </div>
+
+              <!-- 消息区 -->
+              <div class="chat-messages-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <button class="chat-scroll-bottom" id="chatScrollBottom" style="display:none;" title="滚动到底部">↓</button>
+              </div>
+
+              <!-- 输入区 -->
+              <div class="chat-input-bar">
+                <div class="chat-input-wrapper">
+                  <textarea class="chat-input" id="chatInput" placeholder="给 AI 发消息…" rows="1"></textarea>
+                </div>
+                <button class="chat-send-btn" id="chatSendBtn" disabled title="发送 (Enter)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 2L11 13"></path>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 工作流页 -->
+      <section class="page" id="page-workflows">
+        <div class="wf-layout" id="workflowLayout">
+          <!-- 动态生成 by workflow.js -->
+          <div class="memory-loading">
+            <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+            <div style="color: var(--text-muted);">加载工作流数据…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 记忆页 -->
+      <section class="page" id="page-memory">
+        <div class="memory-layout" id="memoryLayout">
+          <!-- 动态生成 by memory.js -->
+          <div class="memory-loading">
+            <div style="font-size: 48px; margin-bottom: 16px;">🧠</div>
+            <div style="color: var(--text-muted);">加载记忆数据…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 配置页 (T46: config.js 动态生成) -->
+      <section class="page" id="page-settings">
+        <div class="config-placeholder-init">
+          <div style="font-size: 48px; margin-bottom: 16px;">⚙️</div>
+          <div style="color: var(--text-muted);">Loading config...</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 成员详情面板 -->
+  <aside class="detail-panel" id="detailPanel">
+    <div class="detail-panel-header">
+      <h3>成员详情</h3>
+      <button class="close-btn" id="closeDetail">&times;</button>
+    </div>
+    <div class="detail-panel-content" id="detailContent">
+      <!-- 动态生成 -->
+    </div>
+  </aside>
+
+  <!-- 遮罩层 -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Toast 通知 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+  <script src="config.js"></script>
+  <script src="memory.js"></script>
+  <script src="workflow.js"></script>
 </body>
 </html>

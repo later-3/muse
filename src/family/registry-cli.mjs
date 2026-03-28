@@ -6,7 +6,7 @@
  * ESM 兼容，不使用 require()。
  *
  * 用法：
- *   node registry-cli.mjs register <name> <role> <engine> <pid>
+ *   node registry-cli.mjs register <name> <role> <engine> [pid] [directory]
  *   node registry-cli.mjs unregister <name>
  */
 
@@ -17,15 +17,16 @@ const [,, action, ...args] = process.argv
 try {
   switch (action) {
     case 'register': {
-      const [name, role, engine, pid] = args
+      const [name, role, engine, pid, directory] = args
       if (!name || !role || !engine) {
-        console.error('用法: node registry-cli.mjs register <name> <role> <engine> [pid]')
+        console.error('用法: node registry-cli.mjs register <name> <role> <engine> [pid] [directory]')
         process.exit(1)
       }
       registerMember(name, {
         role,
         engine,
         pid: pid ? parseInt(pid, 10) : null,
+        directory: directory || process.env.MUSE_MEMBER_DIR || undefined,
       })
       break
     }

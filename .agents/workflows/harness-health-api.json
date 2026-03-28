@@ -1,0 +1,90 @@
+{
+  "id": "harness-health-api",
+  "name": "健康检查 API Harness 工作流",
+  "version": "1.0.0",
+  "description": "系统性验证 Muse 健康检查 API 的完整性和正确性",
+  "driver": "planner",
+  "initial": "discover",
+  "participants": [
+    { "role": "explorer", "type": "agent", "description": "探索现有 API 实现" },
+    { "role": "tester", "type": "agent", "description": "执行测试验证" },
+    { "role": "reporter", "type": "agent", "description": "生成测试报告" }
+  ],
+  "nodes": {
+    "discover": {
+      "type": "action",
+      "participant": "explorer",
+      "objective": "发现所有健康检查相关的 API 端点和实现模块",
+      "capabilities": ["grep", "read", "ast-grep"],
+      "output": { "artifact": "api-inventory.md" },
+      "transitions": {
+        "done": { "target": "check_contract", "actor": "agent" },
+        "failed": { "target": "terminal_failure", "actor": "agent" }
+      }
+    },
+    "check_contract": {
+      "type": "action",
+      "participant": "tester",
+      "objective": "验证 API 契约一致性：检查 handler 实现与响应格式是否匹配",
+      "capabilities": ["read", "lsp_diagnostics"],
+      "output": { "artifact": "contract-report.md" },
+      "transitions": {
+        "done": { "target": "test_live", "actor": "agent" },
+        "issues_found": { "target": "document_gaps", "actor": "agent" }
+      }
+    },
+    "test_live": {
+      "type": "action",
+      "participant": "tester",
+      "objective": "在运行中的 Muse 实例上执行实际 API 调用测试",
+      "capabilities": ["playwright_playwright_get", "bash"],
+      "bash_policy": "read_only",
+      "output": { "artifact": "live-test-results.json" },
+      "transitions": {
+        "all_pass": { "target": "generate_report", "actor": "agent" },
+        "some_fail": { "target": "analyze_failures", "actor": "agent" },
+        "cannot_connect": { "target": "document_gaps", "actor": "agent" }
+      }
+    },
+    "analyze_failures": {
+      "type": "action",
+      "participant": "tester",
+      "objective": "分析失败的测试，分类问题类型（契约/实现/环境）",
+      "capabilities": ["read", "grep"],
+      "output": { "artifact": "failure-analysis.md" },
+      "transitions": {
+        "done": { "target": "document_gaps", "actor": "agent" }
+      }
+    },
+    "document_gaps": {
+      "type": "action",
+      "participant": "reporter",
+      "objective": "记录发现的问题和改进建议",
+      "capabilities": ["write"],
+      "output": { "artifact": "gaps.md" },
+      "transitions": {
+        "done": { "target": "generate_report", "actor": "agent" }
+      }
+    },
+    "generate_report": {
+      "type": "action",
+      "participant": "reporter",
+      "objective": "生成最终 harness 测试报告，包含覆盖率、通过率、建议",
+      "capabilities": ["write", "read"],
+      "output": { "artifact": "harness-report.md" },
+      "transitions": {
+        "done": { "target": "terminal_success", "actor": "agent" }
+      }
+    },
+    "terminal_success": {
+      "type": "terminal",
+      "outcome": "success",
+      "summary": "健康检查 API harness 完成"
+    },
+    "terminal_failure": {
+      "type": "terminal",
+      "outcome": "failure",
+      "summary": "harness 执行失败，无法完成 API 发现"
+    }
+  }
+}

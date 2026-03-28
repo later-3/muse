@@ -174,7 +174,7 @@ try {
   console.log(cfg.role)
 } catch(e) { console.error('❌ 读取 config.json 失败:', e.message); process.exit(1) }
 "); then
-  node "$SRC_DIR/family/registry-cli.mjs" register "$MEMBER" "$MUSE_ROLE" "http://127.0.0.1:$MUSE_PORT" "$MUSE_PID" 2>/dev/null || echo "⚠️  Registry 注册失败（非致命）"
+  node "$SRC_DIR/family/registry-cli.mjs" register "$MEMBER" "$MUSE_ROLE" "http://127.0.0.1:$MUSE_PORT" "$MUSE_PID" "$MEMBER_DIR" 2>/dev/null || echo "⚠️  Registry 注册失败（非致命）"
 else
   echo "⚠️  Registry 注册跳过：无法读取 role"
 fi

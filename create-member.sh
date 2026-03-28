@@ -11,7 +11,7 @@ if [ $# -lt 3 ]; then
   echo "用法: ./create-member.sh <family> <member> <role> [--bot-token <token>] [--chat-id <id>]"
   echo "示例: ./create-member.sh later-muse-family planner planner --bot-token 123:ABC --chat-id 456"
   echo ""
-  echo "可用 role: nvwa, pua, architect, coder, planner"
+  echo "可用 role: nvwa, pua, architect, coder, planner, reviewer"
   exit 1
 fi
 

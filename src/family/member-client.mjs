@@ -173,6 +173,54 @@ export class MemberClient {
     }
   }
 
+  /**
+   * 等待 target 的 MCP 工具就绪
+   *
+   * 用 OpenCode 的 GET /mcp API 轮询，直到指定 MCP server 状态为 connected。
+   * 不花 LLM token，纯基础设施层等待。
+   *
+   * @param {object} [opts]
+   * @param {number} [opts.timeoutMs=30000]
+   * @param {number} [opts.pollIntervalMs=500]
+   * @param {string} [opts.requiredServer='memory-server'] - 要等待的 MCP server 名
+   * @returns {Promise<boolean>}
+   */
+  async waitForMcpReady(opts = {}) {
+    const { timeoutMs = 30_000, pollIntervalMs = 500, requiredServer = 'memory-server' } = opts
+    const deadline = Date.now() + timeoutMs
+    let pollCount = 0
+
+    while (Date.now() < deadline) {
+      pollCount++
+      try {
+        const mcpStatus = await this.#request('GET', '/mcp')
+        const serverStatus = mcpStatus?.[requiredServer]?.status
+          || (typeof mcpStatus?.[requiredServer] === 'string' ? mcpStatus[requiredServer] : null)
+
+        if (serverStatus === 'connected') {
+          log.info('MCP 已就绪', { server: requiredServer, polls: pollCount })
+          return true
+        }
+
+        if (serverStatus === 'failed') {
+          log.warn('MCP 连接失败', { server: requiredServer, status: mcpStatus[requiredServer] })
+          throw new Error(`MCP ${requiredServer} 连接失败: ${mcpStatus[requiredServer]?.error || 'unknown'}`)
+        }
+
+        if (pollCount <= 2 || pollCount % 10 === 0) {
+          log.info('等待 MCP 就绪...', { server: requiredServer, status: serverStatus, polls: pollCount })
+        }
+      } catch (e) {
+        // 非 MCP-failed 的错误（如网络错误）→ 继续重试
+        if (e.message?.includes('连接失败')) throw e
+      }
+      await new Promise(r => setTimeout(r, pollIntervalMs))
+    }
+
+    log.error('MCP 就绪超时', { server: requiredServer, timeoutMs, polls: pollCount })
+    throw new Error(`MCP ${requiredServer} 在 ${timeoutMs}ms 内未就绪 (polls=${pollCount})`)
+  }
+
   // --- Internal ---
 
   #buildHeaders() {

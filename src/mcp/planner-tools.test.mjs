@@ -20,6 +20,7 @@ import {
   handleHandoffToMember,
   handleReadArtifact,
 } from './planner-tools.mjs'
+import { autoAckHandoff } from '../family/handoff.mjs'
 
 // ── Test Fixtures ──
 
@@ -83,15 +84,19 @@ function selfWorkflow() {
 // ── Tests ──
 
 describe('PLANNER_TOOLS 定义', () => {
-  it('包含 6 个工具', () => {
-    assert.equal(PLANNER_TOOLS.length, 6)
+  it('包含 8 个工具', () => {
+    assert.equal(PLANNER_TOOLS.length, 8)
     const names = PLANNER_TOOLS.map(t => t.name)
+    assert.ok(names.includes('workflow_status'))
     assert.ok(names.includes('workflow_create'))
     assert.ok(names.includes('workflow_admin_transition'))
     assert.ok(names.includes('workflow_inspect'))
     assert.ok(names.includes('workflow_rollback'))
     assert.ok(names.includes('handoff_to_member'))
     assert.ok(names.includes('read_artifact'))
+    assert.ok(names.includes('workflow_update'))
+    // ack_handoff 已删除 — ACK 由 Plugin hook 自动完成
+    assert.ok(!names.includes('ack_handoff'))
   })
 
   it('工具定义包含 inputSchema', () => {

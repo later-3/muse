@@ -29,7 +29,9 @@ import { Goals } from '../core/goals.mjs'
 import { Threads } from '../core/threads.mjs'
 import { DevStore } from '../dev/store.mjs'
 import { DEV_TOOLS, handleStartDevTask, handleDevStatus, handleApproveDev, handleRejectDev } from './dev-tools.mjs'
-import { PLANNER_TOOLS, handleWorkflowCreate, handleWorkflowAdminTransition, handleWorkflowInspect, handleWorkflowRollback, handleHandoffToMember, handleReadArtifact } from './planner-tools.mjs'
+import { PLANNER_TOOLS, handleWorkflowCreate, handleWorkflowAdminTransition, handleWorkflowInspect, handleWorkflowRollback, handleHandoffToMember, handleReadArtifact, handleWorkflowStatus, handleWorkflowUpdate } from './planner-tools.mjs'
+import { CALLBACK_TOOLS, handleNotifyPlanner } from './callback-tools.mjs'
+import { resolveSessionId } from './session-context.mjs'
 
 // --- Config ---
 
@@ -855,7 +857,7 @@ async function main() {
   )
 
   // List tools
-  const allTools = [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...PLANNER_TOOLS]
+  const allTools = [...TOOLS, ...GOAL_TOOLS, ...THREAD_TOOLS, ...DEV_TOOLS, ...TELEGRAM_TOOLS, ...IMAGE_TOOLS, ...PLANNER_TOOLS, ...CALLBACK_TOOLS]
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: allTools,
@@ -922,22 +924,32 @@ async function main() {
         // T42-4: Planner tools
         case 'workflow_create':
           return await handleWorkflowCreate(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
         case 'workflow_admin_transition':
           return await handleWorkflowAdminTransition(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
         case 'workflow_inspect':
           return await handleWorkflowInspect(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
         case 'workflow_rollback':
           return await handleWorkflowRollback(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
         case 'handoff_to_member':
           return await handleHandoffToMember(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
         case 'read_artifact':
           return await handleReadArtifact(
-            args?.session_id || process.env.OPENCODE_SESSION_ID || 'unknown', args || {})
+            resolveSessionId(), args || {})
+        case 'workflow_status':
+          return await handleWorkflowStatus(
+            resolveSessionId(), args || {})
+        case 'workflow_update':
+          return await handleWorkflowUpdate(
+            resolveSessionId(), args || {})
+        // Callback tools (所有执行角色可用)
+        case 'notify_planner':
+          return await handleNotifyPlanner(
+            resolveSessionId(), args || {})
         default:
           return errorResult(`Unknown tool: ${name}`)
       }

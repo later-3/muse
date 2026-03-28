@@ -219,7 +219,7 @@ export async function createModules(cfg = config) {
     pulseState: pulse.pulseState,
   })
 
-  return { identity, memory, engine, orchestrator, ingress, channel, telegram, cerebellum, pulse, healthHistory, healthInsight, goals, threads, devStore, stt, tts, registry, gapJournal, executionLog, web }
+  return { identity, memory, engine, orchestrator, ingress, channel, telegram, cerebellum, pulse, healthHistory, healthInsight, goals, threads, devStore, stt, tts, registry, gapJournal, executionLog, web: allModules.web }
 }
 
 /**
@@ -305,7 +305,7 @@ async function stopAll(mods) {
   try { await mods.memory.stop() } catch (e) { sysLog.error('Memory 停止失败:', e.message) }
   try { await mods.identity.stop() } catch (e) { sysLog.error('Identity 停止失败:', e.message) }
   // Web 最后关，确保整个关闭过程都有诊断入口
-  try { await mods.web.stop() } catch (e) { sysLog.error('Web 停止失败:', e.message) }
+  try { if (mods.web) await mods.web.stop() } catch (e) { sysLog.error('Web 停止失败:', e.message) }
 
   sysLog.info('所有模块已停止')
 }

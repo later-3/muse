@@ -138,59 +138,10 @@ async function proxyHealthCheck(engineUrl) {
   }
 }
 
-// ── Workflow Instances ──
+// ── Workflow Instances (T44 compat wrapper → T47 readWorkflowInstances) ──
 
 function listWorkflowInstances() {
-  const root = getFamilyRoot()
-  if (!root) return { active: [], archived: [] }
-
-  const result = { active: [], archived: [] }
-
-  // Active instances
-  const instancesDir = join(root, 'workflow', 'instances')
-  if (existsSync(instancesDir)) {
-    for (const d of readdirSync(instancesDir, { withFileTypes: true })) {
-      if (!d.isDirectory()) continue
-      const statePath = join(instancesDir, d.name, 'state.json')
-      if (!existsSync(statePath)) continue
-      try {
-        const state = JSON.parse(readFileSync(statePath, 'utf-8'))
-        result.active.push({
-          instanceId: d.name,
-          workflowId: state.workflowId,
-          taskId: state.taskId,
-          status: state.smState?.status || 'unknown',
-          currentNode: state.smState?.current_node,
-          bindings: (state.bindings || []).map(b => ({ role: b.role, memberName: b.memberName })),
-        })
-      } catch { /* skip */ }
-    }
-  }
-
-  // Archived instances
-  const archiveDir = join(root, 'workflow', 'archive')
-  if (existsSync(archiveDir)) {
-    for (const month of readdirSync(archiveDir, { withFileTypes: true })) {
-      if (!month.isDirectory()) continue
-      const monthDir = join(archiveDir, month.name)
-      for (const d of readdirSync(monthDir, { withFileTypes: true })) {
-        if (!d.isDirectory()) continue
-        const statePath = join(monthDir, d.name, 'state.json')
-        if (!existsSync(statePath)) continue
-        try {
-          const state = JSON.parse(readFileSync(statePath, 'utf-8'))
-          result.archived.push({
-            instanceId: d.name,
-            workflowId: state.workflowId,
-            status: state.smState?.status || 'unknown',
-            month: month.name,
-          })
-        } catch { /* skip */ }
-      }
-    }
-  }
-
-  return result
+  return readWorkflowInstances()
 }
 
 // ── T46: Config Management Functions ──
@@ -248,7 +199,64 @@ function writeMemberIdentity(name, updates) {
 
   writeFileSync(idPath, JSON.stringify(existing, null, 2) + '\n')
 
+  // Sync persona block to AGENTS.md (same markers as identity.mjs)
+  syncAgentsMdPersona(memberDir, existing)
+
   return { ok: true, identity: existing }
+}
+
+/**
+ * Lightweight AGENTS.md persona sync
+ * Uses same PERSONA_START/END markers as core/identity.mjs
+ */
+const PERSONA_START = '<!-- PERSONA_START -->'
+const PERSONA_END = '<!-- PERSONA_END -->'
+
+function syncAgentsMdPersona(memberDir, data) {
+  const agentsPath = join(memberDir, 'AGENTS.md')
+  const id = data.identity || {}
+  const psych = data.psychology || {}
+  const traits = psych.traits || {}
+
+  // Generate persona block
+  const traitLabels = Object.entries(traits)
+    .map(([k, v]) => `${k}: ${Math.round(v * 100)}%`)
+    .join('、')
+
+  const block = [
+    PERSONA_START,
+    `# ${id.name || 'Unnamed'} — ${id.owner || 'Unknown'} 的 AI 伴侣`,
+    '',
+    `> 你是 ${id.name || 'Unnamed'}${id.nickname ? `（${id.nickname}）` : ''}，${id.bio || ''}。`,
+    '',
+    '## 身份',
+    `- 名字: ${id.name || 'N/A'}${id.nickname ? ` (昵称: ${id.nickname})` : ''}`,
+    `- 主人: ${id.owner || 'N/A'}`,
+    `- MBTI: ${psych.mbti || 'N/A'}`,
+    id.bio ? `- 定位: ${id.bio}` : null,
+    '',
+    '## 性格',
+    traitLabels ? `- ${traitLabels}` : '- 友善专业',
+    PERSONA_END,
+  ].filter(l => l !== null).join('\n')
+
+  // Merge into AGENTS.md
+  let existing = ''
+  try { existing = readFileSync(agentsPath, 'utf-8') } catch { /* new file */ }
+
+  let merged
+  const startIdx = existing.indexOf(PERSONA_START)
+  const endIdx = existing.indexOf(PERSONA_END)
+
+  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+    // Replace existing persona block
+    merged = existing.slice(0, startIdx) + block + existing.slice(endIdx + PERSONA_END.length)
+  } else {
+    // Prepend persona block
+    merged = block + '\n\n' + existing
+  }
+
+  writeFileSync(agentsPath, merged)
 }
 
 /**
@@ -296,6 +304,251 @@ function writeMemberModel(name, updates) {
     model: oc.model,
     small_model: oc.small_model,
     requiresRestart: true,
+  }
+}
+
+// ── Memory Data Access (read-only SQLite) ──
+
+/**
+ * Read member memory data from SQLite database (read-only)
+ * @param {string} name - member name
+ * @param {'semantic'|'stats'|'recent'} type
+ */
+async function readMemberMemory(name, type) {
+  const membersDir = getMembersDir()
+  if (!membersDir) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const dbPath = join(membersDir, name, 'data', 'memory.db')
+  if (!existsSync(dbPath)) return { error: `Member "${name}" has no memory database`, status: 404 }
+
+  let db
+  try {
+    // Dynamic import better-sqlite3 — read-only to avoid interference
+    const Database = (await import('better-sqlite3')).default
+    db = new Database(dbPath, { readonly: true })
+  } catch (e) {
+    return { error: `Cannot open memory DB: ${e.message}`, status: 500 }
+  }
+
+  try {
+    if (type === 'semantic') {
+      const rows = db.prepare(
+        'SELECT key, value, category, source, confidence, tags, updated_at FROM semantic_memory ORDER BY updated_at DESC LIMIT 200'
+      ).all()
+      return { member: name, count: rows.length, memories: rows }
+    }
+
+    if (type === 'stats') {
+      const stats = db.prepare(`
+        SELECT
+          COUNT(*) as totalMessages,
+          COUNT(DISTINCT session_id) as totalSessions,
+          COALESCE(SUM(token_count), 0) as totalTokens,
+          MIN(created_at) as earliest,
+          MAX(created_at) as latest
+        FROM episodic_memory
+      `).get()
+      const semanticCount = db.prepare('SELECT COUNT(*) as count FROM semantic_memory').get()
+      return { member: name, episodic: stats, semanticCount: semanticCount?.count || 0 }
+    }
+
+    if (type === 'recent') {
+      const rows = db.prepare(`
+        SELECT id, session_id, role, content, summary, token_count, created_at
+        FROM episodic_memory
+        WHERE created_at >= datetime('now', '-7 days')
+        ORDER BY created_at DESC
+        LIMIT 100
+      `).all()
+      return { member: name, count: rows.length, episodes: rows }
+    }
+
+    return { error: 'Invalid memory type', status: 400 }
+  } catch (e) {
+    return { error: `Memory query failed: ${e.message}`, status: 500 }
+  } finally {
+    db?.close()
+  }
+}
+
+// ── Workflow Data Access (read-only filesystem) ──
+
+/**
+ * Scan instances/ + archive/ to list all workflow instances
+ */
+function readWorkflowInstances() {
+  const root = getFamilyRoot()
+  if (!root) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const wfRoot = join(root, 'workflow')
+  const results = { active: [], archived: [] }
+
+  // Active instances
+  const instancesDir = join(wfRoot, 'instances')
+  if (existsSync(instancesDir)) {
+    for (const id of readdirSync(instancesDir)) {
+      const stateFile = join(instancesDir, id, 'state.json')
+      if (!existsSync(stateFile)) continue
+      try {
+        const state = JSON.parse(readFileSync(stateFile, 'utf-8'))
+        results.active.push(summarizeInstance(state, id))
+      } catch { /* skip corrupt */ }
+    }
+  }
+
+  // Archived instances
+  const archiveDir = join(wfRoot, 'archive')
+  if (existsSync(archiveDir)) {
+    for (const month of readdirSync(archiveDir)) {
+      const monthDir = join(archiveDir, month)
+      if (!statSync(monthDir).isDirectory()) continue
+      for (const id of readdirSync(monthDir)) {
+        const stateFile = join(monthDir, id, 'state.json')
+        if (!existsSync(stateFile)) continue
+        try {
+          const state = JSON.parse(readFileSync(stateFile, 'utf-8'))
+          results.archived.push(summarizeInstance(state, id))
+        } catch { /* skip corrupt */ }
+      }
+    }
+  }
+
+  // Sort by savedAt descending
+  results.active.sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''))
+  results.archived.sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''))
+  return results
+}
+
+function summarizeInstance(state, id) {
+  const sm = state.smState || {}
+  return {
+    instanceId: state.instanceId || id,
+    workflowId: state.workflowId || 'unknown',
+    taskId: state.taskId || null,
+    status: sm.status || 'unknown',
+    currentNode: sm.current_node || null,
+    historyLength: (sm.history || []).length,
+    artifactCount: Object.keys(sm.artifacts || {}).length,
+    savedAt: state.savedAt || null,
+    bindingCount: (state.bindings || []).length,
+  }
+}
+
+/**
+ * Read full state.json for a specific instance (active or archived)
+ */
+function readWorkflowState(instanceId) {
+  const root = getFamilyRoot()
+  if (!root) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const wfRoot = join(root, 'workflow')
+  // Try active first
+  let stateFile = join(wfRoot, 'instances', instanceId, 'state.json')
+  if (!existsSync(stateFile)) {
+    // Try archive
+    const archiveDir = join(wfRoot, 'archive')
+    if (existsSync(archiveDir)) {
+      for (const month of readdirSync(archiveDir)) {
+        const candidate = join(archiveDir, month, instanceId, 'state.json')
+        if (existsSync(candidate)) { stateFile = candidate; break }
+      }
+    }
+  }
+
+  if (!existsSync(stateFile)) return { error: `Instance "${instanceId}" not found`, status: 404 }
+
+  try {
+    return JSON.parse(readFileSync(stateFile, 'utf-8'))
+  } catch (e) {
+    return { error: `Failed to read state: ${e.message}`, status: 500 }
+  }
+}
+
+/**
+ * Read workflow definition for an instance
+ */
+function readWorkflowDefinition(instanceId) {
+  const state = readWorkflowState(instanceId)
+  if (state.error) return state
+
+  // Try workflowPath from state
+  if (state.workflowPath && existsSync(state.workflowPath)) {
+    try {
+      return JSON.parse(readFileSync(state.workflowPath, 'utf-8'))
+    } catch { /* fall through */ }
+  }
+
+  // Try definitions/ directory
+  const root = getFamilyRoot()
+  if (root && state.workflowId) {
+    const defPath = join(root, 'workflow', 'definitions', `${state.workflowId}.json`)
+    if (existsSync(defPath)) {
+      try { return JSON.parse(readFileSync(defPath, 'utf-8')) } catch { /* fall through */ }
+    }
+  }
+
+  // Fallback: construct a minimal definition from state
+  return { error: 'Definition not found', status: 404 }
+}
+
+/**
+ * List artifacts for a workflow instance
+ */
+function listWorkflowArtifacts(instanceId) {
+  const root = getFamilyRoot()
+  if (!root) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const wfRoot = join(root, 'workflow')
+  // Find instance dir
+  let instDir = join(wfRoot, 'instances', instanceId)
+  if (!existsSync(instDir)) {
+    const archiveDir = join(wfRoot, 'archive')
+    if (existsSync(archiveDir)) {
+      for (const month of readdirSync(archiveDir)) {
+        const candidate = join(archiveDir, month, instanceId)
+        if (existsSync(candidate)) { instDir = candidate; break }
+      }
+    }
+  }
+
+  const artDir = join(instDir, 'artifacts')
+  if (!existsSync(artDir)) return { instanceId, artifacts: [] }
+
+  const artifacts = readdirSync(artDir).map(name => {
+    const fp = join(artDir, name)
+    const stats = statSync(fp)
+    return { name, size: stats.size, modifiedAt: stats.mtime.toISOString() }
+  })
+
+  return { instanceId, artifacts }
+}
+
+/**
+ * Read a specific artifact file content
+ */
+function readWorkflowArtifact(instanceId, artifactName) {
+  const root = getFamilyRoot()
+  if (!root) return { error: 'MUSE_HOME not set', status: 500 }
+
+  const wfRoot = join(root, 'workflow')
+  let instDir = join(wfRoot, 'instances', instanceId)
+  if (!existsSync(instDir)) {
+    const archiveDir = join(wfRoot, 'archive')
+    if (existsSync(archiveDir)) {
+      for (const month of readdirSync(archiveDir)) {
+        const candidate = join(archiveDir, month, instanceId)
+        if (existsSync(candidate)) { instDir = candidate; break }
+      }
+    }
+  }
+
+  const fp = join(instDir, 'artifacts', artifactName)
+  if (!existsSync(fp)) return { error: `Artifact "${artifactName}" not found`, status: 404 }
+
+  try {
+    return { name: artifactName, content: readFileSync(fp, 'utf-8') }
+  } catch (e) {
+    return { error: `Failed to read artifact: ${e.message}`, status: 500 }
   }
 }
 
@@ -430,10 +683,47 @@ async function handleRequest(req, res) {
     return
   }
 
-  // GET /api/workflow/instances
+  // GET /api/workflow/instances — T47 workflow visualization
   if (method === 'GET' && path === '/api/workflow/instances') {
-    const instances = listWorkflowInstances()
-    sendJSON(res, instances)
+    const result = readWorkflowInstances()
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/workflow/:id/state
+  const wfStateMatch = matchRoute('/api/workflow/:id/state', path)
+  if (method === 'GET' && wfStateMatch) {
+    const result = readWorkflowState(wfStateMatch.params.id)
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/workflow/:id/definition
+  const wfDefMatch = matchRoute('/api/workflow/:id/definition', path)
+  if (method === 'GET' && wfDefMatch) {
+    const result = readWorkflowDefinition(wfDefMatch.params.id)
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/workflow/:id/artifacts/:name (must match before shorter pattern)
+  const wfArtNameMatch = matchRoute('/api/workflow/:id/artifacts/:name', path)
+  if (method === 'GET' && wfArtNameMatch) {
+    const result = readWorkflowArtifact(wfArtNameMatch.params.id, wfArtNameMatch.params.name)
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/workflow/:id/artifacts
+  const wfArtListMatch = matchRoute('/api/workflow/:id/artifacts', path)
+  if (method === 'GET' && wfArtListMatch) {
+    const result = listWorkflowArtifacts(wfArtListMatch.params.id)
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
     return
   }
 
@@ -555,6 +845,39 @@ async function handleRequest(req, res) {
     const body = JSON.parse(await readBody(req))
     const result = writeMemberModel(name, body)
     if (result.error) return sendError(res, result.error, result.status || 400)
+    sendJSON(res, result)
+    return
+  }
+
+
+  // ── Memory API Routes ──
+
+  // GET /api/member/:name/memory/semantic
+  const memSemanticMatch = matchRoute('/api/member/:name/memory/semantic', path)
+  if (method === 'GET' && memSemanticMatch) {
+    const { name } = memSemanticMatch.params
+    const result = await readMemberMemory(name, 'semantic')
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/member/:name/memory/stats
+  const memStatsMatch = matchRoute('/api/member/:name/memory/stats', path)
+  if (method === 'GET' && memStatsMatch) {
+    const { name } = memStatsMatch.params
+    const result = await readMemberMemory(name, 'stats')
+    if (result.error) return sendError(res, result.error, result.status || 500)
+    sendJSON(res, result)
+    return
+  }
+
+  // GET /api/member/:name/memory/recent
+  const memRecentMatch = matchRoute('/api/member/:name/memory/recent', path)
+  if (method === 'GET' && memRecentMatch) {
+    const { name } = memRecentMatch.params
+    const result = await readMemberMemory(name, 'recent')
+    if (result.error) return sendError(res, result.error, result.status || 500)
     sendJSON(res, result)
     return
   }

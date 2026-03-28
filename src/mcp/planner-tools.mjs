@@ -14,8 +14,8 @@ import { getRegistry } from '../workflow/registry.mjs'
 import { createLogger } from '../logger.mjs'
 import { readFile } from 'node:fs/promises'
 import { join, resolve, isAbsolute } from 'node:path'
-import { initWorkflow } from '../workflow/loader.mjs'
-import { saveInstanceState, loadInstanceState, getArtifactDir, indexSession, appendTrace, archiveInstance } from '../workflow/bridge.mjs'
+import { initWorkflow, initWorkflowFromJSON } from '../workflow/loader.mjs'
+import { saveInstanceState, loadInstanceState, getArtifactDir, indexSession, appendTrace, archiveInstance, saveInstanceDefinition, lookupInstance } from '../workflow/bridge.mjs'
 import { executeHandoff } from '../family/handoff.mjs'
 import { MemberClient } from '../family/member-client.mjs'
 import { parseWorkflow } from '../workflow/definition.mjs'
@@ -27,21 +27,37 @@ const log = createLogger('planner-tools')
 
 export const PLANNER_TOOLS = [
   {
+    name: 'workflow_status',
+    description: '查看当前工作流状态。不提供 instance_id 时，自动查询当前 session 关联的工作流。用于不确定当前状态时主动查询。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        instance_id: {
+          type: 'string',
+          description: '工作流实例 ID（可选，不提供则查询当前 session 关联的实例）'
+        }
+      }
+    }
+  },
+  {
     name: 'workflow_create',
-    description: '创建一个 Planner 驱动的工作流实例。传入工作流定义 JSON，Planner 统一管理实例生命周期。',
+    description: '创建 driver=planner 的工作流实例。AI 生成工作流定义 JSON，或使用预定义的工作流。',
     inputSchema: {
       type: 'object',
       properties: {
         workflow_id: {
           type: 'string',
-          description: '工作流 ID 或工作流定义文件路径',
+          description: '工作流 ID 或工作流定义文件路径（与 workflow_json 二选一）',
+        },
+        workflow_json: {
+          type: 'string',
+          description: '工作流定义 JSON 字符串（与 workflow_id 二选一）。Planner 可动态生成工作流定义传入此参数。',
         },
         task_id: {
           type: 'string',
           description: '任务 ID（可选，默认自动生成）',
         },
       },
-      required: ['workflow_id'],
     },
   },
   {
@@ -150,6 +166,36 @@ export const PLANNER_TOOLS = [
       required: ['instance_id', 'name'],
     },
   },
+
+  {
+    name: 'workflow_update',
+    description: '修改工作流设计。用于 Later 审核工作流后提出修改意见时。只能修改尚未开始执行的工作流。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        instance_id: {
+          type: 'string',
+          description: '工作流实例 ID'
+        },
+        updates: {
+          type: 'object',
+          description: '要修改的部分',
+          properties: {
+            name: { type: 'string', description: '工作流名称' },
+            description: { type: 'string', description: '工作流描述' },
+            nodes: { type: 'object', description: '节点定义' },
+            participants: { type: 'array', description: '参与者列表' },
+            initial: { type: 'string', description: '初始节点' }
+          }
+        },
+        reason: {
+          type: 'string',
+          description: '修改原因（Later 的反馈）'
+        }
+      },
+      required: ['instance_id', 'updates']
+    }
+  },
 ]
 
 // ── Helper ──
@@ -161,44 +207,53 @@ function textResult(text) {
 // ── Handlers ──
 
 export async function handleWorkflowCreate(sessionId, args) {
-  const { workflow_id, task_id } = args || {}
-  if (!workflow_id) return textResult('缺少 workflow_id 参数')
+  const { workflow_id, workflow_json, task_id } = args || {}
+  if (!workflow_id && !workflow_json) return textResult('缺少 workflow_id 或 workflow_json 参数（二选一）')
   const t0 = Date.now()
 
   try {
-    // 1. 解析工作流路径（对齐 handleWorkflowInit 策略）
-    let workflowPath = workflow_id
-    if (!isAbsolute(workflowPath)) {
-      // 先从 workflow/definitions/ 目录查找
-      const home = process.env.MUSE_HOME
-      const family = process.env.MUSE_FAMILY
-      if (home && family) {
-        const defDir = join(home, family, 'workflow', 'definitions')
-        const byId = join(defDir, `${workflow_id}.json`)
-        const byFile = join(defDir, workflow_id)
-        try {
-          const { readFileSync } = await import('node:fs')
-          readFileSync(byId)
-          workflowPath = byId
-        } catch {
+    let raw
+    let workflowPath = null
+
+    if (workflow_json) {
+      // ── 路径 A: Planner 动态传入 JSON 字符串 ──
+      try {
+        raw = typeof workflow_json === 'string' ? JSON.parse(workflow_json) : workflow_json
+      } catch (parseErr) {
+        return textResult(`⛔ workflow_json 不是合法 JSON: ${parseErr.message}`)
+      }
+      log.info('workflow_create 使用动态 JSON', { id: raw.id })
+    } else {
+      // ── 路径 B: 从文件路径加载（保留现有逻辑）──
+      workflowPath = workflow_id
+      if (!isAbsolute(workflowPath)) {
+        const home = process.env.MUSE_HOME
+        const family = process.env.MUSE_FAMILY
+        if (home && family) {
+          const defDir = join(home, family, 'workflow', 'definitions')
+          const byId = join(defDir, `${workflow_id}.json`)
+          const byFile = join(defDir, workflow_id)
           try {
             const { readFileSync } = await import('node:fs')
-            readFileSync(byFile)
-            workflowPath = byFile
-          } catch { /* fallback */ }
+            readFileSync(byId)
+            workflowPath = byId
+          } catch {
+            try {
+              const { readFileSync } = await import('node:fs')
+              readFileSync(byFile)
+              workflowPath = byFile
+            } catch { /* fallback */ }
+          }
+        }
+        if (!isAbsolute(workflowPath)) {
+          const root = process.env.MUSE_ROOT || process.cwd()
+          workflowPath = resolve(root, workflowPath)
         }
       }
-      // fallback：相对于 MUSE_ROOT 解析
-      if (!isAbsolute(workflowPath)) {
-        const root = process.env.MUSE_ROOT || process.cwd()
-        workflowPath = resolve(root, workflowPath)
-      }
+      raw = JSON.parse(await readFile(workflowPath, 'utf-8'))
     }
 
-    // 2. 加载工作流定义
-    const raw = JSON.parse(await readFile(workflowPath, 'utf-8'))
-
-    // 3. 校验 driver=planner
+    // 校验 driver=planner
     if (raw.driver !== 'planner') {
       return textResult('⛔ 此工作流不是 planner 驱动（driver !== "planner"）')
     }
@@ -210,28 +265,50 @@ export async function handleWorkflowCreate(sessionId, args) {
       placeholder: true,
     }))
 
-    // 5. 调用 initWorkflow
-    const { sm } = await initWorkflow({
-      workflowPath,
-      taskId: task_id || `planner-${Date.now()}`,
-      workspaceRoot: process.env.MUSE_ROOT || process.cwd(),
-      bindings,
-    })
+    // 5. 调用 initWorkflow（动态 JSON 用 initWorkflowFromJSON，文件用 initWorkflow）
+    const taskId = task_id || `planner-${Date.now()}`
+    const workspaceRoot = process.env.MUSE_ROOT || process.cwd()
+    let sm
+    if (workflow_json) {
+      const result = initWorkflowFromJSON({ definition: raw, taskId, workspaceRoot, bindings })
+      sm = result.sm
+    } else {
+      const result = await initWorkflow({ workflowPath, taskId, workspaceRoot, bindings })
+      sm = result.sm
+    }
 
-    // 6. 持久化
+    // 6. 持久化（plannerSession 记录 Planner 的 session，供 notify_planner 回调用）
     saveInstanceState(sm.instanceId, {
-      workflowPath,
+      workflowPath: workflowPath || `dynamic:${raw.id}`,
       workflowId: sm.workflowId,
       instanceId: sm.instanceId,
       taskId: sm.taskId,
+      plannerSession: sessionId,
       bindings,
       smState: sm.toState(),
     })
 
+    // 6.5. 保存动态工作流定义（如果是 AI 生成的）
+    if (workflow_json) {
+      saveInstanceDefinition(sm.instanceId, raw)
+    }
+
+    // 6.6. 自动绑定 session → instance
+    indexSession(sessionId, sm.instanceId)
+    log.info('session 已绑定到工作流实例', { sessionId: sessionId.slice(-8), instanceId: sm.instanceId })
+
     // 7. trace
     appendTrace(sm.instanceId, {
       tool: 'workflow_create',
-      args: { workflow_id, task_id },
+      args: {
+        workflow_id: raw.id,
+        workflow_json_length: workflow_json?.length || null,
+        workflow_path: workflowPath,
+        task_id: taskId,
+        driver: raw.driver,
+        participants: (raw.participants || []).map(p => p.role),
+        nodes: Object.keys(raw.nodes || {})
+      },
       result: 'success',
       instanceId: sm.instanceId,
       initialNode: sm.getCurrentNode()?.id,
@@ -239,14 +316,47 @@ export async function handleWorkflowCreate(sessionId, args) {
     })
 
     // 8. 返回
+    const participantList = (raw.participants || []).map(p => p.role).join(', ')
+    const nodeList = Object.keys(raw.nodes || {}).join(' → ')
+
     return textResult(JSON.stringify({
       success: true,
       instance_id: sm.instanceId,
+      status: 'awaiting_review',
       workflow: raw.name || raw.id,
       driver: 'planner',
       current_node: sm.getCurrentNode()?.id,
       participants: (raw.participants || []).map(p => p.role),
-      hint: '实例已创建。用 handoff_to_member 向执行者分派任务。',
+      nodes: Object.keys(raw.nodes || {}),
+
+      // Agent First: 明确下一步行动
+      next_steps: {
+        now: '向 Later 展示工作流设计，等待审核确认',
+        on_confirm: `handoff_to_member(instance_id="${sm.instanceId}", role="${raw.participants?.[0]?.role || 'xxx'}")`,
+        on_revise: `询问具体问题 → workflow_update(instance_id="${sm.instanceId}", updates={...})`,
+        on_cancel: `workflow_admin_transition(instance_id="${sm.instanceId}", event="cancel")`
+      },
+
+      hint: `✅ 工作流已创建！
+
+📍 实例 ID: ${sm.instanceId}
+📊 状态: 等待用户审核
+
+【工作流概览】
+- 名称: ${raw.name || raw.id}
+- 参与者: ${participantList}
+- 节点流程: ${nodeList}
+
+【下一步】
+1. 向 Later 展示上述工作流设计
+2. 询问："请确认工作流设计，确认后开始执行"
+3. 等待 Later 回复：
+   - 说"执行/确认" → 调用 ${`handoff_to_member(instance_id="${sm.instanceId}", ...)`}
+   - 说"有问题" → 询问具体问题 → 调用 workflow_update
+   - 说"取消" → 调用 workflow_admin_transition(cancel)
+
+⚠️ 记住实例 ID "${sm.instanceId}"，后续操作都用这个 ID
+⛔ Later 说"执行"时，不要重新创建工作流，用已有的 instance_id`,
     }, null, 2))
   } catch (e) {
     log.error('workflow_create 失败', { error: e.message })
@@ -299,7 +409,12 @@ export async function handleWorkflowAdminTransition(sessionId, args) {
     // 5. trace
     appendTrace(instance_id, {
       tool: 'workflow_admin_transition',
-      args: { event, on_behalf_of, evidence: evidence?.slice(0, 200) },
+      args: {
+        event,
+        on_behalf_of,
+        evidence_length: evidence?.length || 0,
+        reason_length: reason?.length || 0
+      },
       result: 'success',
       from: result.from,
       to: result.to,
@@ -326,7 +441,12 @@ export async function handleWorkflowAdminTransition(sessionId, args) {
   } catch (e) {
     appendTrace(instance_id, {
       tool: 'workflow_admin_transition',
-      args: { event },
+      args: {
+        event,
+        on_behalf_of,
+        evidence_length: evidence?.length || 0,
+        reason_length: reason?.length || 0
+      },
       result: 'error',
       error: e.message,
       elapsedMs: Date.now() - t0,
@@ -390,7 +510,10 @@ export async function handleWorkflowRollback(sessionId, args) {
 
     appendTrace(instance_id, {
       tool: 'workflow_rollback',
-      args: { target_node, reason: reason?.slice(0, 200) },
+      args: {
+        target_node,
+        reason_length: reason?.length || 0
+      },
       result: 'success',
       from: result.from,
       to: result.to,
@@ -406,13 +529,171 @@ export async function handleWorkflowRollback(sessionId, args) {
   } catch (e) {
     appendTrace(instance_id, {
       tool: 'workflow_rollback',
-      args: { target_node },
+      args: { target_node, reason_length: reason?.length || 0 },
       result: 'error',
       error: e.message,
       elapsedMs: Date.now() - t0,
     })
     return textResult(`rollback 失败: ${e.message}`)
   }
+}
+
+export async function handleWorkflowUpdate(sessionId, args) {
+  const { instance_id, updates, reason } = args || {}
+  if (!instance_id || !updates) {
+    return textResult('缺少必要参数: instance_id, updates')
+  }
+  
+  // 1. 加载实例
+  const registry = getRegistry()
+  const sm = registry?.getInstance(instance_id)
+  if (!sm) {
+    return textResult(`实例 ${instance_id} 不存在`)
+  }
+  
+  // 2. 检查状态（只能修改尚未执行的工作流）
+  if (sm.status !== 'awaiting_review' && sm.status !== 'created') {
+    return textResult(`⛔ 工作流状态为 "${sm.status}"，只能修改 "awaiting_review" 状态的工作流`)
+  }
+  
+  // 3. 应用更新
+  const definition = sm.definition
+  const newDefinition = {
+    ...definition,
+    ...updates,
+    nodes: updates.nodes ? { ...definition.nodes, ...updates.nodes } : definition.nodes,
+    participants: updates.participants || definition.participants,
+    initial: updates.initial || definition.initial
+  }
+  
+  // 4. 重新创建 StateMachine
+  const newSm = new StateMachine(newDefinition, {
+    instanceId: sm.instanceId,
+    taskId: sm.taskId,
+    driver: 'planner'
+  })
+  
+  // 5. 更新注册表和持久化
+  registry.register(newSm)
+  
+  const state = loadInstanceState(instance_id)
+  if (state) {
+    state.workflowPath = `dynamic:${newDefinition.id}`
+    state.smState = newSm.toState()
+    saveInstanceState(instance_id, state)
+  }
+  
+  // 6. 更新 definition.json
+  saveInstanceDefinition(instance_id, newDefinition)
+  
+  // 7. trace
+  appendTrace(instance_id, {
+    tool: 'workflow_update',
+    args: {
+      reason: reason?.slice(0, 200),
+      updated_fields: Object.keys(updates)
+    },
+    result: 'success',
+    elapsedMs: 0
+  })
+  
+  return textResult(JSON.stringify({
+    success: true,
+    instance_id,
+    message: '工作流设计已更新',
+    updated_fields: Object.keys(updates),
+    reason,
+    hint: `✅ 工作流已更新，请重新向 Later 展示修改后的设计，等待确认`
+  }, null, 2))
+}
+
+export async function handleWorkflowStatus(sessionId, args) {
+  const { instance_id } = args || {}
+  
+  // 1. 确定要查询的 instance_id
+  let targetInstanceId = instance_id
+  
+  if (!targetInstanceId) {
+    // 从 session-index 查找当前 session 关联的实例
+    targetInstanceId = lookupInstance(sessionId)
+    if (!targetInstanceId) {
+      return textResult(JSON.stringify({
+        status: 'no_active_workflow',
+        message: '当前 session 没有关联的工作流实例',
+        suggestion: '如果需要创建工作流，请描述任务目标'
+      }, null, 2))
+    }
+  }
+  
+  // 2. 获取实例状态
+  const registry = getRegistry()
+  const sm = registry?.getInstance(targetInstanceId)
+  
+  if (!sm) {
+    // 尝试从 state.json 加载
+    const state = loadInstanceState(targetInstanceId)
+    if (!state) {
+      return textResult(`工作流实例 ${targetInstanceId} 不存在`)
+    }
+    
+    // 返回持久化状态
+    return textResult(JSON.stringify({
+      instance_id: targetInstanceId,
+      status: state.smState?.status || 'unknown',
+      current_node: state.smState?.current_node,
+      workflow_id: state.workflowId,
+      note: '实例不在内存中，从持久化状态加载'
+    }, null, 2))
+  }
+  
+  // 3. 返回完整状态
+  const state = sm.toState()
+  const currentNode = sm.getCurrentNode()
+  
+  // 判断当前应该做什么
+  let yourRole = ''
+  let decisionHelp = {}
+  
+  if (state.status === 'awaiting_review' || !state.handoff) {
+    yourRole = '等待 Later 审核工作流设计，确认后调用 handoff_to_member'
+    decisionHelp = {
+      '执行/开始/确认': `handoff_to_member(instance_id="${targetInstanceId}", role="${currentNode?.participant || 'xxx'}")`,
+      '有问题/修改': '询问具体问题，然后调用 workflow_update',
+      '取消': `workflow_admin_transition(instance_id="${targetInstanceId}", event="cancel")`
+    }
+  } else if (state.handoff?.status === 'executing' || state.handoff?.status === 'delivered') {
+    yourRole = '等待执行者完成任务并汇报'
+    decisionHelp = {
+      '收到执行者汇报': '用 read_artifact 检查产出，向 Later 展示',
+      'Later 说通过': `workflow_admin_transition(instance_id="${targetInstanceId}", event="done")`,
+      'Later 说有问题': `workflow_rollback → 重新 handoff_to_member`
+    }
+  }
+  
+  return textResult(JSON.stringify({
+    instance_id: targetInstanceId,
+    workflow_id: sm.workflowId,
+    status: state.status,
+    current_node: state.current_node,
+    current_participant: currentNode?.participant,
+    
+    // Agent First: 告诉模型当前应该做什么
+    your_role: yourRole,
+    decision_help: decisionHelp,
+    
+    // 节点进度
+    nodes: sm.definition.listNodes().map(node => ({
+      id: node.id,
+      type: node.type,
+      participant: node.participant,
+      objective: node.objective?.slice(0, 50) + '...',
+      status: state.current_node === node.id ? 'current' :
+              state.history.some(h => h.to === node.id) ? 'completed' : 'pending'
+    })),
+    
+    history: state.history,
+    bindings: state.bindings
+  }, null, 2))
 }
 
 export async function handleHandoffToMember(sessionId, args) {
@@ -444,7 +725,9 @@ export async function handleHandoffToMember(sessionId, args) {
     if (!member) {
       return textResult(`角色 "${role}" 不在线（未在 family registry 中注册）`)
     }
-    const client = new MemberClient(member.engine, process.env.MUSE_ROOT)
+    const targetDir = member.directory || process.env.MUSE_ROOT
+    console.log('[DEBUG] MemberClient init:', { member, targetDir, MUSE_ROOT: process.env.MUSE_ROOT })
+    const client = new MemberClient(member.engine, targetDir)
 
     // 2. 调用 executeHandoff（3-step ACK 协议）
     await executeHandoff({
@@ -468,10 +751,15 @@ export async function handleHandoffToMember(sessionId, args) {
 
     appendTrace(instance_id, {
       tool: 'handoff_to_member',
-      args: { role, node: currentNode.id },
+      args: {
+        role,
+        node: currentNode.id,
+        instructions_length: instructions?.length || 0
+      },
       result: 'success',
       targetMember: member.name,
       targetEngine: member.engine,
+      targetSession: state?.bindings?.find(b => b.role === role)?.sessionId,
       elapsedMs: Date.now() - t0,
     })
 
@@ -512,7 +800,7 @@ export async function handleReadArtifact(sessionId, args) {
     const content = await readFile(filePath, 'utf-8')
     appendTrace(instance_id, {
       tool: 'read_artifact',
-      args: { name },
+      args: { name, name_length: name.length },
       result: 'success',
       size: content.length,
     })
@@ -526,3 +814,4 @@ export async function handleReadArtifact(sessionId, args) {
     return textResult(`读取失败: ${e.message}`)
   }
 }
+

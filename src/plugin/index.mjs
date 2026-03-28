@@ -9,6 +9,7 @@
 import { mkdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createEventLogger } from './hooks/event-logger.mjs'
+import { writeSessionContext } from '../mcp/session-context.mjs'
 import { createMessageHook } from './hooks/message-hook.mjs'
 import { createToolAudit, createToolStartHook } from './hooks/tool-audit.mjs'
 import { createSystemPrompt } from './hooks/system-prompt.mjs'
@@ -65,9 +66,23 @@ export default async function musePlugin(input) {
   const { directory } = input
   const logDir = process.env.MUSE_TRACE_DIR || join(directory, 'data', 'trace')
 
-  try { mkdirSync(logDir, { recursive: true }) } catch { /* 降级 */ }
+  // 诊断日志
+  console.log(`[muse-plugin] loading...`)
+  console.log(`[muse-plugin]   directory: ${directory}`)
+  console.log(`[muse-plugin]   MUSE_TRACE_DIR: ${process.env.MUSE_TRACE_DIR || '(not set)'}`)
+  console.log(`[muse-plugin]   logDir: ${logDir}`)
 
-  console.log(`[muse-plugin] loaded, logDir: ${logDir}`)
+  // 测试写入
+  try {
+    mkdirSync(logDir, { recursive: true })
+    const testFile = join(logDir, '.plugin-test')
+    writeFileSync(testFile, new Date().toISOString())
+    console.log(`[muse-plugin]   write test: ✅`)
+  } catch (e) {
+    console.error(`[muse-plugin]   write test: ❌ ${e.message}`)
+  }
+
+  console.log(`[muse-plugin] loaded`)
 
   // P1: TraceAggregator — session 粒度聚合（供 trace-reader 查询）
   const aggregator = new TraceAggregator({ logDir })
@@ -76,8 +91,12 @@ export default async function musePlugin(input) {
   const eventLogger = createEventLogger({ logDir })
 
   // T39-1.3: plugin 初始化时重建 session-index + 恢复 registry（崩溃恢复）
+  // + 自动 ACK 所有 pending handoffs（基础设施层 ACK）
+  let autoAckHandoff = null
   try {
     const { rebuildIndex, restoreRegistryFromBridge } = await import('../workflow/bridge.mjs')
+    const handoffMod = await import('../family/handoff.mjs')
+    autoAckHandoff = handoffMod.autoAckHandoff
     rebuildIndex()
     await restoreRegistryFromBridge()  // 从 state.json 恢复内存 registry
   } catch { /* 首次启动或 bridge 未就绪，忽略 */ }
@@ -94,8 +113,36 @@ export default async function musePlugin(input) {
 
       if (type === 'session.created') {
         aggregator.onSessionCreated(sid, {})
+        // 基础设施 ACK：检测到新 session 创建，如果它是 handoff 目标 session，自动 ACK
+        if (autoAckHandoff) {
+          try {
+            const { lookupInstance } = await import('../workflow/bridge.mjs')
+            const found = lookupInstance(sid)
+            if (found) {
+              autoAckHandoff(found)
+              console.log(`[muse-plugin] auto-ack handoff for instance ${found}`)
+            }
+          } catch { /* 降级 */ }
+        }
       } else if (type === 'session.idle') {
         aggregator.onSessionComplete(sid, { status: 'completed' })
+        // 缺失汇报检测：session 结束了但 handoff 仍在 executing → 没调 notify_planner
+        try {
+          const { lookupInstance, loadInstanceState, appendTrace } = await import('../workflow/bridge.mjs')
+          const found = lookupInstance(sid)
+          if (found) {
+            const st = loadInstanceState(found)
+            if (st?.handoff?.status === 'executing' && st.handoff.targetSession === sid) {
+              console.warn(`[muse-plugin] ⚠️ session ${sid.slice(-8)} ended without notify_planner (instance: ${found})`)
+              appendTrace(found, {
+                phase: 'handoff_missing_notify',
+                sessionId: sid,
+                handoffTarget: st.handoff.target,
+                mechanism: 'session_idle_guard',
+              })
+            }
+          }
+        } catch { /* 降级 */ }
       } else if (type === 'session.error') {
         aggregator.onSessionComplete(sid, { status: 'error', error: props.error })
       }
@@ -128,6 +175,11 @@ export default async function musePlugin(input) {
     'chat.message': createMessageHook({ logDir }),
     'tool.execute.before': async (input) => {
       await toolStartHook(input)
+      // Session Context Sidecar: 每次工具调用前写入当前 sessionID
+      // MCP 子进程通过 session-context.mjs 读取此文件获取 session 信息
+      if (input?.sessionID) {
+        writeSessionContext({ sessionID: input.sessionID, tool: input.tool })
+      }
     },
     'tool.execute.after': toolAuditHook,
     'experimental.chat.system.transform': async (input, output) => {

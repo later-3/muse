@@ -95,6 +95,7 @@ function navigateTo(page) {
     overview: '家族概览',
     chat: '对话',
     workflows: '工作流',
+    memory: '记忆',
     settings: '配置',
   }
   elements.pageTitle.textContent = titles[page] || '家族概览'
@@ -543,7 +544,7 @@ document.addEventListener('DOMContentLoaded', init)
 
 window.addEventListener('beforeunload', stopPolling)
 
-// ── T45: Cross-Member Chat ──
+// ── Chat Module — Redesigned ──
 
 const chatState = {
   selectedMember: null,
@@ -554,128 +555,235 @@ const chatState = {
   pollTimer: null,
 }
 
-const chatElements = {}
+const chatEl = {} // element cache
 
 function initChat() {
-  cacheChatElements()
+  cacheChatEl()
   bindChatEvents()
 }
 
-function cacheChatElements() {
-  chatElements.chatMemberList = document.getElementById('chatMemberList')
-  chatElements.chatSessionList = document.getElementById('chatSessionList')
-  chatElements.chatMessages = document.getElementById('chatMessages')
-  chatElements.chatInput = document.getElementById('chatInput')
-  chatElements.chatSendBtn = document.getElementById('chatSendBtn')
-  chatElements.chatNewSessionBtn = document.getElementById('chatNewSessionBtn')
-  chatElements.chatPlaceholder = document.getElementById('chatPlaceholder')
-  chatElements.chatActiveArea = document.getElementById('chatActiveArea')
-  chatElements.chatMemberName = document.getElementById('chatMemberName')
-  chatElements.chatSessionName = document.getElementById('chatSessionName')
+function cacheChatEl() {
+  chatEl.contactList = document.getElementById('chatContactList')
+  chatEl.welcome = document.getElementById('chatWelcome')
+  chatEl.active = document.getElementById('chatActive')
+  chatEl.convAvatar = document.getElementById('chatConvAvatar')
+  chatEl.convName = document.getElementById('chatConvName')
+  chatEl.convSessionName = document.getElementById('chatConvSessionName')
+  chatEl.convStatus = document.getElementById('chatConvStatus')
+  chatEl.newSessionBtn = document.getElementById('chatNewSessionBtn')
+  chatEl.messages = document.getElementById('chatMessages')
+  chatEl.scrollBottom = document.getElementById('chatScrollBottom')
+  chatEl.input = document.getElementById('chatInput')
+  chatEl.sendBtn = document.getElementById('chatSendBtn')
+  chatEl.searchToggle = document.getElementById('chatSearchToggle')
+  chatEl.searchBar = document.getElementById('chatSearchBar')
+  chatEl.searchInput = document.getElementById('chatSearchInput')
 }
 
 function bindChatEvents() {
-  chatElements.chatSendBtn?.addEventListener('click', sendChatMessage)
-  chatElements.chatInput?.addEventListener('keypress', (e) => {
+  chatEl.sendBtn?.addEventListener('click', sendChatMessage)
+  chatEl.input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendChatMessage()
     }
   })
-  chatElements.chatNewSessionBtn?.addEventListener('click', createNewSession)
+
+  // Auto-expand textarea
+  chatEl.input?.addEventListener('input', () => {
+    const el = chatEl.input
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+    // Enable/disable send button
+    chatEl.sendBtn.disabled = !el.value.trim()
+  })
+
+  chatEl.newSessionBtn?.addEventListener('click', createNewSession)
+
+  // Scroll-to-bottom button
+  chatEl.scrollBottom?.addEventListener('click', () => {
+    chatEl.messages?.scrollTo({ top: chatEl.messages.scrollHeight, behavior: 'smooth' })
+  })
+
+  // Show/hide scroll button based on scroll position
+  chatEl.messages?.addEventListener('scroll', () => {
+    const el = chatEl.messages
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100
+    if (chatEl.scrollBottom) {
+      chatEl.scrollBottom.style.display = nearBottom ? 'none' : 'flex'
+    }
+  })
+
+  // Search toggle
+  chatEl.searchToggle?.addEventListener('click', () => {
+    const isHidden = chatEl.searchBar.style.display === 'none'
+    chatEl.searchBar.style.display = isHidden ? 'block' : 'none'
+    if (isHidden) chatEl.searchInput?.focus()
+  })
 }
 
-async function loadChatMembers() {
-  if (!chatElements.chatMemberList) return
+// ── Contact List ──
+
+async function loadChatContacts() {
+  if (!chatEl.contactList) return
 
   try {
     const res = await fetch('/api/family/members')
     const data = await res.json()
     const members = data.members || []
 
-    chatElements.chatMemberList.innerHTML = members.map(m => `
-      <div class="chat-member-item ${m.status === 'online' ? 'online' : 'offline'}" 
-           data-name="${escapeHtml(m.name)}" data-status="${m.status}">
-        <div class="chat-member-avatar">${getAvatarEmoji(m.role)}</div>
-        <div class="chat-member-info">
-          <div class="chat-member-name">${escapeHtml(m.name)}</div>
-          <div class="chat-member-role">${escapeHtml(m.role)}</div>
-        </div>
-        <div class="chat-member-status">
-          <span class="status-dot ${m.status === 'online' ? 'pulse' : ''}"></span>
-        </div>
-      </div>
-    `).join('')
+    // Sort: online first, then by name
+    members.sort((a, b) => {
+      if (a.status === 'online' && b.status !== 'online') return -1
+      if (a.status !== 'online' && b.status === 'online') return 1
+      return a.name.localeCompare(b.name)
+    })
 
-    // Bind click events
-    chatElements.chatMemberList.querySelectorAll('.chat-member-item').forEach(item => {
-      item.addEventListener('click', () => selectChatMember(item.dataset.name))
+    chatEl.contactList.innerHTML = members.map(m => {
+      const isOnline = m.status === 'online'
+      const emoji = getAvatarEmoji(m.role)
+      return `
+        <div class="chat-contact-item ${isOnline ? '' : 'offline-member'}"
+             data-name="${escapeHtml(m.name)}" data-status="${m.status}">
+          <div class="chat-contact-main">
+            <div class="chat-contact-avatar">
+              ${emoji}
+              <span class="status-indicator ${isOnline ? 'online' : 'offline'}"></span>
+            </div>
+            <div class="chat-contact-info">
+              <div class="chat-contact-name">${escapeHtml(m.name)}</div>
+              <div class="chat-contact-role">${escapeHtml(m.role)}</div>
+            </div>
+            <div class="chat-contact-badge">
+              <span class="chat-contact-expand">▼</span>
+            </div>
+          </div>
+          <div class="chat-session-inline" data-member="${escapeHtml(m.name)}">
+            <div class="chat-session-loading" style="font-size:12px;color:var(--text-muted);padding:4px 0;">加载会话…</div>
+          </div>
+        </div>
+      `
+    }).join('')
+
+    // Bind click on contact main
+    chatEl.contactList.querySelectorAll('.chat-contact-item').forEach(item => {
+      const mainEl = item.querySelector('.chat-contact-main')
+      mainEl?.addEventListener('click', () => selectChatContact(item.dataset.name))
     })
   } catch (e) {
-    console.error('Failed to load chat members:', e)
+    console.error('Failed to load chat contacts:', e)
+    chatEl.contactList.innerHTML = '<div class="chat-contact-empty">加载失败</div>'
   }
 }
 
-async function selectChatMember(memberName) {
+async function selectChatContact(memberName) {
   if (!memberName) return
 
-  // Update UI selection
-  chatElements.chatMemberList?.querySelectorAll('.chat-member-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.name === memberName)
-  })
+  const contactItems = chatEl.contactList?.querySelectorAll('.chat-contact-item')
+  if (!contactItems) return
 
+  // If same member clicked, toggle expand
+  const clickedItem = chatEl.contactList.querySelector(`[data-name="${memberName}"]`)
+  if (!clickedItem) return
+
+  if (chatState.selectedMember === memberName) {
+    clickedItem.classList.toggle('expanded')
+    return
+  }
+
+  // Update selection
+  contactItems.forEach(item => {
+    item.classList.remove('active', 'expanded')
+  })
+  clickedItem.classList.add('active', 'expanded')
   chatState.selectedMember = memberName
   chatState.selectedSession = null
   chatState.messages = []
 
-  // Check if member is online
-  const memberItem = chatElements.chatMemberList?.querySelector(`[data-name="${memberName}"]`)
-  if (memberItem?.dataset.status !== 'online') {
+  // Check online
+  if (clickedItem.dataset.status !== 'online') {
     showToast('warning', '离线', '该成员当前不在线')
     return
   }
 
-  // Load sessions for this member
-  await loadChatSessions(memberName)
+  // Load sessions inline
+  await loadInlineSessions(memberName)
 
-  // Show chat area
-  if (chatElements.chatPlaceholder) chatElements.chatPlaceholder.style.display = 'none'
-  if (chatElements.chatActiveArea) chatElements.chatActiveArea.style.display = 'flex'
-  if (chatElements.chatMemberName) chatElements.chatMemberName.textContent = memberName
+  // Show conversation panel
+  updateConversationHeader(memberName)
 }
 
-async function loadChatSessions(memberName) {
-  if (!chatElements.chatSessionList) return
+async function loadInlineSessions(memberName) {
+  const inlineEl = chatEl.contactList?.querySelector(`.chat-session-inline[data-member="${memberName}"]`)
+  if (!inlineEl) return
 
   try {
     const res = await fetch(`/api/member/${memberName}/oc/session`)
     const data = await res.json()
     chatState.sessions = Array.isArray(data) ? data : (data.sessions || [])
 
-    chatElements.chatSessionList.innerHTML = chatState.sessions.map(s => `
-      <div class="chat-session-item ${s.id === chatState.selectedSession ? 'active' : ''}" 
-           data-id="${escapeHtml(s.id)}">
-        <div class="chat-session-name">${escapeHtml(s.name || s.id.slice(0, 8))}</div>
-        <div class="chat-session-time">${formatTime(s.updatedAt)}</div>
+    let html = `<div class="chat-session-new-inline" data-action="new">＋ 新对话</div>`
+    html += chatState.sessions.slice(0, 10).map(s => `
+      <div class="chat-session-inline-item ${s.id === chatState.selectedSession ? 'active' : ''}"
+           data-sid="${escapeHtml(s.id)}">
+        <span class="session-icon">💬</span>
+        ${escapeHtml(s.name || s.id.slice(0, 8))}
       </div>
     `).join('')
 
-    // Add "New Session" button at top
-    const newSessionBtn = document.createElement('div')
-    newSessionBtn.className = 'chat-session-new'
-    newSessionBtn.innerHTML = '<span>+ 新对话</span>'
-    newSessionBtn.addEventListener('click', createNewSession)
-    chatElements.chatSessionList.prepend(newSessionBtn)
+    inlineEl.innerHTML = html
 
-    // Bind click events
-    chatElements.chatSessionList.querySelectorAll('.chat-session-item').forEach(item => {
-      item.addEventListener('click', () => selectChatSession(item.dataset.id))
+    // Bind clicks
+    inlineEl.querySelector('.chat-session-new-inline')?.addEventListener('click', (e) => {
+      e.stopPropagation()
+      createNewSession()
     })
+    inlineEl.querySelectorAll('.chat-session-inline-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation()
+        selectChatSession(item.dataset.sid)
+      })
+    })
+
+    // Auto-select first session if none selected
+    if (!chatState.selectedSession && chatState.sessions.length > 0) {
+      selectChatSession(chatState.sessions[0].id)
+    } else if (chatState.sessions.length === 0) {
+      // No sessions — show welcome with prompt to create
+      showChatActive(memberName, null)
+    }
   } catch (e) {
     console.error('Failed to load sessions:', e)
-    chatElements.chatSessionList.innerHTML = '<div class="chat-empty">无法加载会话</div>'
+    inlineEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 0;">加载失败</div>'
   }
 }
+
+function updateConversationHeader(memberName) {
+  if (chatEl.convAvatar) {
+    const members = Array.from(chatEl.contactList?.querySelectorAll('.chat-contact-item') || [])
+    const memberItem = members.find(el => el.dataset.name === memberName)
+    const avatarEl = memberItem?.querySelector('.chat-contact-avatar')
+    chatEl.convAvatar.textContent = avatarEl ? avatarEl.textContent.trim().charAt(0) || '🤖' : '🤖'
+  }
+  if (chatEl.convName) chatEl.convName.textContent = memberName
+  if (chatEl.convStatus) {
+    const item = chatEl.contactList?.querySelector(`[data-name="${memberName}"]`)
+    const isOnline = item?.dataset.status === 'online'
+    chatEl.convStatus.textContent = isOnline ? '● 在线' : '○ 离线'
+    chatEl.convStatus.style.color = isOnline ? 'var(--status-online)' : 'var(--status-offline)'
+  }
+}
+
+function showChatActive(memberName, sessionName) {
+  if (chatEl.welcome) chatEl.welcome.style.display = 'none'
+  if (chatEl.active) chatEl.active.style.display = 'flex'
+
+  if (chatEl.convSessionName) {
+    chatEl.convSessionName.textContent = sessionName || 'Session'
+  }
+}
+
+// ── Session Management ──
 
 async function createNewSession() {
   if (!chatState.selectedMember) return
@@ -688,7 +796,7 @@ async function createNewSession() {
     })
     const data = await res.json()
     if (data.id) {
-      await loadChatSessions(chatState.selectedMember)
+      await loadInlineSessions(chatState.selectedMember)
       await selectChatSession(data.id)
     }
   } catch (e) {
@@ -700,20 +808,20 @@ async function createNewSession() {
 async function selectChatSession(sessionId) {
   chatState.selectedSession = sessionId
 
-  // Update UI
-  chatElements.chatSessionList?.querySelectorAll('.chat-session-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.id === sessionId)
+  // Update inline session highlighting
+  const inlineEl = chatEl.contactList?.querySelector(`.chat-session-inline[data-member="${chatState.selectedMember}"]`)
+  inlineEl?.querySelectorAll('.chat-session-inline-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.sid === sessionId)
   })
 
   const session = chatState.sessions.find(s => s.id === sessionId)
-  if (chatElements.chatSessionName) {
-    chatElements.chatSessionName.textContent = session?.name || sessionId.slice(0, 8)
-  }
+  showChatActive(chatState.selectedMember, session?.name || sessionId.slice(0, 8))
 
-  // Load messages
   await loadChatMessages()
   startChatPolling()
 }
+
+// ── Messages ──
 
 async function loadChatMessages() {
   if (!chatState.selectedMember || !chatState.selectedSession) return
@@ -729,26 +837,48 @@ async function loadChatMessages() {
 }
 
 function renderChatMessages() {
-  if (!chatElements.chatMessages) return
+  if (!chatEl.messages) return
 
-  chatElements.chatMessages.innerHTML = chatState.messages.map(m => {
+  const memberName = chatState.selectedMember || 'AI'
+  const emoji = getAvatarEmoji(getMemberRole(chatState.selectedMember))
+
+  let html = ''
+  let lastDate = ''
+
+  for (const m of chatState.messages) {
     const isUser = m.role === 'user'
-    const content = renderMarkdown(extractTextFromParts(m.parts))
-    return `
-      <div class="chat-message ${isUser ? 'user' : 'assistant'}">
-        <div class="chat-message-bubble">${content}</div>
-        <div class="chat-message-time">${formatTime(m.createdAt)}</div>
+    const content = renderMarkdownFull(extractTextFromParts(m.parts))
+    const time = formatMessageTime(m.createdAt)
+    const dateStr = formatMessageDate(m.createdAt)
+
+    // Insert time separator for new dates
+    if (dateStr && dateStr !== lastDate) {
+      html += `<div class="chat-time-separator"><span>${escapeHtml(dateStr)}</span></div>`
+      lastDate = dateStr
+    }
+
+    html += `
+      <div class="chat-msg ${isUser ? 'user' : 'assistant'}">
+        <div class="chat-msg-avatar">${isUser ? '👤' : emoji}</div>
+        <div class="chat-msg-body">
+          <div class="chat-msg-bubble">${content}</div>
+          <div class="chat-msg-time">${time}</div>
+        </div>
       </div>
     `
-  }).join('')
+  }
 
-  // Scroll to bottom
-  chatElements.chatMessages.scrollTop = chatElements.chatMessages.scrollHeight
+  chatEl.messages.innerHTML = html
+  chatEl.messages.scrollTop = chatEl.messages.scrollHeight
+}
+
+function getMemberRole(memberName) {
+  const item = chatEl.contactList?.querySelector(`[data-name="${memberName}"]`)
+  return item?.querySelector('.chat-contact-role')?.textContent || 'default'
 }
 
 /**
  * Extract text content from OpenCode message parts array
- * OpenCode format: { parts: [{ type: 'text', text: '...' }, ...] }
  */
 function extractTextFromParts(parts) {
   if (!parts || !Array.isArray(parts)) return ''
@@ -758,49 +888,120 @@ function extractTextFromParts(parts) {
     .join('\n')
 }
 
-function renderMarkdown(text) {
+/**
+ * Full markdown renderer — supports code blocks, headings, lists, blockquotes, bold, italic, inline code
+ */
+function renderMarkdownFull(text) {
   if (!text) return ''
-  // Simple markdown: **bold**, `code`, newlines
-  return escapeHtml(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>')
+
+  // Escape HTML first
+  let html = escapeHtml(text)
+
+  // Code blocks: ```lang\ncode\n```
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    return `<pre><code>${code.trim()}</code></pre>`
+  })
+
+  // Headings: ### Heading
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>')
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>')
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>')
+
+  // Blockquotes: > text
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+
+  // Unordered lists: - item
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>')
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+
+  // Bold: **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  // Italic: *text*
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+  // Inline code: `code`
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  // Links: [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+  // Line breaks
+  html = html.replace(/\n/g, '<br>')
+
+  return html
 }
 
-async function sendChatMessage() {
-  if (!chatElements.chatInput || chatState.isLoading) return
+function formatMessageTime(ts) {
+  if (!ts) return ''
+  // OpenCode may use epoch seconds (number) or ISO string
+  let date
+  if (typeof ts === 'number') {
+    date = new Date(ts < 1e12 ? ts * 1000 : ts)
+  } else {
+    date = new Date(ts)
+  }
+  if (isNaN(date.getTime())) return ''
+  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+}
 
-  const content = chatElements.chatInput.value.trim()
+function formatMessageDate(ts) {
+  if (!ts) return ''
+  let date
+  if (typeof ts === 'number') {
+    date = new Date(ts < 1e12 ? ts * 1000 : ts)
+  } else {
+    date = new Date(ts)
+  }
+  if (isNaN(date.getTime())) return ''
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  if (date.toDateString() === today.toDateString()) return '今天'
+  if (date.toDateString() === yesterday.toDateString()) return '昨天'
+  return date.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })
+}
+
+// ── Send Message ──
+
+async function sendChatMessage() {
+  if (!chatEl.input || chatState.isLoading) return
+
+  const content = chatEl.input.value.trim()
   if (!content) return
   if (!chatState.selectedMember || !chatState.selectedSession) {
     showToast('warning', '未选择', '请先选择成员和会话')
     return
   }
 
-  // Check member online
-  const memberItem = chatElements.chatMemberList?.querySelector(`[data-name="${chatState.selectedMember}"]`)
+  const memberItem = chatEl.contactList?.querySelector(`[data-name="${chatState.selectedMember}"]`)
   if (memberItem?.dataset.status !== 'online') {
     showToast('warning', '离线', '该成员当前不在线')
     return
   }
 
   chatState.isLoading = true
-  chatElements.chatInput.value = ''
-  chatElements.chatInput.disabled = true
-  chatElements.chatSendBtn.disabled = true
+  chatEl.input.value = ''
+  chatEl.input.style.height = 'auto'
+  chatEl.input.disabled = true
+  chatEl.sendBtn.disabled = true
 
   // Show thinking indicator
   const thinkingId = 'thinking-' + Date.now()
+  const emoji = getAvatarEmoji(getMemberRole(chatState.selectedMember))
   const thinkingEl = document.createElement('div')
   thinkingEl.id = thinkingId
-  thinkingEl.className = 'chat-message assistant'
+  thinkingEl.className = 'chat-msg assistant'
   thinkingEl.innerHTML = `
-    <div class="chat-message-bubble">
-      <span class="msg-thinking"><span></span><span></span><span></span></span>
+    <div class="chat-msg-avatar">${emoji}</div>
+    <div class="chat-msg-body">
+      <div class="chat-msg-bubble">
+        <div class="chat-msg-thinking">
+          <span class="thinking-dots"><span></span><span></span><span></span></span>
+          正在思考…
+        </div>
+      </div>
     </div>
   `
-  chatElements.chatMessages.appendChild(thinkingEl)
-  chatElements.chatMessages.scrollTop = chatElements.chatMessages.scrollHeight
+  chatEl.messages.appendChild(thinkingEl)
+  chatEl.messages.scrollTop = chatEl.messages.scrollHeight
 
   try {
     await fetch(`/api/member/${chatState.selectedMember}/oc/session/${chatState.selectedSession}/prompt_async`, {
@@ -809,7 +1010,6 @@ async function sendChatMessage() {
       body: JSON.stringify({ parts: [{ type: 'text', text: content }] })
     })
 
-    // Remove thinking and poll for response
     thinkingEl.remove()
     await pollForResponse()
   } catch (e) {
@@ -818,21 +1018,20 @@ async function sendChatMessage() {
     showToast('error', '发送失败', '无法发送消息')
   } finally {
     chatState.isLoading = false
-    chatElements.chatInput.disabled = false
-    chatElements.chatSendBtn.disabled = false
-    chatElements.chatInput.focus()
+    chatEl.input.disabled = false
+    chatEl.sendBtn.disabled = !chatEl.input.value.trim()
+    chatEl.input.focus()
   }
 }
 
 async function pollForResponse() {
   let attempts = 0
-  const maxAttempts = 60 // 60 seconds max
+  const maxAttempts = 90
 
   while (attempts < maxAttempts) {
     await new Promise(r => setTimeout(r, 1000))
     await loadChatMessages()
 
-    // Check if last message is from assistant
     const lastMsg = chatState.messages[chatState.messages.length - 1]
     if (lastMsg && lastMsg.role === 'assistant') {
       break
@@ -853,17 +1052,18 @@ function stopChatPolling() {
   }
 }
 
-// Initialize chat when page loads
+// ── Initialize ──
+
 document.addEventListener('DOMContentLoaded', () => {
   initChat()
-  // Load chat members when entering chat page
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((m) => {
       if (m.target.id === 'page-chat' && m.target.classList.contains('active')) {
-        loadChatMembers()
+        loadChatContacts()
       }
     })
   })
   const chatPage = document.getElementById('page-chat')
   if (chatPage) observer.observe(chatPage, { attributes: true, attributeFilter: ['class'] })
 })
+

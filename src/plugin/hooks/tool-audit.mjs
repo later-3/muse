@@ -30,9 +30,11 @@ function getDailyPath(logDir, filename) {
 }
 
 export function createToolStartHook({ logDir }) {
+  console.log(`[muse-plugin] tool-start-hook initialized, logDir: ${logDir}`)
   return async (input) => {
     try {
       if (input?.callID) {
+        console.log(`[muse-plugin] tool-start: ${input.tool}`)
         const ts = Date.now()
         pendingCalls.set(input.callID, ts)
         appendFileSync(getDailyPath(logDir, 'tool-starts.jsonl'), JSON.stringify({
@@ -47,8 +49,10 @@ export function createToolStartHook({ logDir }) {
 }
 
 export function createToolAudit({ logDir }) {
+  console.log(`[muse-plugin] tool-audit initialized, logDir: ${logDir}`)
   return async (input, output) => {
     try {
+      console.log(`[muse-plugin] tool-audit: ${input?.tool} (${output?.error ? 'error' : 'success'})`)
       const startTime = input?.callID ? pendingCalls.get(input.callID) : undefined
       const durationMs = startTime ? Date.now() - startTime : undefined
       if (input?.callID) pendingCalls.delete(input.callID)

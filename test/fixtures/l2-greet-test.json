@@ -1,0 +1,37 @@
+{
+  "id": "l2-greet-test",
+  "name": "L2 问好测试",
+  "version": "1.0",
+  "driver": "planner",
+  "description": "L2 测试专用：PUA 写一个问候文件。不依赖 Telegram / 外部服务。",
+  "initial": "greet",
+
+  "participants": [
+    { "role": "pua", "description": "写问候文件" }
+  ],
+
+  "nodes": {
+    "greet": {
+      "type": "action",
+      "participant": "pua",
+      "objective": "在当前工作目录创建一个问候文件 greeting.txt",
+      "instructions": [
+        "用 write 工具在当前工作目录创建 greeting.txt 文件",
+        "文件内容: Hello Later! 这是来自 PUA 的问候。",
+        "完成后调用 notify_planner 汇报结果"
+      ],
+      "constraints": [
+        "只创建 greeting.txt，不修改其他文件",
+        "不要执行 bash 命令",
+        "不要发 Telegram 消息"
+      ],
+      "capabilities": ["code_write", "workflow_control"],
+      "output": { "artifact": "greeting.txt" },
+      "transitions": {
+        "done": { "target": "end", "actor": "agent" }
+      }
+    },
+
+    "end": { "type": "terminal" }
+  }
+}

@@ -38,6 +38,8 @@ function getDailyPath(logDir, filename) {
 }
 
 export function createEventLogger({ logDir }) {
+  console.log(`[muse-plugin] event-logger initialized, logDir: ${logDir}`)
+  
   return async ({ event }) => {
     try {
       const type = event?.type
@@ -46,6 +48,9 @@ export function createEventLogger({ logDir }) {
       if (!EVENT_WHITELIST.has(type)) return
       if (type === 'message.part.updated' && !isToolPart(event.properties)) return
 
+      // 诊断日志
+      console.log(`[muse-plugin] event: ${type}`)
+      
       const sid = event.properties?.sessionID || event.properties?.info?.sessionID
       const error = event.properties?.error
 

@@ -223,7 +223,7 @@ export function findByRole(role, registryDir) {
   }
 
   const [name, member] = matches[0]
-  return { name, role: member.role, engine: member.engine, pid: member.pid }
+  return { name, role: member.role, engine: member.engine, pid: member.pid, directory: member.directory }
 }
 
 /**
@@ -254,5 +254,5 @@ export function getAllOnline(registryDir) {
   const registry = readRegistry(registryPath)
   return Object.entries(registry.members)
     .filter(([, m]) => m.status === 'online')
-    .map(([name, m]) => ({ name, role: m.role, engine: m.engine, pid: m.pid }))
+    .map(([name, m]) => ({ name, role: m.role, engine: m.engine, pid: m.pid, directory: m.directory }))
 }

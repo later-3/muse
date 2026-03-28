@@ -1,18 +1,22 @@
 /**
  * T39-1.4: Workflow Handoff — 跨 Muse 工作流交接
  *
- * 3-step ACK 协议：
+ * 2-step 协议（v2 — 去掉 LLM ACK，基础设施自动 ACK）：
  *   Step 1 (PREPARE): source 创建 target session → pending
- *   Step 2 (BIND+ACK): target prompt hook 写回 → acked
- *   Step 3 (EXECUTE): source 发送 handoff prompt → executing → delivered
+ *                     Plugin hook 检测到 handoff pending → 自动写 acked
+ *   Step 2 (EXECUTE): source 发送 handoff prompt → executing → delivered
+ *
+ * 设计原则：ACK 是机械操作，不需要 LLM 推理。
+ * 本地场景：Plugin event hook 写文件 = ACK
+ * 跨服务器扩展：HTTP relay / 消息队列 consumer = ACK
  *
  * 状态流转：null → pending → acked → executing → delivered → null
- *                                ↓         ↓
- *                              failed    failed
+ *                     ↑plugin       ↓
+ *                                 failed
  */
 
 import { createLogger } from '../logger.mjs'
-import { loadInstanceState, saveInstanceState, indexSession, removeSessionIndex, lookupInstance } from '../workflow/bridge.mjs'
+import { loadInstanceState, saveInstanceState, indexSession, removeSessionIndex, lookupInstance, appendTrace } from '../workflow/bridge.mjs'
 import { getRegistry } from '../workflow/registry.mjs'
 import { resolveCapabilities } from '../workflow/gate-enforcer.mjs'
 
@@ -28,10 +32,10 @@ export class HandoffError extends Error {
   }
 }
 
-// ── 3-step 执行 ──
+// ── 2-step 执行 ──
 
 /**
- * 执行完整 3-step handoff
+ * 执行 2-step handoff（基础设施 ACK）
  *
  * @param {object} opts
  * @param {import('../workflow/state-machine.mjs').StateMachine} opts.sm
@@ -42,6 +46,7 @@ export class HandoffError extends Error {
  */
 export async function executeHandoff({ sm, nextNode, instanceId, sourceRole, client }) {
   const target = nextNode.participant
+  const t0 = Date.now()
 
   // Step 1: PREPARE — 创建 target session + 写 pending
   const sesId = await client.createSession()
@@ -64,12 +69,38 @@ export async function executeHandoff({ sm, nextNode, instanceId, sourceRole, cli
   }
 
   log.info('handoff PREPARE', { instanceId, target, sesId })
+  appendTrace(instanceId, {
+    phase: 'handoff_prepare',
+    role: target,
+    targetSession: sesId,
+    elapsedMs: Date.now() - t0
+  })
 
-  // Step 2: BIND + ACK — 发送绑定 prompt，等待 target hook 写 acked
-  await client.prompt(sesId, '═══ WORKFLOW BIND: 绑定确认中 ═══')
-  await waitForAck(instanceId, 30000)
+  // Step 1.5: 等待 target MCP 就绪（不花 LLM token）
+  // 防止 MCP 冷启动竞态：确保 notify_planner 等工具在 LLM 推理前可用
+  try {
+    await client.waitForMcpReady({ timeoutMs: 30_000 })
+    appendTrace(instanceId, {
+      phase: 'handoff_mcp_ready',
+      role: target,
+      elapsedMs: Date.now() - t0
+    })
+  } catch (mcpErr) {
+    log.warn('MCP 就绪等待失败，仍尝试发送 handoff', {
+      instanceId, target, error: mcpErr.message
+    })
+    appendTrace(instanceId, {
+      phase: 'handoff_mcp_ready',
+      role: target,
+      status: 'timeout',
+      error: mcpErr.message,
+      elapsedMs: Date.now() - t0
+    })
+    // 不阻断 handoff — 超时仍给机会执行（优雅降级）
+  }
 
-  // Step 3: EXECUTE — 发送 handoff prompt（投递确认）
+  // Step 2: EXECUTE — 发送任务 prompt（MCP 工具已就绪）
+  // ACK 由 Plugin hook 在 session.created 时自动完成（基础设施层）
   const state2 = loadInstanceState(instanceId)
   state2.handoff.status = 'executing'
   saveInstanceState(instanceId, state2)
@@ -78,49 +109,71 @@ export async function executeHandoff({ sm, nextNode, instanceId, sourceRole, cli
     const prompt = buildHandoffPrompt(sm, nextNode)
     await client.prompt(sesId, prompt)
     log.info('handoff EXECUTE 已发送', { instanceId, target })
+    appendTrace(instanceId, {
+      phase: 'handoff_execute',
+      role: target,
+      status: 'sent',
+      promptLength: prompt.length,
+      elapsedMs: Date.now() - t0
+    })
   } catch (err) {
+    appendTrace(instanceId, {
+      phase: 'handoff_execute',
+      role: target,
+      status: 'error',
+      error: err.message,
+      elapsedMs: Date.now() - t0
+    })
+    
     // HTTP 异常 — 不确定目标是否收到
-    // ★ 不把 executing 改成 failed（避免与 target 写 delivered 竞争）
     const state3 = loadInstanceState(instanceId)
     if (state3?.handoff?.status === 'delivered') {
       log.info('handoff HTTP 异常但目标已确认', { instanceId })
       return
     }
+    state3.handoff.status = 'failed'
     state3.handoff.lastError = err.message
     state3.handoff.errorAt = new Date().toISOString()
     saveInstanceState(instanceId, state3)
-    log.warn('handoff EXECUTE HTTP 异常，保持 executing', { instanceId, error: err.message })
+    log.warn('handoff EXECUTE 失败', { instanceId, error: err.message })
     throw err
   }
 }
 
-// ── ACK 轮询 ──
+// ── Plugin Auto-ACK (基础设施层) ──
 
 /**
- * 轮询等待 target hook 将 handoff.status 写成 acked
+ * 由 Plugin event hook 调用：检测到 handoff pending → 自动写 acked
+ * 不需要 LLM，不需要 MCP 工具，ms 级完成。
+ *
+ * 跨服务器扩展：替换为 HTTP relay consumer 或 消息队列 ACK。
+ *
+ * @param {string} instanceId
+ * @returns {boolean} 是否成功 ACK
  */
-async function waitForAck(instanceId, timeoutMs = 30000) {
-  const start = Date.now()
-  const interval = 500
-
-  while (Date.now() - start < timeoutMs) {
+export function autoAckHandoff(instanceId) {
+  try {
     const state = loadInstanceState(instanceId)
-    if (state?.handoff?.status === 'acked') return
-    if (state?.handoff?.status === 'failed') {
-      throw new HandoffError('ACK_FAILED', 'target 端 ACK 失败')
-    }
-    await new Promise(r => setTimeout(r, interval))
-  }
+    if (!state?.handoff || state.handoff.status !== 'pending') return false
 
-  // 超时 → 写 failed
-  const state = loadInstanceState(instanceId)
-  if (state?.handoff?.status === 'pending') {
-    state.handoff.status = 'failed'
-    state.handoff.lastError = 'ACK timeout'
-    state.handoff.errorAt = new Date().toISOString()
+    state.handoff.status = 'acked'
+    state.handoff.ackedAt = new Date().toISOString()
+    state.handoff.ackedBy = 'plugin-auto-ack'
     saveInstanceState(instanceId, state)
+
+    appendTrace(instanceId, {
+      phase: 'handoff_auto_ack',
+      role: state.handoff.target,
+      status: 'acked',
+      mechanism: 'plugin-hook',
+    })
+
+    log.info('handoff 自动 ACK (Plugin hook)', { instanceId })
+    return true
+  } catch (e) {
+    log.error('autoAckHandoff 失败', { instanceId, error: e.message })
+    return false
   }
-  throw new HandoffError('ACK_TIMEOUT', `ACK 超时 (${timeoutMs}ms)`)
 }
 
 // ── Retry / Cancel ──
@@ -196,19 +249,25 @@ export function cancelHandoff(instanceId) {
 
 export function buildHandoffPrompt(sm, node) {
   const resolvedTools = [...resolveCapabilities(node.capabilities || [])]
+  const artifactName = node.output?.artifact || ''
   return `[WORKFLOW TASK — Planner 分派]
 你收到了来自 Planner 的任务分派。立即开始执行，不要等待人类确认。
 
 1. TASK: 节点 "${node.id}" — ${node.objective}
-2. EXPECTED OUTCOME: ${node.output?.artifact || '完成节点目标'}
+2. EXPECTED OUTCOME: ${artifactName || '完成节点目标'}
 3. AVAILABLE TOOLS: ${resolvedTools.join(', ')}
 4. MUST DO:\n${(node.instructions || []).map((s, i) => `   ${i + 1}. ${s}`).join('\n')}
 5. MUST NOT DO:\n${(node.constraints || []).map(c => `   - ${c}`).join('\n')}
 6. CONTEXT:\n   - 工作流: ${sm.workflowId} (instance: ${sm.instanceId})\n   - 工作区: ${process.env.MUSE_ROOT}
 7. ⚠️ 完成规则:
-   - 完成所有步骤后，明确汇报你的产出（文件路径、artifact 名）
    - 不要调用 workflow_transition — Planner 会负责推进工作流
-   - 你只需要执行任务并汇报结果`
+   - 完成所有步骤后，必须调用 notify_planner 工具向 Planner 汇报:
+     notify_planner(instance_id="${sm.instanceId}", status="done", summary="你做了什么的一句话总结"${artifactName ? `, artifact="${artifactName}"` : ''})
+   - 如果遇到阻塞无法继续:
+     notify_planner(instance_id="${sm.instanceId}", status="blocked", summary="阻塞原因")
+   - 如果任务失败:
+     notify_planner(instance_id="${sm.instanceId}", status="failed", summary="失败原因")
+   - notify_planner 是你唯一的汇报方式，不要用其他方式通知 Planner`
 }
 
 // ── 安全网：确保节点执行到完成 ──

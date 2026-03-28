@@ -116,6 +116,53 @@ export function appendTrace(instanceId, entry, workflowRoot) {
 }
 
 /**
+ * 保存工作流定义（仅动态生成的需要保存）
+ * @param {string} instanceId
+ * @param {object} definition - 工作流定义 JSON
+ * @param {string} [workflowRoot]
+ */
+export function saveInstanceDefinition(instanceId, definition, workflowRoot) {
+  const dir = getInstanceDir(instanceId, workflowRoot)
+  if (!dir) {
+    log.warn('无法保存工作流定义: MUSE_HOME/MUSE_FAMILY 未设置')
+    return false
+  }
+  const defPath = join(dir, 'definition.json')
+  try {
+    atomicWriteJSON(defPath, {
+      ...definition,
+      _meta: {
+        savedAt: new Date().toISOString(),
+        generatedBy: 'AI'
+      }
+    })
+    log.info('工作流定义已保存', { instanceId, workflowId: definition.id })
+    return true
+  } catch (e) {
+    log.error('保存工作流定义失败', { instanceId, error: e.message })
+    return false
+  }
+}
+
+/**
+ * 加载工作流定义
+ * @param {string} instanceId
+ * @param {string} [workflowRoot]
+ */
+export function loadInstanceDefinition(instanceId, workflowRoot) {
+  const dir = getInstanceDir(instanceId, workflowRoot)
+  if (!dir) return null
+  const defPath = join(dir, 'definition.json')
+  if (!existsSync(defPath)) return null
+  try {
+    return JSON.parse(readFileSync(defPath, 'utf-8'))
+  } catch (e) {
+    log.warn('加载工作流定义失败', { instanceId, error: e.message })
+    return null
+  }
+}
+
+/**
  * 归档已完成的工作流实例
  * instances/{id}/ → archive/{YYYY-MM}/{id}/
  */

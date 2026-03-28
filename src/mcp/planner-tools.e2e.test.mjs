@@ -403,11 +403,11 @@ describe('6.8 handoff_to_member 执行链路', () => {
       })
     })
 
-    // 2. 注册 mock 成员到 family registry
     registerMember('mock-pua', {
       role: 'pua',
       engine: `http://127.0.0.1:${mockPort}`,
       pid: process.pid,
+      directory: process.env.MUSE_ROOT,
     }, join(env.tmpDir, 'test-family'))
 
     // 3. 创建工作流实例
