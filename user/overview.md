@@ -169,10 +169,11 @@ Sprint 8 完成后：
 
 | 文件 | 内容 |
 |------|------|
+| `user/README.md` | AI 入口 — 文件导航 + SOP |
+| `user/overview.md` | **本文件** — 目标 + Sprint + 北极星 |
 | `user/Research-Driven Development.md` | RDD 方法论全文（Phase 定义 + Exit Criteria） |
-| `user/overview.md` | **本文件** — 总览地图 |
-| `user/map.md` | 知识-功能映射 |
+| `user/map.md` | 知识-功能全景图（15 个愿景） |
+| `user/ai-track-report.md` | AI 并行任务看板 |
 | `user/sprint-1.md` ~ `sprint-8.md` | 各 Sprint 每日详细计划 |
-| `user/research/README.md` | 研究手册（方法论 + 参考仓库） |
-| `user/research/01-07*.md` | Day 1-7 完整研究材料 |
-| `make-muse/ai-parallel-track.md` | AI 并行轨道详细计划（实验 + 消险） |
+| `user/research/README.md` | ⭐ 研究手册（核心方法论 + 参考仓库） |
+| `user/research/dayXX/INDEX.md` | 每日三轨道产出索引 |
