@@ -53,11 +53,12 @@
 
 - [ ] 3.1 对照 Muse harness 列出：「哪些设计可以直接借鉴」「哪些需要调整」
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 📚c: Hello-Agents Ch1 基础概念
-- [ ] 🔬d: 阅读 Anthropic Cookbook `patterns/agents/orchestrator` 代码
-- [ ] 📰e: 速读 Lilian Weng《LLM Powered Autonomous Agents》
+- [ ] 📚c: Cookbook `orchestrator_workers.ipynb` 代码详解
+- [ ] 📰e: Andrew Ng 4 Agentic Patterns 核心观点
+- [ ] 🔧OC: **OpenCode Agent 系统解读** — Primary/Subagent/Session 隔离机制 + 对 Muse 角色系统的启发
+- [ ] 🔍Muse: **Muse harness 代码审查** — 实际审查 `src/mcp/planner-tools.mjs` + `src/family/handoff.mjs`
 
 ---
 
@@ -80,10 +81,12 @@
 
 - [ ] 3.1 做一张跨厂商的「模式对比表」（Anthropic vs OpenAI vs Google）
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 📚c: HF Agents Course Unit 1
-- [ ] 📰e: Andrew Ng 4 Agentic Patterns 视频/博客
+- [ ] 📚c: HF Agents Course Unit 1 精华提取
+- [ ] 📰e: Harrison Chase(LangChain) 对 Agent 架构的最新观点
+- [ ] 🔧OC: **OpenCode MCP 配置深度解读** — 本地/远程 MCP + 对 Muse MCP 工具注册的启发
+- [ ] 🔍Muse: **Muse S3 审批流程与 OpenCode Permission 机制对比**
 
 ---
 
@@ -105,9 +108,11 @@
 
 - [ ] 3.1 标注「Muse 可借鉴的 3 个设计」
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 🔬d: **Swarm 源码拆解** — `run()` 循环 + Handoff 机制（记入 study 笔记或独立 `04d-teardown-swarm.md`）
+- [ ] 🔬d: **Swarm 源码拆解** — `run()` 循环 + Handoff 机制
+- [ ] 🔧OC: **OpenCode Hook 系统详解** — 46+ Hooks 机制 + 对 Muse Plugin 的启发
+- [ ] 🔍Muse: **Muse Handoff 机制 vs Swarm Handoff 代码对比**
 
 ---
 
@@ -130,10 +135,11 @@
 
 - [ ] 3.1 对比 LangGraph 和 Swarm 的设计差异
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 📚c: HF Agents Course Unit 2
+- [ ] 📚c: HF Agents Course Unit 2 精华提取
 - [ ] 🔬d: **LangGraph 拆解** — Graph + Checkpointer 模块
+- [ ] 🔧OC: **OpenCode Compaction(上下文压缩) 机制** — 对 Muse 长对话管理的启发
 
 ---
 
@@ -156,11 +162,13 @@
 
 - [ ] 3.1 对比 Swarm vs CrewAI：哪种更适合 Muse？为什么？
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 📚c: Hello-Agents Ch3 多 Agent 协作
+- [ ] 📚c: Hello-Agents Ch3 多 Agent 协作 精华提取
 - [ ] 🔬d: **CrewAI 拆解** — Agent Role + Task 定义
-- [ ] 📰e: Harrison Chase 最新博客/Twitter
+- [ ] 📰e: Karpathy《LLM OS》核心观点 + Dario Amodei 最新 Agent 发言
+- [ ] 🔧OC: **OpenCode System Prompt 组装机制** — Provider Prompt + AGENTS.md 注入流程
+- [ ] 🔍Muse: **Muse 角色卡片 vs OpenCode Agent 定义 对比审查**
 
 ---
 
@@ -183,9 +191,11 @@
 
 - [ ] 3.1 实验部分（写 pua prompt、写 MCP 工具 description）标记到 Sprint 2
 
-### 研究增强（c/d/e）
+### 研究增强（c/d/e/OC）
 
-- [ ] 📰e: Karpathy《LLM OS》演讲回顾
+- [ ] 📰e: Jason Wei (CoT 作者) 最新研究方向
+- [ ] 🔧OC: **OpenCode Prompt 模板对比** — anthropic.txt vs beast.txt vs qwen.txt 设计差异
+- [ ] 🔍Muse: **Muse pua prompt vs OpenCode 最佳实践 审查**
 
 ---
 
@@ -263,4 +273,4 @@
 - ❌ 不改 Muse 现有代码
 - ❌ 不重写 Blueprint（Sprint 5 再做，放 `make-muse/`）
 - ❌ 不深入 Memory / Voice 细节（Sprint 2）
-- ❌ 不讨论 OpenCode 具体实现方式
+- ✅ OpenCode 是贯穿线 — 每天都有 OC 机制学习 + Muse 对照
