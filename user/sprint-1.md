@@ -3,17 +3,18 @@
 > **Sprint 目标：** 吃透 Agent Core Loop + Multi-Agent 编排的理论和案例，跑通 1 个 demo。  
 > **服务于：** 全景图域 1（Core Loop）+ 域 3（Multi-Agent / Harness）  
 > **退出条件：** 对齐 RDD Phase 0 — 能用自己的话解释 10 个 Agent 核心概念  
+> **总览地图：** `user/overview.md`（Phase/Sprint/Day 全局对照）  
 > **研究产出索引：** `user/research/README.md`  
-> **每日流程：** Step 1 📖学习 → Step 2 🎯Muse 小任务 → Step 3 ✏️沉淀（见 README §七）
+> **每日流程：** AI 先交付精华笔记/流程图/对照表 → 你负责吸收/复述/判断
 
 ---
 
 ## Day 01：精读 Anthropic《Building Effective Agents》
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [x] 1.1 和 AI 一起精读指南（重点：Agent vs Workflow、5 种编排模式、ACI 工具设计）
-- [x] 1.2 产出研究笔记：
+- [x] 1.1 AI 已完成精读 → 产出结构化笔记，你来吸收、理解、背诵关键概念
+- [x] 1.2 已交付研究笔记：
   - `01a-study-anthropic-bea.md`（核心概念 + 原文精读 + Muse 思考）
   - `01b-study-anthropic-bea-projects.md`（开源项目分析 + 面试准备）
 
@@ -37,10 +38,10 @@
 
 ## Day 02：精读 Anthropic《Multi-Agent Research System》
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 和 AI 一起精读工程博客（重点：Orchestrator-Worker 实战、并行化、Eval 方法、失败模式）
-- [ ] 1.2 产出：`02-study-anthropic-multi-agent.md`
+- [ ] 1.1 AI 已交付 `02-study-multi-agent-orchestrator.md`（Orchestrator-Worker 代码详解 + Muse harness 审查 + OC Agent 系统）
+- [ ] 1.2 你来做：读笔记 → 理解编排模式 → 能复述 Muse harness 的 3 个改进建议
 
 ### Step 2: 🎯 Muse 小任务 — harness 流程画图
 
@@ -64,11 +65,11 @@
 
 ## Day 03：精读 OpenAI Agents 指南 + Google ADK 模式
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 OpenAI：Agents SDK 设计哲学、Handoff 模式、Guardrails
-- [ ] 1.2 Google：8 种多 Agent 设计模式（重点：Hierarchical、Router、HITL）
-- [ ] 1.3 产出：`03-study-openai-google-patterns.md`
+- [ ] 1.1 AI 已交付 `03-study-openai-google-patterns.md`（跨厂商对比表 + S3 设计 + OC MCP 解读）
+- [ ] 1.2 你来做：读笔记 → 理解 HITL → 判断 S3 流程是否合理
+- [ ] 1.3 能回答：Handoff 最简实现是什么？HITL 什么时候触发？
 
 ### Step 2: 🎯 Muse 小任务 — S3 审批流程草案
 
@@ -92,11 +93,11 @@
 
 ## Day 04：OpenAI Swarm 源码走读
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付 + 动手 demo）
 
-- [ ] 1.1 和 AI 一起走读 Swarm 源码（重点：`run()` 循环、`Agent` 类、`Handoff` 工具、`instructions`）
-- [ ] 1.2 亲手跑通 Swarm 基础 demo（airline / triage 等）
-- [ ] 1.3 产出：`04-study-swarm-walkthrough.md`
+- [ ] 1.1 AI 已交付 `04-study-swarm-hooks.md`（Swarm 核心 100 行 + Handoff 协议 + OC Hook 系统）
+- [ ] 1.2 你来做：读笔记 → 跑 Swarm demo（`cd make-muse/reference/swarm && python examples/basic/`）
+- [ ] 1.3 能回答：Swarm Agent 有几个属性？Handoff 怎么实现？
 
 ### Step 2: 🎯 Muse 小任务 — Handoff 协议草案
 
@@ -118,11 +119,11 @@
 
 ## Day 05：LangGraph 概念 + Demo
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付 + 动手 demo）
 
-- [ ] 1.1 和 AI 一起学习 LangGraph 核心概念（Graph 状态机、Checkpointer、Human-in-the-loop）
-- [ ] 1.2 跑通 LangGraph 的一个 Agent demo
-- [ ] 1.3 产出：`05-study-langgraph-overview.md`
+- [ ] 1.1 AI 已交付 `05-study-langgraph-compaction.md`（Graph+State+Checkpoint + Muse 状态图 + OC 压缩）
+- [ ] 1.2 你来做：读笔记 → 跑 LangGraph 简单 demo
+- [ ] 1.3 能回答：LangGraph 三元素？Checkpointer 解决什么问题？
 
 ### Step 2: 🎯 Muse 小任务 — 工作流状态图
 
@@ -145,11 +146,11 @@
 
 ## Day 06：CrewAI 概览
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 快速了解 CrewAI 的角色定义和 Task 委派模式（文档级，不读源码）
-- [ ] 1.2 对比 Swarm vs CrewAI 的设计差异
-- [ ] 1.3 产出：`06-study-crewai-overview.md`
+- [ ] 1.1 AI 已交付 `06-study-crewai-prompt.md`（CrewAI Role/Task + 角色卡片 + OC Prompt 组装 + Karpathy/Amodei）
+- [ ] 1.2 你来做：读笔记 → 判断 Muse 用 Swarm 风格还是 CrewAI 风格
+- [ ] 1.3 能回答：backstory 是什么？Muse 4 个角色的约束各是什么？
 
 ### Step 2: 🎯 Muse 小任务 — 角色卡片设计
 
@@ -174,10 +175,10 @@
 
 ## Day 07：Prompt Engineering 基础
 
-### Step 1: 📖 学习
+### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 精读 Anthropic/OpenAI 的 Prompt 指南中 Agent 相关章节
-- [ ] 1.2 产出：`07-study-prompt-engineering.md`
+- [ ] 1.1 AI 已交付 `07-study-prompt-engineering.md`（7层结构 + pua prompt 骨架 + OC 模板对比）
+- [ ] 1.2 你来做：读笔记 → 判断 pua prompt 骨架是否合理 → 标注需要修改的地方
 
 ### Step 2: 🎯 Muse 小任务 — pua Prompt 结构草案
 

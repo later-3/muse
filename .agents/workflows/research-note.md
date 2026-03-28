@@ -11,6 +11,16 @@ description: 研究笔记撰写标准 — 每篇精读/走读/实验笔记必须
 
 ## 一、必须包含的章节（按顺序）
 
+### 0. ⚡ 3 分钟速读版（Speed Read）
+> **每篇笔记开头必须有！** 忙的时候只看这个也能吸收核心。
+```
+# 一句话总结: ...
+# 3 个关键概念: ...
+# 对 Muse 最重要的 1 个启发: ...
+# OpenCode 关联: ...
+# 面试必记: ...
+```
+
 ### 1. 元信息头（Meta Header）
 ```
 来源 URL / 论文标题 / 作者
@@ -45,6 +55,11 @@ Sprint / Day / 类型（精读 / 走读 / 实验）
   - 现有代码哪里需要调整？为什么？
   - 如果要借鉴，Muse 的约束条件是什么？（OpenCode 底座、Telegram、MCP）
   - 记录为未来 Spike/Design 的输入
+
+### 5b. 🔧 OpenCode 映射（OC Mapping）
+- 本主题和 OpenCode 的哪个机制相关？（Agent / Hook / MCP / Compaction / Plugin / Prompt 等）
+- OpenCode 是怎么做的？Muse 可以怎么借鉴？
+- 如果本主题与 OpenCode 无直接关联，写"无直接关联"即可，不凑字数
 
 ### 6. 👤 人物与术语（People & Terminology）
 - 提到的关键人物：简短介绍（谁、在哪、做了什么、为什么重要）
