@@ -164,21 +164,35 @@ AI 做重活，你做高价值吸收：
 
 ---
 
-## 七、Sprint 1 每日研究分配
+## 七、每日四步流程（Sprint 1-2 适用）
 
-> 这是 Sprint 1 的 c/d/e 轨道补充。a/b/f 仍按 `sprint-1.md` 的主线不变。
+> 已升级为双轨并行模式。旧的 3 步法（学习→Muse小任务→沉淀）现在是你的轨道，同时 AI 有自己的并行任务。
 
-| Day | c 课程巩固 | d 项目拆解 | e 大佬 |
-|-----|-----------|-----------|--------|
-| 1 | Cookbook: basic-workflows | — | Yao: ReAct 论文速读 |
-| 2 | Hello-Agents: Ch1 基础 | Cookbook: orchestrator 代码 | Lilian Weng 博客 |
-| 3 | HF Course: Unit1 | — | Ng: 4 patterns 视频 |
-| 4 | — (跑 Swarm demo) | **Swarm: run() + Handoff** | — |
-| 5 | HF Course: Unit2 | **LangGraph: Graph + Checkpointer** | — |
-| 6 | Hello-Agents: Ch3 多Agent | **CrewAI: Role + Task** | Harrison Chase 博客 |
-| 7 | — | — | Karpathy: LLM OS 视频 |
-| 8-9 | — | **OpenCode: Session Engine** | — |
-| 10 | — | — | — |
+| 步骤 | 谁做 | 内容 | 产出 |
+|------|------|------|------|
+| **Step 1: 📖 吸收** | 你 | AI 已交付精华笔记，你来读、理解、能复述 | 知识吸收 |
+| **Step 2: 🎯 Muse 小任务** | 你 | 把学到的压回 Muse 设计（不改代码） | 设计草案 |
+| **Step 3: ✏️ 沉淀** | 你 | 面试题回答、关键概念复述 | 记忆固化 |
+| **Step 4: 🤖 AI 并行** | AI | 🧪 实验（巩固学习）+ 🔧 消险（Muse真用） | 实验代码 + 坑点报告 |
+
+**进度状态约定：**
+- `[ ]` = 未开始
+- `[AI✓]` = AI 已交付，Later 未吸收
+- `[/]` = Later 正在吸收
+- `[x]` = Later 已吸收完成
+
+### 每日任务分配表（Sprint 1）
+
+| Day | 你的任务 | 🧪 实验 | 🔧 消险 | OC 关联 |
+|-----|---------|------|------|--------|
+| 01 | BEA 精读 + ACI 审计 | exp01 链式模式 | R1 notify 可靠性 | — |
+| 02 | Orchestrator + harness | exp02 编排器 | R2 handoff 超时 | Agent 系统 |
+| 03 | OpenAI/Google + S3 | exp03 审批Gate | R3 MCP 注册 | MCP 配置 |
+| 04 | Swarm demo | exp04 JS Swarm | R4 prompt 注入 | Hook 系统 |
+| 05 | LangGraph demo | exp05 状态机 | R5 harness 端到端 | Compaction |
+| 06 | CrewAI + 角色卡 | exp06 角色prompt | R6 memory 持久 | Prompt 组装 |
+| 07 | Prompt Eng | exp07 prompt分层 | — | Prompt 对比 |
+| 08-09 | 总结 + 设计原则 | — | 汇总报告 | Session Engine |
 
 ---
 

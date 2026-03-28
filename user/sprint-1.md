@@ -46,7 +46,7 @@
 
 ### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 AI 已交付 `02-study-multi-agent-orchestrator.md`（Orchestrator-Worker 代码详解 + Muse harness 审查 + OC Agent 系统）
+- [AI✓] 1.1 AI 已交付 `02-study-multi-agent-orchestrator.md`（Orchestrator-Worker 代码详解 + Muse harness 审查 + OC Agent 系统）
 - [ ] 1.2 你来做：读笔记 → 理解编排模式 → 能复述 Muse harness 的 3 个改进建议
 
 ### Step 2: 🎯 Muse 小任务 — harness 流程画图
@@ -78,7 +78,7 @@
 
 ### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 AI 已交付 `03-study-openai-google-patterns.md`（跨厂商对比表 + S3 设计 + OC MCP 解读）
+- [AI✓] 1.1 AI 已交付 `03-study-openai-google-patterns.md`（跨厂商对比表 + S3 设计 + OC MCP 解读）
 - [ ] 1.2 你来做：读笔记 → 理解 HITL → 判断 S3 流程是否合理
 - [ ] 1.3 能回答：Handoff 最简实现是什么？HITL 什么时候触发？
 
@@ -111,7 +111,7 @@
 
 ### Step 1: 📖 学习（AI 已交付 + 动手 demo）
 
-- [ ] 1.1 AI 已交付 `04-study-swarm-hooks.md`（Swarm 核心 100 行 + Handoff 协议 + OC Hook 系统）
+- [AI✓] 1.1 AI 已交付 `04-study-swarm-hooks.md`（Swarm 核心 100 行 + Handoff 协议 + OC Hook 系统）
 - [ ] 1.2 你来做：读笔记 → 跑 Swarm demo（`cd make-muse/reference/swarm && python examples/basic/`）
 - [ ] 1.3 能回答：Swarm Agent 有几个属性？Handoff 怎么实现？
 
@@ -142,7 +142,7 @@
 
 ### Step 1: 📖 学习（AI 已交付 + 动手 demo）
 
-- [ ] 1.1 AI 已交付 `05-study-langgraph-compaction.md`（Graph+State+Checkpoint + Muse 状态图 + OC 压缩）
+- [AI✓] 1.1 AI 已交付 `05-study-langgraph-compaction.md`（Graph+State+Checkpoint + Muse 状态图 + OC 压缩）
 - [ ] 1.2 你来做：读笔记 → 跑 LangGraph 简单 demo
 - [ ] 1.3 能回答：LangGraph 三元素？Checkpointer 解决什么问题？
 
@@ -174,7 +174,7 @@
 
 ### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 AI 已交付 `06-study-crewai-prompt.md`（CrewAI Role/Task + 角色卡片 + OC Prompt 组装 + Karpathy/Amodei）
+- [AI✓] 1.1 AI 已交付 `06-study-crewai-prompt.md`（CrewAI Role/Task + 角色卡片 + OC Prompt 组装 + Karpathy/Amodei）
 - [ ] 1.2 你来做：读笔记 → 判断 Muse 用 Swarm 风格还是 CrewAI 风格
 - [ ] 1.3 能回答：backstory 是什么？Muse 4 个角色的约束各是什么？
 
@@ -208,7 +208,7 @@
 
 ### Step 1: 📖 学习（AI 已交付，你来吸收）
 
-- [ ] 1.1 AI 已交付 `07-study-prompt-engineering.md`（7层结构 + pua prompt 骨架 + OC 模板对比）
+- [AI✓] 1.1 AI 已交付 `07-study-prompt-engineering.md`（7层结构 + pua prompt 骨架 + OC 模板对比）
 - [ ] 1.2 你来做：读笔记 → 判断 pua prompt 骨架是否合理 → 标注需要修改的地方
 
 ### Step 2: 🎯 Muse 小任务 — pua Prompt 结构草案
