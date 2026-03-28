@@ -28,6 +28,11 @@
 - [ ] 3.1 用自己的话写出：「Agent 和 Workflow 的区别是什么」
 - [ ] 3.2 用自己的话写出：「5 种编排模式分别适合什么场景」
 
+### 研究增强（c/d/e）
+
+- [ ] 📚c: 跟练 Anthropic Cookbook `patterns/agents/basic-workflows`
+- [ ] 📰e: 速读姚顺雨 ReAct 论文摘要 + Lilian Weng 博客《LLM Powered Autonomous Agents》概要
+
 ---
 
 ## Day 02：精读 Anthropic《Multi-Agent Research System》
@@ -47,6 +52,12 @@
 ### Step 3: ✏️ 沉淀
 
 - [ ] 3.1 对照 Muse harness 列出：「哪些设计可以直接借鉴」「哪些需要调整」
+
+### 研究增强（c/d/e）
+
+- [ ] 📚c: Hello-Agents Ch1 基础概念
+- [ ] 🔬d: 阅读 Anthropic Cookbook `patterns/agents/orchestrator` 代码
+- [ ] 📰e: 速读 Lilian Weng《LLM Powered Autonomous Agents》
 
 ---
 
@@ -69,6 +80,11 @@
 
 - [ ] 3.1 做一张跨厂商的「模式对比表」（Anthropic vs OpenAI vs Google）
 
+### 研究增强（c/d/e）
+
+- [ ] 📚c: HF Agents Course Unit 1
+- [ ] 📰e: Andrew Ng 4 Agentic Patterns 视频/博客
+
 ---
 
 ## Day 04：OpenAI Swarm 源码走读
@@ -88,6 +104,10 @@
 ### Step 3: ✏️ 沉淀
 
 - [ ] 3.1 标注「Muse 可借鉴的 3 个设计」
+
+### 研究增强（c/d/e）
+
+- [ ] 🔬d: **Swarm 源码拆解** — `run()` 循环 + Handoff 机制（记入 study 笔记或独立 `04d-teardown-swarm.md`）
 
 ---
 
@@ -110,6 +130,11 @@
 
 - [ ] 3.1 对比 LangGraph 和 Swarm 的设计差异
 
+### 研究增强（c/d/e）
+
+- [ ] 📚c: HF Agents Course Unit 2
+- [ ] 🔬d: **LangGraph 拆解** — Graph + Checkpointer 模块
+
 ---
 
 ## Day 06：CrewAI 概览
@@ -130,6 +155,12 @@
 ### Step 3: ✏️ 沉淀
 
 - [ ] 3.1 对比 Swarm vs CrewAI：哪种更适合 Muse？为什么？
+
+### 研究增强（c/d/e）
+
+- [ ] 📚c: Hello-Agents Ch3 多 Agent 协作
+- [ ] 🔬d: **CrewAI 拆解** — Agent Role + Task 定义
+- [ ] 📰e: Harrison Chase 最新博客/Twitter
 
 ---
 
@@ -152,6 +183,10 @@
 
 - [ ] 3.1 实验部分（写 pua prompt、写 MCP 工具 description）标记到 Sprint 2
 
+### 研究增强（c/d/e）
+
+- [ ] 📰e: Karpathy《LLM OS》演讲回顾
+
 ---
 
 ## Day 08-09：总结 + Design Principles 草稿
@@ -165,6 +200,7 @@
   - Spike 2 (Memory) 需要什么前置设计？
   - Spike 3 (Handoff) 需要什么协议定义？
 - [ ] 6. 产出：`user/design-principles-draft.md`（含 Spike 输入清单）
+- [ ] 🔬d: **OpenCode 拆解（第一轮）** — Session Engine 模块源码走读
 
 ---
 

@@ -1,76 +1,164 @@
-# Sprint 1 研究产出索引
+# Sprint 1-2 研究产出索引 & 作战手册
 
-> **命名规则：** `DD-类型-主题.md`  
-> DD = 天数（01-10），类型 = `study`(精读/走读) | `muse`(Muse 小任务)  
-> 每天最多产出 2 个文件：1 个 study + 1 个 muse
-
----
-
-## 你的学习路径（按顺序）
-
-```
-Day 01  精读 Anthropic《Building Effective Agents》
-        → 学 Agent vs Workflow、5 种编排模式、ACI 工具设计
-        → 然后审查 Muse MCP 工具
-
-Day 02  精读 Anthropic《Multi-Agent Research System》
-        → 学 Orchestrator-Worker 实战、并行化、Eval
-        → 然后画 Muse harness 流程图
-
-Day 03  精读 OpenAI Agents 指南 + Google ADK 模式
-        → 学 Handoff、Guardrails、HITL
-        → 然后画 S3 审批流程
-
-Day 04  走读 OpenAI Swarm 源码 + 跑 demo
-        → 学 run() 循环、Agent 类、Handoff 工具
-        → 然后设计 Muse Handoff 协议
-
-Day 05  学习 LangGraph 概念 + 跑 demo
-        → 学 Graph 状态机、Checkpointer
-        → 然后画 S2 工作流状态图
-
-Day 06  概览 CrewAI 角色和任务模式
-        → 学角色定义、Task 委派
-        → 然后写 Muse 4 个角色的角色卡片
-
-Day 07  精读 Prompt Engineering 指南
-        → 学 Agent Prompt 结构、反模式
-        → 然后画 pua System Prompt 结构
-
-Day 08-09  整理总结 + Design Principles 草稿
-Day 10     Sprint 1 复盘 + mini-eval
-```
+> **定位：** Phase 0+1 研究执行增强。**不替代 RDD 总路线。**  
+> **适用范围：** Sprint 1-2（研究期）。Sprint 3+ 主角转为 Spike/代码/验收。  
+> **命名规则：** `DD-类型-主题.md`（DD=天数，类型=study/muse/teardown）  
+> **主线不变：** 📖学习 → 🎯Muse小任务 → ✏️沉淀（见 README §七）
 
 ---
 
-## 文件清单
+## 一、Sprint 1-2 研究增强轨道（6 轨道）
 
-### 📖 精读/走读笔记 (study)
+> ⚠️ **只在 Sprint 1-2 使用。Sprint 3+ 不再维护 6 轨道，转为 Spike 驱动。**
 
-| 文件 | 天 | 主题 | 状态 |
-|------|---|------|------|
-| `01a-study-anthropic-bea.md` | 1 | Anthropic BEA 主笔记（概念+精读+Muse 思考） | ✅ |
-| `01b-study-anthropic-bea-projects.md` | 1 | BEA 面试准备 + 开源项目分析 | ✅ |
-| `02-study-anthropic-multi-agent.md` | 2 | Anthropic Multi-Agent Research 精读 | ⬜ |
-| `03-study-openai-google-patterns.md` | 3 | OpenAI + Google Agent 模式对比 | ⬜ |
-| `04-study-swarm-walkthrough.md` | 4 | Swarm 源码走读 | ⬜ |
-| `05-study-langgraph-overview.md` | 5 | LangGraph 概念 + Demo | ⬜ |
-| `06-study-crewai-overview.md` | 6 | CrewAI 概览（记在笔记中） | ⬜ |
-| `07-study-prompt-engineering.md` | 7 | Agent Prompt Engineering 精读 | ⬜ |
+| 轨道 | 代号 | 内容 | ~时长 | 产出方式 |
+|------|------|------|------|---------|
+| **a 精读** | study | 官方文档/论文/指南精读 | 60min | 独立文件 |
+| **b 面试+对比** | interview | 面试题 + 跨厂商对比 | 30min | 独立文件 |
+| **c 课程巩固** | course | 跟练开源课程对应章节 | 20min | 合入 a 或独立 |
+| **d 项目拆解** | teardown | 特定模块源码精读 | 40min | 独立文件（有实质拆解时） |
+| **e 大佬追踪** | leaders | 帖子/论文/动态回顾 | 15min | 合入 a 末尾 |
+| **f Muse 实战** | muse | 把学到的东西压回 Muse | 30min | 独立文件 |
 
-### 🎯 Muse 小任务 (muse)
-
-| 文件 | 天 | 任务 | 服务 Spike/场景 | 状态 |
-|------|---|------|----------------|------|
-| `01-muse-aci-audit.md` | 1 | 审查 Muse MCP 工具的 ACI 设计 | Spike 1 工具设计 | ⬜ |
-| `02-muse-harness-flow.md` | 2 | harness 流程图 + 编排模式标注 | Spike 3 Handoff | ⬜ |
-| `03-muse-s3-approval-draft.md` | 3 | S3 审批流程草案 | S3 审批 | ⬜ |
-| `04-muse-handoff-protocol.md` | 4 | Handoff 协议设计草案 | Spike 3 Handoff | ⬜ |
-| `05-muse-workflow-state.md` | 5 | S2 工作流状态图 (Mermaid) | Spike 3 Handoff | ⬜ |
-| `06-muse-role-cards.md` | 6 | 4 个角色的角色卡片 | S2 harness | ⬜ |
-| `07-muse-prompt-structure.md` | 7 | pua System Prompt 结构草案 | S1 对话 | ⬜ |
+> c/e 轻量时合入 a 笔记，不单独开文件。总计 ~3.5h/天。
 
 ---
 
-> **每天流程：** 先做 study → 再做 muse 小任务 → 最后沉淀  
-> **详细 SOP：** 见 `user/README.md` §七
+## 二、参考仓库（`make-muse/reference/`）
+
+### 已有
+
+| 仓库 | 路径 | 用途 |
+|------|------|------|
+| OpenCode | `reference/opencode/` | Muse 底座，**重点拆解** |
+| oh-my-opencode | `reference/oh-my-opencode/` | OpenCode 插件生态 |
+| learn-opencode | `reference/learn-opencode/` | OpenCode 学习资料 |
+| OpenClaw | `reference/openclaw/` | Claw Agent 参考 |
+| ZeroClaw | `reference/zeroclaw/` | ZeroClaw Agent 参考 |
+| hermes-agent | `reference/hermes-agent/` | 多 Agent 架构参考 |
+
+### 待 clone
+
+| 仓库 | URL | 为什么需要 |
+|------|-----|-----------|
+| Anthropic Cookbook | `anthropics/anthropic-cookbook` | 官方 Agent 模式代码 |
+| Hello-Agents | `datawhalechina/hello-agents` | 中文体系化 Agent 教程 (31k⭐) |
+| HuggingFace Agents Course | `huggingface/agents-course` | 4 单元 Agent 课程 |
+| OpenAI Swarm | `openai/swarm` | Handoff 源码拆解 |
+
+> clone 命令：`cd make-muse/reference && git clone --depth 1 <URL>`
+
+---
+
+## 三、课程清单
+
+| # | 课程 | 来源 | 仓库/链接 | 用于 Sprint |
+|---|------|------|----------|------------|
+| 1 | **Anthropic Courses** (API/Prompt/Tool Use) | Anthropic 官方 | `github.com/anthropics/courses` | S1 Day1-3 |
+| 2 | **Anthropic Cookbook Agent Patterns** | Anthropic 官方 | `anthropic-cookbook/patterns/agents/` | S1 Day1-5 |
+| 3 | **Hello-Agents 从零构建智能体** | Datawhale | `datawhalechina/hello-agents` | S1-S2 |
+| 4 | **HuggingFace Agents Course** | HuggingFace | `huggingface/agents-course` | S1-S2 |
+| 5 | **Microsoft AI Agents for Beginners** | Microsoft | `microsoft/ai-agents-for-beginners` | S1 Day3 |
+| 6 | **DeepLearning.AI Agent Skills** | Andrew Ng + Anthropic | 在线 | S1 Day1 |
+
+---
+
+## 四、项目拆解清单（精选 8 个）
+
+> 不贪多。每个项目拆 2-3 个核心模块。按 Sprint 分配。
+
+| # | 项目 | 语言 | 拆什么模块 | Sprint |
+|---|------|------|-----------|--------|
+| 1 | **OpenAI Swarm** | Python | ① `run()` 循环 ② Handoff ③ Agent 类 | S1 Day4 |
+| 2 | **Anthropic Cookbook** | Python | ① Agent Patterns ② Tool Use ③ Memory | S1 Day1-3 |
+| 3 | **OpenCode** ⭐ | Go | ① Session Engine ② Hook 系统 ③ Plugin ④ Sisyphus | **S1-S3 重点** |
+| 4 | **LangGraph** | Python | ① Graph 状态机 ② Checkpointer ③ HITL | S1 Day5 |
+| 5 | **CrewAI** | Python | ① Agent Role ② Task ③ Process | S1 Day6 |
+| 6 | **Vercel AI SDK** | TypeScript | ① streamText ② tool() ③ Provider | S2 |
+| 7 | **Pydantic AI** | Python | ① Agent 类型安全 ② Result 验证 | S2 |
+| 8 | **Claude Code** | TypeScript | ① ACI 工具设计（行为观察） ② Agentic Loop | S1-S2 |
+
+---
+
+## 五、大佬追踪清单
+
+### 🌍 海外
+
+| 人物 | 身份 | 代表贡献 | 平台 |
+|------|------|---------|------|
+| **Andrew Ng** 吴恩达 | DeepLearning.AI | 4 Agentic Patterns | Twitter/YouTube |
+| **Andrej Karpathy** | 前 Tesla AI | LLM OS 概念 | Twitter/YouTube |
+| **Lilian Weng** | OpenAI VP Research | 《LLM Powered Autonomous Agents》 | Blog (Lil'Log) |
+| **Harrison Chase** | LangChain CEO | Agent 工具链先驱 | Twitter/Blog |
+| **Erik Schluntz** | Anthropic | BEA 作者，ACI 实践 | Twitter |
+| **Jason Wei** | Meta Superintelligence | Chain-of-Thought | Twitter |
+| **Shunyu Yao 姚顺雨** | Princeton → OpenAI | **ReAct** + **Tree of Thoughts** | 论文/Twitter |
+| **Noah Shinn** | Northeastern | **Reflexion** Agent 自我反思 | 论文 |
+| **Ofir Press** | Princeton | **SWE-bench** Agent 编码评测 | Twitter |
+| **Yohei Nakajima** | BabyAGI 作者 | Agent 热潮点火者 | Twitter |
+| **Simon Willison** | Datasette 作者 | LLM 工具实践派 | Blog |
+| **Dario Amodei** | Anthropic CEO | AI Safety + Agent 哲学 | Blog/访谈 |
+| **Sam Altman** | OpenAI CEO | AGI 路径策略 | Twitter/访谈 |
+
+### 🇨🇳 国内
+
+| 人物 | 身份 | 代表贡献 | 平台 |
+|------|------|---------|------|
+| **姚顺雨** | Princeton → OpenAI | ReAct + ToT — Agent 推理行动范式 | 论文 |
+| **吴泳铭** | 阿里 CEO | Token Hub — 企业级 Agent 战略 | 演讲 |
+| **杨红霞** | 阿里通义实验室 | 通义千问 Agent 能力 | 论文 |
+| **朱文武** | 字节 AI Lab | 多模态 Agent / 豆包 | 论文 |
+| **林达华** | 上海 AI Lab (书生) | InternLM Agent 训练 | 论文/开源 |
+| **刘知远** | 清华 NLP | BMTools / ChatGLM Agent | 论文/GitHub |
+| **唐杰** | 清华/智谱 | CogAgent 视觉 Agent / Agent 综述 | 论文 |
+| **魏忠钰** | 复旦 NLP | ToolBench 工具评测基准 | 论文/GitHub |
+| **Datawhale 社区** | 开源教育 | Hello-Agents (31k⭐) | GitHub |
+
+---
+
+## 六、必读论文
+
+| # | 论文 | 作者 | 年 | 为什么必读 | Sprint |
+|---|------|------|---|-----------|--------|
+| 1 | **ReAct: Synergizing Reasoning and Acting** | Yao et al. | 2022 | Agent 推理+行动范式开创 | S1 |
+| 2 | **LLM Powered Autonomous Agents** | Lilian Weng | 2023 | Agent 系统最经典综述 | S1 |
+| 3 | **Tree of Thoughts** | Yao et al. | 2023 | LLM 多路径推理 | S1 |
+| 4 | **Reflexion** | Shinn et al. | 2023 | Agent 自我反思学习 | S1-S2 |
+| 5 | **Toolformer / ToolBench** | Meta / 复旦 | 2023 | 工具使用训练和评测 | S2 |
+| 6 | **Agent AI Survey** | Stanford+Microsoft | 2024 | 多模态 Agent 综述 | S2 |
+| 7 | **Anthropic BEA** | Schluntz & Zhang | 2024 | 实战 Agent 工程指南 | **S1 Day1 ✅** |
+
+---
+
+## 七、Sprint 1 每日研究分配
+
+> 这是 Sprint 1 的 c/d/e 轨道补充。a/b/f 仍按 `sprint-1.md` 的主线不变。
+
+| Day | c 课程巩固 | d 项目拆解 | e 大佬 |
+|-----|-----------|-----------|--------|
+| 1 | Cookbook: basic-workflows | — | Yao: ReAct 论文速读 |
+| 2 | Hello-Agents: Ch1 基础 | Cookbook: orchestrator 代码 | Lilian Weng 博客 |
+| 3 | HF Course: Unit1 | — | Ng: 4 patterns 视频 |
+| 4 | — (跑 Swarm demo) | **Swarm: run() + Handoff** | — |
+| 5 | HF Course: Unit2 | **LangGraph: Graph + Checkpointer** | — |
+| 6 | Hello-Agents: Ch3 多Agent | **CrewAI: Role + Task** | Harrison Chase 博客 |
+| 7 | — | — | Karpathy: LLM OS 视频 |
+| 8-9 | — | **OpenCode: Session Engine** | — |
+| 10 | — | — | — |
+
+---
+
+## 八、Sprint 2 拆解重点预告
+
+| 主题 | d 项目拆解 |
+|------|-----------|
+| Memory 深化 | **OpenCode: Hook 系统 + Plugin 架构** |
+| Prompt 实战 | **Claude Code: ACI 行为观察** |
+| 工具设计 | **Vercel AI SDK: tool() + Provider** |
+| 类型安全 | **Pydantic AI: Agent + Result** |
+| 协议设计 | **OpenCode: Sisyphus 协议** |
+
+---
+
+> **Sprint 3+ 不再维护 6 轨道。** 参考仓库和论文清单可继续使用，但每日节奏转为：  
+> Spike → 实现 → 验证 → 复盘（见 sprint-3.md 到 sprint-8.md）
