@@ -2,7 +2,7 @@
 
 > **Sprint 目标：** 将全程 mini-eval 固化为正式 Eval 框架，整理面试 Portfolio。  
 > **服务于：** Phase 6（Eval 体系化）+ Phase 7（复盘与知识沉淀）  
-> **前置条件：** Sprint 7 完成，S1/S2/S3 全部跑通
+> **前置条件：** Sprint 7 完成，S1/S2/S3/S2b 全部跑通，Muse Basic v1 5 项能力达标
 
 ---
 
