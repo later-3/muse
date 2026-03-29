@@ -40,12 +40,28 @@
 
 ## 🤖 AI 并行任务 → `experiments/`
 
-| 类型 | 文件 | 结果 |
-|------|------|------|
-| 🧪 实验 | `experiments/exp01-chain-parallel-route.mjs` | 10/10 ✅ |
-| 🔧 消险 | `experiments/R1-notify-planner-reliability.md` | 评估 5/10 |
+> **实验 = AI 先做验证，Later 吸收即可。** 和 OC 的区别：OC 是 Later 自己动手做。
+> **代码规范：** 见 `.agents/workflows/ai-parallel-task.md`
+> **环境：** Node.js ≥ 20 + ESM only + `node:test` 原生测试
+> **LLM API：** exp01 不需要。exp02+ 需要 LLM API — 优先用 `MiniMax` 或 `Qwen`（免费额度），配置在环境变量 `LLM_API_KEY`
 
----
+### 已完成
+
+| 类型 | 文件 | 结果 | 内容 |
+|------|------|------|------|
+| 🧪 实验 | `exp01-chain-parallel-route.mjs` | 10/10 ✅ | 3 种基础编排模式（纯 JS 模拟，不含 LLM） |
+| 🧪 测试 | `exp01-chain-parallel-route.test.mjs` | 10/10 ✅ | 含 Muse 场景命名的测试 |
+| 🔧 消险 | `R1-notify-planner-reliability.md` | 评估 5/10 | notify_planner 回调可靠性分析 |
+
+### 待做（按优先级排序）
+
+| # | 类型 | 实验名 | 验证什么 | 对应理论 | 前置条件 | 状态 |
+|---|------|--------|---------|---------|---------|------|
+| exp02 | 🧪 | `exp02-agent-loop-real-llm` | 用真实 LLM API 跑一个完整的 Reason→Action→Observe 循环，验证 Agent 核心机制 | 01a §1 核心循环 + 01e §1 ReAct | exp01 ✅ + API key | [ ] |
+| exp03 | 🧪 | `exp03-tool-use-function-calling` | 给 Agent 注册工具（计算器+文件系统），验证 LLM 能否正确选择和调用工具 | 01a §2.3 ACI + 01c §一 | exp02 完成 | [ ] |
+| exp04 | 🧪 | `exp04-orchestrator-dynamic` | 用真实 LLM 实现 Orchestrator-Worker（LLM 动态拆解子任务），对比 exp01 的静态版本 | 02a §1 Orchestrator | exp02 完成 | [ ] |
+| R2 | 🔧 | `R2-handoff-timeout-analysis` | 分析 Muse handoff 超时场景：Worker 挂了/LLM 没返回时 Planner 的行为 | 02a §4 Harness 审查 | — | [ ] |
+| R3 | 🔧 | `R3-muse-aci-tool-audit` | 用 BEA ACI 六原则审计 Muse 当前所有 MCP 工具描述，给出具体改进 | 01a §2.3 ACI | — | [ ] |
 
 ## 🔧 OC 实战任务 → `oc-tasks/`
 
