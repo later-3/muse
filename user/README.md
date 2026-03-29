@@ -55,10 +55,14 @@ user/
 ├── unit03-state-memory/   ← Part 3: 状态 + 记忆
 ├── unit04-prompt-eng/     ← Part 4: Prompt 工程
 │   每个 unit 包含 4 条线:
-│     📖 学习文档 (study-*.md)    AI 为你准备的精读材料
+│     📖 学习文档 (study-*.md)    AI 深加工的精读材料（标注来源 ref-XX）
 │     🤖 AI 并行 (exp/R)          实验代码 + 消险报告
-│     🔧 OC 小任务 (oc*)          基于本 unit 的 OpenCode 实操
+│     🔧 OC 实战 (oc*)            理论实操 + 课程练习 + 项目拆解
 │     🏗️ 项目里程碑               Muse + 学习助手的对应进度
+│
+├── reference/             ← 📚 知识源头地图
+│   ├── INDEX.md              参考资料总索引 (书/课/论文/博客/项目)
+│   └── repos/                clone 的参考项目 (gitignored)
 │
 ├── projects/              ← 支线项目
 │   └── learning-assistant/   语音学习助手（Web Speech + MiniMax）
