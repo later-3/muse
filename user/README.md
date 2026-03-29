@@ -105,13 +105,21 @@ S1(会话记忆) + S2(任务协作) + S3(审批治理) = S2b 的基础设施
 
 ### Unit 内容总览（4 条线）
 
-| Unit | 📖 学习文档 | 🤖 AI 并行 | 🔧 OC 小任务 | 🏗️ 项目里程碑 |
-|------|-----------|-----------|-------------|-------------|
+| Unit | 📖 学习文档 | 🤖 AI 并行 | 🔧 OC 实战 | 🏗️ 项目 |
+|------|-----------|-----------|-----------|---------|
 | **foundations** | F1-F15 大模型基础 | — | — | — |
-| **unit01** | BEA + Cookbook + ReAct + Weng | exp01 / R1 | oc01-03 API+链式+路由 | Muse 循环理解 / 学助 V0 |
-| **unit02** | Orchestrator + Swarm | exp02-04 / R2-R4 | oc04-06 多session+Handoff+Hook | Muse harness / 学助 V1 索引 |
-| **unit03** | LangGraph + CrewAI | exp05-06 / R5-R6 | oc07-09 状态机+角色+记忆 | Muse memory / 学助 V2 记忆 |
-| **unit04** | 7 层 Prompt + pua | exp07 | oc10-12 Prompt+参数+格式 | Muse pua / 学助 V3 prompt |
+| **unit01** | BEA + Cookbook + ReAct | exp01 / R1 | oc01-09: Agent Loop + Tool Use + 拆 Claude Code/Aider/OC | V0 |
+| **unit02** | Orchestrator + Swarm | exp02-04 / R2-R4 | oc04-12: Orchestrator + Handoff + 拆 Cline/Continue/Harness | V1 |
+| **unit03** | LangGraph + CrewAI | exp05-06 / R5-R6 | oc13-21: Memory Store + 向量搜索 + 拆 OC Compaction/ChatGPT Memory | V2 |
+| **unit04** | 7 层 Prompt + pua | exp07 | oc22-30: Prompt Builder + 参数实验 + 拆 Claude Code/Cursor Prompt | V3 |
+
+### OC 实战三大类
+
+| 类型 | 说明 | 目的 |
+|------|------|------|
+| **A. 理论实操** | 把 unit 核心概念变成可运行代码 | 学了就练，理解 HOW |
+| **B. 课程练习** | Anthropic Cookbook / Hello-Agents / 吴恩达 等优质课程跟练 | 站在巨人肩膀上 |
+| **C. 项目拆解** | Claude Code / Aider / Cline / OpenCode / Muse 源码走读 + mini 复现 | 看高手怎么把理论落地 |
 
 ---
 
@@ -160,6 +168,7 @@ AI 轨道:   🧪 实验（巩固学习）+ 🔧 消险（服务 Muse）
 |---------|---------|---------|
 | 📖 研究笔记 | `.agents/workflows/research-note.md` | 速读版 + 上下文定位 + 三栏原理表 + 面试题 |
 | 🤖 AI 实验/消险 | `.agents/workflows/ai-parallel-task.md` | 文件头 JSDoc + 设计注释 + Muse 映射 |
+| 📘 Unit README + OC 实战 | `.agents/workflows/unit-oc-task.md` | 前置速查 + ABC 三类 OC + 项目拆解报告模板 |
 
 ### 三栏原理表（强制）
 

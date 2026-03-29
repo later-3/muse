@@ -21,36 +21,58 @@
 
 ---
 
-## 📖 学习文档（AI 为你准备）
+## 📖 学习文档 → `study/`
 
 | 文件 | 内容 | 状态 |
 |------|------|------|
-| `01a-study-anthropic-bea.md` | BEA 核心概念 + Muse 思考 | [AI✓] |
-| `01b-study-anthropic-bea-projects.md` | 开源项目分析 + 面试准备 | [AI✓] |
-| `01c-course-cookbook-workflows.md` | Cookbook 代码精读 + 多课程对比 | [AI✓] |
-| `01e-leaders-react-weng.md` | ReAct + Weng 三要素 + DeepSeek/o1 | [AI✓] |
+| `study/01a-study-anthropic-bea.md` | BEA 核心概念 + Muse 思考 | [AI✓] |
+| `study/01b-study-anthropic-bea-projects.md` | 开源项目分析 + 面试准备 | [AI✓] |
+| `study/01c-course-cookbook-workflows.md` | Cookbook 代码精读 + 多课程对比 | [AI✓] |
+| `study/01e-leaders-react-weng.md` | ReAct + Weng 三要素 + DeepSeek/o1 | [AI✓] |
 
 ## 🎯 你的任务
 
-- [ ] `01-muse-aci-audit.md` — ACI 六原则审计
+- [ ] `study/01-muse-aci-audit.md` — ACI 六原则审计
 - [ ] 沉淀：Agent vs Workflow / 5 种编排模式复述
 
-## 🤖 AI 并行任务
+## 🤖 AI 并行任务 → `experiments/`
 
 | 类型 | 文件 | 结果 |
 |------|------|------|
-| 🧪 实验 | `exp01-chain-parallel-route.mjs` | 10/10 ✅ |
-| 🔧 消险 | `R1-notify-planner-reliability.md` | 评估 5/10 |
+| 🧪 实验 | `experiments/exp01-chain-parallel-route.mjs` | 10/10 ✅ |
+| 🔧 消险 | `experiments/R1-notify-planner-reliability.md` | 评估 5/10 |
 
-## 🔧 OC 基础小任务（学了就练）
+---
 
-> 基于本 unit 学的编排模式，在 OpenCode 里实际操作。
+## 🔧 OC 实战任务 → `oc-tasks/`
 
-| # | 任务 | 练什么 | 状态 |
+> **原则：学了就动手，拆了就复现。每个任务都要出可运行代码。**
+
+### A. 理论实操 — 把 unit 的核心概念变成代码
+
+| # | 任务 | 对应理论 | 产出 |
+|---|------|---------|------|
+| oc01 | **实现 Agent Loop** — 从零写一个 Reason→Action→Observe 循环，接真实 LLM API（MiniMax/Qwen） | BEA §1 核心循环 | `oc01-agent-loop.mjs` |
+| oc02 | **实现 Tool Use** — 给 Agent 注册工具（计算器 + 文件读取），LLM 决定何时调用 | BEA §2 Tool Use + F3 Function Calling | `oc02-tool-use.mjs` |
+| oc03 | **3 种编排模式对比** — Chain/Parallel/Route 接真实 LLM，对比效果和延迟 | BEA §3 编排模式 | `oc03-patterns-real-llm.mjs` |
+
+### B. 课程练习 — 跟着优质课程动手
+
+| # | 来源 | 练什么 | 产出 |
 |---|------|--------|------|
-| oc01 | 用 OC 的 prompt_async 发一条消息并读 session 结果 | OC REST API 基础 | [ ] |
-| oc02 | 写一个 chain 模式：OC 翻译 → 摘要 → 关键词提取 | 链式编排 | [ ] |
-| oc03 | 写一个 route 模式：根据输入类型路由到不同 prompt | 路由编排 | [ ] |
+| oc04 | **Anthropic Cookbook** `patterns/agents/` | Chain + Route 的官方实现，用 OC 复刻（Node.js 版） | `oc04-cookbook-chain.mjs` |
+| oc05 | **Hello-Agents** (Datawhale 31k⭐) Ch1-2 | Agent 基础 + 工具调用，跟课跑通 | `oc05-hello-agents-ch1.mjs` |
+| oc06 | **Microsoft AI Agents for Beginners** L1-3 | 12 课课程前 3 课实操 | `oc06-ms-agents-intro.md` |
+
+### C. 项目拆解 — 拆真实项目，理解理论怎么落地
+
+| # | 项目 | 拆什么 | 产出 |
+|---|------|--------|------|
+| oc07 | **Claude Code** (Anthropic 官方) | Agent Loop 实现：怎么读 repo → 生成 plan → 执行 edit → 自验证 | `oc07-claude-code-loop.md` + mini 复现 |
+| oc08 | **Aider** (paul-gauthier/aider) | Git 感知 Agent：怎么自动 commit、怎么做 repo-map | `oc08-aider-git-agent.md` |
+| oc09 | **OpenCode** (我们的底座) | Session 管理 + Hook 系统 + prompt_async 全链路走读 | `oc09-opencode-session.md` |
+
+---
 
 ## 🏗️ 并行项目里程碑
 

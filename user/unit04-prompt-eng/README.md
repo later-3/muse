@@ -9,6 +9,7 @@
 | Prompt 基本原则 | `foundations/F6` §1-2 |
 | Temperature / Top-p | `foundations/F6` §4 |
 | SFT 怎么教模型遵循指令 | `foundations/F3` §2 |
+| Tokenization 和成本 | `foundations/F11` §3 |
 
 ## 学习目标
 
@@ -18,29 +19,51 @@
 
 ---
 
-## 📖 学习文档（AI 为你准备）
+## 📖 学习文档 → `study/`
 
 | 文件 | 内容 | 状态 |
 |------|------|------|
-| `07-study-prompt-engineering.md` | 7 层结构 + pua 骨架 | [AI✓] |
+| `study/07-study-prompt-engineering.md` | 7 层结构 + pua 骨架 | [AI✓] |
 
 ## 🎯 你的任务
 
 - [ ] pua Prompt 结构草案
 
-## 🤖 AI 并行任务
+## 🤖 AI 并行任务 → `experiments/`
 
 | 类型 | 文件 | 结果 |
 |------|------|------|
-| 🧪 exp07 | `exp07-prompt-layers.mjs` | 5/5 ✅ |
+| 🧪 exp07 | `experiments/exp07-prompt-layers.mjs` | 5/5 ✅ |
 
-## 🔧 OC 基础小任务（学了就练）
+---
 
-| # | 任务 | 练什么 | 状态 |
+## 🔧 OC 实战任务 → `oc-tasks/`
+
+### A. 理论实操
+
+| # | 任务 | 对应理论 | 产出 |
+|---|------|---------|------|
+| oc22 | **7 层 Prompt Builder** — 构建可复用的 prompt 组装器，接真实 LLM 验证效果 | 7 层结构 | `oc22-prompt-builder-real.mjs` |
+| oc23 | **Temperature 对比实验** — 同一 prompt，t=0/0.3/0.7/1.0 各跑 5 次，统计输出差异 | F6 参数选择 | `oc23-temperature-experiment.mjs` |
+| oc24 | **结构化输出对比** — XML vs JSON vs Markdown，哪种格式 LLM 遵循率最高？ | F6 结构化输出 | `oc24-output-format-compare.mjs` |
+
+### B. 课程练习
+
+| # | 来源 | 练什么 | 产出 |
 |---|------|--------|------|
-| oc10 | 给 OC session 写一个 7 层 system prompt | Prompt 层级设计 | [ ] |
-| oc11 | 对比不同 temperature 下 OC 的输出差异 | 参数调优 | [ ] |
-| oc12 | 用 XML 标签 vs JSON 格式做结构化输出对比 | 输出格式选型 | [ ] |
+| oc25 | **吴恩达 Prompt Engineering** | 6 大技巧全部实操：分隔符/Few-shot/CoT/角色 | `oc25-andrew-ng-prompts.md` |
+| oc26 | **Anthropic Prompt Library** | 官方 prompt 库精选 10 个最佳实践分析 | `oc26-anthropic-prompt-lib.md` |
+| oc27 | **Hello-Agents** Ch7+ Prompt | Datawhale 的 Prompt 工程实战 | `oc27-hello-prompt.mjs` |
+
+### C. 项目拆解
+
+| # | 项目 | 拆什么 | 产出 |
+|---|------|--------|------|
+| oc28 | **Claude Code System Prompt** | Anthropic 怎么写 system prompt：身份/能力/约束/工具描述 格式 | `oc28-claude-code-prompt.md` |
+| oc29 | **Cursor Rules** | Cursor 的 .cursorrules 怎么设计：项目级 + 全局级 prompt 注入 | `oc29-cursor-rules.md` |
+| oc30 | **OpenCode pua prompt** (我们的底座) | system prompt 模板走读：针对不同模型怎么拼 prompt | `oc30-opencode-pua.md` |
+
+---
 
 ## 🏗️ 并行项目里程碑
 
