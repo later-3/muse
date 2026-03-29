@@ -1,9 +1,13 @@
-# 📰 e 大佬精读：ReAct + Lilian Weng — Agent 理论基石
+# 📰 大佬精读：ReAct + Lilian Weng — Agent 理论基石
 
-> **Sprint 1 · Day 1 · 类型：大佬追踪**  
-> **学习目标：** 读完这篇，你能回答：  
-> ① 什么是 ReAct？为什么它是 Agent 的基石？  
-> ② Agent 系统的三要素是什么？每个要素解决什么问题？  
+> **来源：** [P6] ReAct 论文 (arxiv 2210.03629) + [W4] Weng Blog (lilianweng.github.io)
+> **repos/ 参考：** `repos/ai-agents-for-beginners/01-intro-to-ai-agents/` [C8]
+> **上游：** 01a BEA 精读（先理解 5 种模式）
+> **下游：** 01b 项目分析 → unit02 多 Agent
+> **OC 关联：** oc01 (Agent Loop) / oc02 (Tool Use) / oc07 (Claude Code Loop)
+> **学习目标：**
+> ① 什么是 ReAct？为什么它是 Agent 的基石？
+> ② Agent 系统的三要素是什么？每个要素解决什么问题？
 > ③ Muse 在这个框架里处于什么位置？
 
 ---

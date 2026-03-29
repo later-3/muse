@@ -1,7 +1,17 @@
 # F1: Intro to Large Language Models — Karpathy
 
-> **来源：** Andrej Karpathy YouTube (2023.11) · ~1h
+> **来源：** [C1] Andrej Karpathy YouTube (2023.11) · ~1h
+> **书籍底子：** [B1] Raschka *LLMs from Scratch* ch01-02 (`repos/LLMs-from-scratch/ch01/`)
 > **一句话：** 用 1 小时让你从"知道 ChatGPT 能聊天"变成"理解 LLM 整个技术栈"。
+> **上游：** 无（这是入门篇）
+> **下游：** F2 Transformer 从零构建 → F3 训练管线 → unit01 Agent Core
+> **OC 关联：** unit01 oc01 (Agent Loop) / oc02 (Tool Use) / oc03 (编排模式)
+
+> **阅读路径：**
+> 🏃 赶时间 3 分钟 → 只看 §0 速读版
+> 📖 正常学习 15 分钟 → §0 + §1-4 正文 + 面试必答
+> 🔬 深入学习 30 分钟 → 全文 + 打开 `repos/LLMs-from-scratch/ch01/` 看代码
+> 📝 复习模式 → 只看面试必答 + 自检题
 
 ---
 
@@ -30,6 +40,9 @@ OpenCode 关联: OpenCode 的 prompt 模板、compaction、模型选择都围绕
 ---
 
 ## 1. LLM 到底是什么？
+
+> **来源: [C1] Karpathy Intro to LLMs + [B1] Raschka ch01**
+> **repos/ 参考: `repos/LLMs-from-scratch/ch01/` — 详细解释 LLM 定义、发展、应用**
 
 ### 1.1 两个文件
 
@@ -127,6 +140,9 @@ Karpathy 的开场非常直接：
 ---
 
 ## 2. 训练三阶段
+
+> **来源: [C3] Karpathy State of GPT + [B1] Raschka ch05-07 + [P3] InstructGPT 论文**
+> **repos/ 参考: `repos/LLMs-from-scratch/ch05/` (预训练) + `ch07/` (SFT+DPO)**
 
 ### 2.1 Stage 1: 预训练（Pretraining）
 

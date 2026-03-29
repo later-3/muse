@@ -60,9 +60,17 @@ user/
 │     🔧 OC 实战 (oc*)            理论实操 + 课程练习 + 项目拆解
 │     🏗️ 项目里程碑               Muse + 学习助手的对应进度
 │
+├── review/                ← 🎯 复习 + 面试冲刺
+│   ├── week1-3-cards.md      每周核心面试卡片
+│   ├── interview-master.md   全覆盖 50 题面试题库
+│   └── muse-mapping.md       Muse 全栈知识映射
+│
+├── SYLLABUS.md            ← 📋 30 天学习大纲（总日历 + 知识地图）
+│
 ├── reference/             ← 📚 知识源头地图
 │   ├── INDEX.md              参考资料总索引 (书/课/论文/博客/项目)
-│   └── repos/                clone 的参考项目 (gitignored)
+│   ├── SOURCE_MAP.md         源材料分类映射 (写XX去哪找?)
+│   └── repos/                clone 的 12 个参考项目 (gitignored)
 │
 ├── projects/              ← 支线项目
 │   └── learning-assistant/   语音学习助手（Web Speech + MiniMax）

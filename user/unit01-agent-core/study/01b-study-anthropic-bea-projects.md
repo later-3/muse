@@ -1,7 +1,10 @@
 # Part 2: 面试准备 + 开源项目分析
 
-> **关联：** [← Part 1 主笔记](./01a-study-anthropic-bea.md)  
-> **Sprint 1 · Day 1 · Anthropic《Building Effective Agents》**
+> **来源：** [G5] `repos/anthropic-cookbook/` + [G6] `repos/swarm/` + [G13] Aider
+> **关联：** [← Part 1 主笔记](./01a-study-anthropic-bea.md) · [→ 01c 代码精读](./01c-course-cookbook-workflows.md)
+> **上游：** 01a BEA 精读 + 01e ReAct+Weng
+> **下游：** unit02 多 Agent 协作
+> **OC 关联：** oc07 (Claude Code 拆解) / oc08 (Aider 拆解) / oc09 (OpenCode 走读)
 
 ---
 

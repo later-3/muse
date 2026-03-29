@@ -1,6 +1,7 @@
 # Unit 01: Agent 核心循环
 
 > **对应 Sprint 1 Day 01-02** · BEA 精读 + Orchestrator + ReAct
+> **底子来源：** [W5] Anthropic BEA + [W4] Weng Blog + [P6] ReAct 论文 + [U2] Berkeley CS294
 
 ### 📚 前置基础（碰到不懂来这里查）
 
@@ -23,12 +24,14 @@
 
 ## 📖 学习文档 → `study/`
 
-| 文件 | 内容 | 状态 |
-|------|------|------|
-| `study/01a-study-anthropic-bea.md` | BEA 核心概念 + Muse 思考 | [AI✓] |
-| `study/01b-study-anthropic-bea-projects.md` | 开源项目分析 + 面试准备 | [AI✓] |
-| `study/01c-course-cookbook-workflows.md` | Cookbook 代码精读 + 多课程对比 | [AI✓] |
-| `study/01e-leaders-react-weng.md` | ReAct + Weng 三要素 + DeepSeek/o1 | [AI✓] |
+> **推荐顺序：** 01a (BEA 核心) → 01e (Weng + ReAct) → 01b (项目分析) → 01c (代码精读)
+
+| 文件 | 内容 | 底子来源 | 状态 |
+|------|------|---------|------|
+| `study/01a-study-anthropic-bea.md` | BEA 核心概念 + Muse 思考 | [W5] BEA + `repos/anthropic-cookbook/patterns/agents/` | [升级] |
+| `study/01b-study-anthropic-bea-projects.md` | 开源项目分析 + 面试准备 | [G5] Cookbook + [G13] Aider + [G6] Swarm | [AI✓] |
+| `study/01c-course-cookbook-workflows.md` | Cookbook 代码精读 + 多课程对比 | `repos/anthropic-cookbook/patterns/agents/*.ipynb` | [AI✓] |
+| `study/01e-leaders-react-weng.md` | ReAct + Weng 三要素 + DeepSeek/o1 | [W4] Weng + [P6] ReAct + `repos/ai-agents-for-beginners/01-03/` | [升级] |
 
 ## 🎯 你的任务
 
@@ -58,19 +61,19 @@
 
 ### B. 课程练习 — 跟着优质课程动手
 
-| # | 来源 | 练什么 | 产出 |
-|---|------|--------|------|
-| oc04 | **Anthropic Cookbook** `patterns/agents/` | Chain + Route 的官方实现，用 OC 复刻（Node.js 版） | `oc04-cookbook-chain.mjs` |
-| oc05 | **Hello-Agents** (Datawhale 31k⭐) Ch1-2 | Agent 基础 + 工具调用，跟课跑通 | `oc05-hello-agents-ch1.mjs` |
-| oc06 | **Microsoft AI Agents for Beginners** L1-3 | 12 课课程前 3 课实操 | `oc06-ms-agents-intro.md` |
+| # | 来源 | 练什么 | repos/ 路径 | 产出 |
+|---|------|--------|-----------|------|
+| oc04 | **Anthropic Cookbook** `patterns/agents/` | Chain + Route 的官方实现，用 OC 复刻（Node.js 版） | `repos/anthropic-cookbook/patterns/agents/basic_workflows.ipynb` | `oc04-cookbook-chain.mjs` |
+| oc05 | **Hello-Agents** (Datawhale 31k⭐) Ch1-2 | Agent 基础 + 工具调用，跟课跑通 | `repos/hello-agents/docs/chapter1-2/` | `oc05-hello-agents-ch1.mjs` |
+| oc06 | **Microsoft AI Agents for Beginners** L1-3 | 12 课课程前 3 课实操 | `repos/ai-agents-for-beginners/01-03/` | `oc06-ms-agents-intro.md` |
 
 ### C. 项目拆解 — 拆真实项目，理解理论怎么落地
 
-| # | 项目 | 拆什么 | 产出 |
-|---|------|--------|------|
-| oc07 | **Claude Code** (Anthropic 官方) | Agent Loop 实现：怎么读 repo → 生成 plan → 执行 edit → 自验证 | `oc07-claude-code-loop.md` + mini 复现 |
-| oc08 | **Aider** (paul-gauthier/aider) | Git 感知 Agent：怎么自动 commit、怎么做 repo-map | `oc08-aider-git-agent.md` |
-| oc09 | **OpenCode** (我们的底座) | Session 管理 + Hook 系统 + prompt_async 全链路走读 | `oc09-opencode-session.md` |
+| # | 项目 | 拆什么 | repos/ 路径 | 产出 |
+|---|------|--------|-----------|------|
+| oc07 | **Claude Code** (Anthropic 官方) | Agent Loop 实现：怎么读 repo → 生成 plan → 执行 edit → 自验证 | 在线分析 | `oc07-claude-code-loop.md` |
+| oc08 | **Aider** (paul-gauthier/aider) | Git 感知 Agent：怎么自动 commit、怎么做 repo-map | `repos/aider/` (待 clone) | `oc08-aider-git-agent.md` |
+| oc09 | **OpenCode** (我们的底座) | Session 管理 + Hook 系统 + prompt_async 全链路走读 | 见 KI: OpenCode 架构 | `oc09-opencode-session.md` |
 
 ---
 

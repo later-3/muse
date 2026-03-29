@@ -1,14 +1,19 @@
 # 精读：Anthropic《Building Effective Agents》
 
-> **来源：** https://www.anthropic.com/engineering/building-effective-agents  
-> **作者：** Erik Schluntz & Barry Zhang (Anthropic 工程团队)  
-> **发布：** 2024-12-19  
-> **Sprint 1 · Day 1 · 类型：精读**  
-> **一句话总结：** 最成功的 Agent 实现用简单可组合的模式，而非复杂框架。  
+> **来源：** [W5] https://www.anthropic.com/engineering/building-effective-agents
+> **作者：** Erik Schluntz & Barry Zhang (Anthropic 工程团队)
+> **发布：** 2024-12-19
+> **书籍底子：** [G5] `repos/anthropic-cookbook/patterns/agents/` — BEA 的代码版
+> **上游：** F1 LLM 入门 + F3 Function Calling
+> **下游：** 01e ReAct+Weng → 01b 项目分析 → 01c 代码精读
+> **OC 关联：** oc01 (Agent Loop) / oc03 (编排模式) / oc04 (Cookbook 复刻)
+> **一句话总结：** 最成功的 Agent 实现用简单可组合的模式，而非复杂框架。
 > *The most successful implementations use simple, composable patterns rather than complex frameworks.*
 
 **相关文档：**
 - 面试准备 + 项目分析 → [Part 2](./01b-study-anthropic-bea-projects.md)
+- 代码精读 → [01c](./01c-course-cookbook-workflows.md)
+- 实操代码 → `repos/anthropic-cookbook/patterns/agents/basic_workflows.ipynb`
 
 ---
 
@@ -388,8 +393,9 @@ Anthropic 发现 Agent 使用相对路径时经常出错。解决方案不是在
 
 ---
 
-*精读完成于 Sprint 1 Day 1 · 2026-03-27*  
-*→ 接下来读 [Part 2: 面试准备 + 开源项目分析](./01b-study-anthropic-bea-projects.md)*
+*精读完成于 2026-03-27*
+*→ 接下来读 [01e: ReAct + Weng 三要素](./01e-leaders-react-weng.md)*
+*→ 然后读 [Part 2: 面试准备 + 开源项目分析](./01b-study-anthropic-bea-projects.md)*
 
 ---
 

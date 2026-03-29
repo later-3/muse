@@ -46,6 +46,34 @@ git clone https://github.com/karpathy/nn-zero-to-hero.git    # B2
 | **C7** | LangChain for LLM Application Development | Harrison Chase + Andrew Ng | [DeepLearning.AI](https://learn.deeplearning.ai/langchain) | unit03 LangGraph |
 | **C8** | Microsoft AI Agents for Beginners (12课) | Microsoft | [GitHub](https://github.com/microsoft/ai-agents-for-beginners) | unit01-02 OC 课程练习 |
 
+### 🏛️ 大学课程（重磅！）
+
+| ID | 课程 | 学校 | URL | 用于 | 资源类型 |
+|----|------|------|-----|------|---------|
+| **U1** | **CS224N: NLP with Deep Learning** ⭐⭐⭐ | Stanford | [web.stanford.edu/class/cs224n/](https://web.stanford.edu/class/cs224n/) | F2 Transformer + F1 LLM | 视频+slides+作业 |
+| **U2** | **CS294/194-196: LLM Agents** ⭐⭐⭐ | UC Berkeley | [rdi.berkeley.edu/llm-agents/](https://rdi.berkeley.edu/llm-agents/) | unit01-02 Agent 全覆盖 | 视频+论文阅读清单 |
+| **U3** | **CS329A: Self-Improving AI Agents** | Stanford | [cs329a.stanford.edu](https://cs329a.stanford.edu/) | unit02-03 多Agent+记忆 | Slides+项目 |
+| **U4** | **6.S191: Intro to Deep Learning** | MIT | [introtodeeplearning.com](https://introtodeeplearning.com/) | F1-F2 深度学习基础 | 视频+Lab代码 |
+| **U5** | **CS285: Deep Reinforcement Learning** | UC Berkeley | [rail.eecs.berkeley.edu/deeprlcourse/](http://rail.eecs.berkeley.edu/deeprlcourse/) | F1 §4 RL/GRPO 理论基础 | 视频+slides+作业 |
+| **U6** | **Hugging Face Course** ⭐⭐⭐ | Hugging Face | [huggingface.co/learn](https://huggingface.co/learn) | F9 微调 + F10 部署实操 | 交互notebook |
+
+> **重点推荐路径：**
+> 1. **入门**：MIT 6.S191 (U4) → 建立神经网络直觉
+> 2. **深入**：Stanford CS224N (U1) → 理解 Transformer/NLP
+> 3. **Agent**：Berkeley CS294 LLM Agents (U2) → Agent 全景
+> 4. **实操**：HuggingFace Course (U6) → 动手微调和部署
+
+### 🧑‍🏫 DeepLearning.AI 短课（免费，每门 1-2h）
+
+| ID | 课程 | 合作方 | URL | 用于 |
+|----|------|--------|-----|------|
+| **D1** | Building Agentic RAG with LlamaIndex | LlamaIndex | [deeplearning.ai](https://learn.deeplearning.ai/building-agentic-rag-with-llamaindex) | F8 + unit01 |
+| **D2** | Multi AI Agent Systems with crewAI | crewAI | [deeplearning.ai](https://learn.deeplearning.ai/multi-ai-agent-systems-with-crewai) | unit02 多Agent |
+| **D3** | AI Agents in LangGraph | LangChain | [deeplearning.ai](https://learn.deeplearning.ai/ai-agents-in-langgraph) | unit03 状态机 |
+| **D4** | Building Systems with ChatGPT API | OpenAI | [deeplearning.ai](https://learn.deeplearning.ai/chatgpt-building-system) | F6 系统设计 |
+| **D5** | Finetuning Large Language Models | Lamini | [deeplearning.ai](https://learn.deeplearning.ai/finetuning-large-language-models) | F9 微调实操 |
+| **D6** | Evaluating and Debugging Generative AI | W&B | [deeplearning.ai](https://learn.deeplearning.ai/evaluating-debugging-generative-ai) | unit02 Agent 评估 |
+
 ---
 
 ## 三、📝 论文 (按重要性排)
@@ -167,6 +195,8 @@ git clone https://github.com/karpathy/nn-zero-to-hero.git    # B2
 |------|------|
 | B | 书籍 (Book) |
 | C | 课程 (Course) |
+| U | 大学课程 (University) |
+| D | DeepLearning.AI 短课 |
 | P | 论文 (Paper) |
 | W | 博客/网页 (Web) |
 | G | GitHub 项目 (Git) |
@@ -175,21 +205,21 @@ git clone https://github.com/karpathy/nn-zero-to-hero.git    # B2
 
 ## 七、📊 覆盖矩阵 — 每个文档的底子
 
-| 文档 | 主题 | 书籍/课程底子 | 论文 | 博客 | 项目 |
-|------|------|-------------|------|------|------|
-| **F1** | LLM 入门 | C1 Karpathy Intro, B1 Raschka | P2 Scaling, P4 CoT, P5 R1 | W3 Raschka, W6 Mini-R1 | G10 open-r1 |
-| **F2** | Transformer | C2 Build GPT, B1 Ch3-4 | P1 Attention | W1 Illustrated, W2 GPT-2 | G1 nanoGPT, G3 llm.c |
-| **F3** | 训练管线 | C3 State of GPT, B1 Ch5-7 | P3 InstructGPT | W3 Raschka | — |
-| **F6** | Prompt 工程 | C6 Andrew Ng | — | W9 DAIR.AI, W10 Anthropic, W11 OpenAI | G16 Prompt Guide |
-| **F8** | RAG | B1 Ch-RAG | P9 RAG | — | — |
-| **F9** | 微调 | B1 Ch6-7 | P7 LoRA, P8 QLoRA | W3 Raschka | G12 qlora |
-| **F10** | 部署 | — | — | W8 量化可视化 | G4 llama.cpp |
+| 文档 | 主题 | 书/课/大学课 | 论文 | 博客 | 项目 |
+|------|------|------------|------|------|------|
+| **F1** | LLM 入门 | C1 Karpathy, B1 Raschka, **U4 MIT 6.S191** | P2 Scaling, P4 CoT, P5 R1 | W3 Raschka, W6 Mini-R1 | G10 open-r1 |
+| **F2** | Transformer | C2 Build GPT, B1 Ch3-4, **U1 CS224N** | P1 Attention | W1 Illustrated, W2 GPT-2 | G1 nanoGPT, G3 llm.c |
+| **F3** | 训练管线 | C3 State of GPT, B1 Ch5-7, **U5 CS285 RL** | P3 InstructGPT | W3 Raschka | — |
+| **F6** | Prompt 工程 | C6 Andrew Ng, **D4 Building Systems** | — | W9 DAIR.AI, W10 Anthropic, W11 OpenAI | G16 Prompt Guide |
+| **F8** | RAG | B1 Ch-RAG, **D1 Agentic RAG** | P9 RAG | — | — |
+| **F9** | 微调 | B1 Ch6-7, **U6 HuggingFace**, **D5 Finetuning** | P7 LoRA, P8 QLoRA | W3 Raschka | G12 qlora |
+| **F10** | 部署 | **U6 HuggingFace** | — | W8 量化可视化 | G4 llama.cpp |
 | **F11** | Tokenization | C4 Karpathy Tokenizer | — | — | G2 minbpe |
-| **F13** | 推理优化 | — | P10 FlashAttention | — | — |
-| **unit01** | Agent Core | — | P6 ReAct | W4 Weng, W5 BEA | G5 Cookbook, G8 ReAct, G13 Aider |
-| **unit02** | Multi-Agent | C8 MS Agents | — | W5 BEA | G6 Swarm, G7 Hello, G14 Cline |
-| **unit03** | State/Memory | C7 LangChain | — | — | G7 Hello |
-| **unit04** | Prompt Eng | C6 Andrew Ng | — | W9 DAIR.AI | G5 Cookbook, G16 Prompt Guide |
+| **F13** | 推理优化 | **U5 CS285** (RL基础) | P10 FlashAttention | — | — |
+| **unit01** | Agent Core | **U2 Berkeley LLM Agents** | P6 ReAct | W4 Weng, W5 BEA | G5 Cookbook, G8 ReAct, G13 Aider |
+| **unit02** | Multi-Agent | C8 MS Agents, **U2 Berkeley**, **U3 CS329A**, **D2 crewAI** | — | W5 BEA | G6 Swarm, G7 Hello, G14 Cline |
+| **unit03** | State/Memory | C7 LangChain, **U3 CS329A**, **D3 LangGraph** | — | — | G7 Hello |
+| **unit04** | Prompt Eng | C6 Andrew Ng, **D4 Systems**, **D6 Eval** | — | W9 DAIR.AI | G5 Cookbook, G16 Prompt Guide |
 
 ---
 

@@ -1,9 +1,11 @@
-# 📚 c 课程：Agent 编排模式 — 代码精读
+# 📚 课程：Agent 编排模式 — 代码精读
 
-> **Sprint 1 · Day 1 · 类型：课程跟练**  
-> **前置知识：** 你已精读 BEA，知道了 5 种编排模式。本文带你看**代码怎么实现前 3 种。**  
+> **来源：** [G5] `repos/anthropic-cookbook/patterns/agents/basic_workflows.ipynb`
+> **补充：** [G7] `repos/hello-agents/docs/chapter1-2/` + [C6] Andrew Ng
+> **上游：** 01a BEA 精读（先理解 5 种模式的理论）
+> **下游：** oc04 (Cookbook 复刻) → unit02 Orchestrator-Workers
+> **OC 关联：** oc03 (编排模式对比) / oc04 (Cookbook 复刻)
 > **学习目标：** 看完这篇，你能自己写出 chain / parallel / route 三种模式的代码。
-> **大模型基础：** 如果不理解 LLM 调用的底层原理，先看 `day00/F1-llm-intro.md`。
 
 ---
 
@@ -14,13 +16,13 @@
 本文的核心代码来自 **Anthropic 官方 Cookbook** 的 Agent 模式章节：
 
 ```
-make-muse/reference/anthropic-cookbook/
+repos/anthropic-cookbook/
 └── patterns/
     └── agents/
         ├── util.py                         ← 共用基础（LLM 调用 + XML 解析）
         ├── basic_workflows.ipynb           ← 📌 本文精读的 3 种模式
-        ├── orchestrator_workers.ipynb      ← Day 02 精读
-        └── autonomous_agent.ipynb          ← Day 04 参考
+        ├── orchestrator_workers.ipynb      ← unit02 精读
+        └── evaluator_optimizer.ipynb       ← unit02 参考
 ```
 
 如果你没有这个仓库：`cd make-muse/reference && git clone --depth 1 https://github.com/anthropics/anthropic-cookbook.git`
