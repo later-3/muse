@@ -8,7 +8,7 @@
 ## 一、架构总览
 
 ```
-浏览器 (voice-chat.html)                    服务端 (voice-server.mjs)
+浏览器 (web/index.html)                    服务端 (server/server.mjs)
 ┌────────────────────────┐                  ┌─────────────────────────┐
 │ 🎤 Web Speech API      │                  │                         │
 │   SpeechRecognition    │                  │  POST /api/chat         │
@@ -116,12 +116,17 @@ unit04: Prompt 工程 (7 层结构, pua 骨架)
 ## 三、文件结构
 
 ```
-src/web/
-├── voice-chat.html       ← 语音对话页面（单文件 HTML+CSS+JS）
-├── voice-server.mjs      ← 后端 API（可集成到 standalone.mjs 或独立）
-└── voice-chat.css        ← 可选，样式独立
-
-# 或者全部集成到 standalone.mjs 的路由里
+user/projects/learning-assistant/
+├── web/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── server/
+│   ├── server.mjs
+│   ├── context-index.mjs
+│   └── opencode-adapter.mjs
+└── test/
+    └── server.test.mjs
 ```
 
 ---
@@ -346,8 +351,8 @@ const response = await fetch('https://api.minimax.chat/v1/t2a_v2', {
 
 ```
 Phase 1: 最小可用（1h）
-  [1] voice-server.mjs — 3 个 API 路由 (chat/tts/context)
-  [2] voice-chat.html — 基础对话页面 + Web Speech API
+  [1] server/server.mjs — 3 个 API 路由 (chat/tts/context)
+  [2] web/index.html — 基础对话页面 + Web Speech API
   [3] 能说话 → 能看到文字 → 能听到回复
 
 Phase 2: 体验优化（1h）
@@ -372,7 +377,7 @@ Phase 4: 集成到 Muse（可选）
 
 ```bash
 # 启动服务
-cd muse && node src/web/voice-server.mjs
+cd muse && node user/projects/learning-assistant/server/server.mjs
 
 # 打开页面
 open http://localhost:4300

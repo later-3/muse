@@ -1,0 +1,384 @@
+:root {
+    --primary-color: #4a90e2;
+    --bg-color: #f5f7fa;
+    --text-color: #333;
+    --assistant-bg: #ffffff;
+    --user-bg: #e1f0ff;
+    --border-color: #e0e0e0;
+    --sidebar-width: 350px;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    height: 100%;
+}
+
+/* Sidebar / Notes Area */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: white;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    z-index: 100;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
+    position: absolute;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#notes-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    outline: none;
+    line-height: 1.6;
+}
+
+#notes-content:empty::before {
+    content: attr(placeholder);
+    color: #999;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Main Content */
+#main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+#app-header {
+    padding: 1rem 2rem;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-tag {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 1rem;
+    background-color: #eee;
+}
+
+/* Dialogue Area */
+.dialogue-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.message {
+    max-width: 80%;
+    padding: 1rem;
+    border-radius: 12px;
+    line-height: 1.5;
+    position: relative;
+    word-break: break-word;
+}
+
+.message.assistant {
+    align-self: flex-start;
+    background-color: var(--assistant-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: var(--user-bg);
+    color: #000;
+}
+
+.message .context-tag {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-style: italic;
+}
+
+/* Footer & Controls */
+#app-footer {
+    background-color: white;
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 2rem;
+}
+
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.voice-controls {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.speech-preview {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+}
+
+.speech-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.45rem;
+}
+
+.speech-preview-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.speech-preview-status {
+    font-size: 0.8rem;
+    color: var(--danger-color);
+}
+
+.speech-preview-text {
+    min-height: 1.5rem;
+    line-height: 1.5;
+    color: #222;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.speech-preview.is-final {
+    border-color: rgba(74, 144, 226, 0.35);
+    background-color: rgba(74, 144, 226, 0.05);
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#text-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    outline: none;
+    font-size: 1rem;
+}
+
+#text-input:focus {
+    border-color: var(--primary-color);
+}
+
+/* Buttons */
+.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.primary-btn:hover {
+    background-color: #357abd;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.icon-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.voice-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.voice-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.voice-btn.is-active {
+    border-color: var(--danger-color);
+    background-color: rgba(220, 53, 69, 0.08);
+    color: var(--danger-color);
+}
+
+/* Switch Toggle */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Interim Results Overlay */
+.interim-container {
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 1rem 2rem;
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    z-index: 50;
+    max-width: 80%;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* State Machine Styles */
+body.state-listening #status-indicator {
+    background-color: var(--danger-color);
+    color: white;
+}
+body.state-listening .voice-btn {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    animation: pulse 1.5s infinite;
+}
+
+body.state-thinking #status-indicator {
+    background-color: var(--warning-color);
+    color: #333;
+}
+
+body.state-speaking #status-indicator {
+    background-color: var(--success-color);
+    color: white;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* Markdown export button */
+.sidebar-footer .primary-btn {
+    width: 100%;
+}
+
+/* Welcome message custom style */
+.welcome .content {
+    font-weight: 500;
+    color: var(--primary-color);
+}

@@ -54,13 +54,21 @@ user/
 ├── unit02-multi-agent/    ← Part 2: 多 Agent 协作
 ├── unit03-state-memory/   ← Part 3: 状态 + 记忆
 ├── unit04-prompt-eng/     ← Part 4: Prompt 工程
+│   每个 unit 包含 4 条线:
+│     📖 学习文档 (study-*.md)    AI 为你准备的精读材料
+│     🤖 AI 并行 (exp/R)          实验代码 + 消险报告
+│     🔧 OC 小任务 (oc*)          基于本 unit 的 OpenCode 实操
+│     🏗️ 项目里程碑               Muse + 学习助手的对应进度
 │
-├── track/                 ← 项目管理（进度/看板）
-│   ├── sprint-1.md ~ sprint-8.md
+├── projects/              ← 支线项目
+│   └── learning-assistant/   语音学习助手（Web Speech + MiniMax）
+│
+├── track/                 ← 项目管理
+│   ├── sprint-1~8.md         Sprint 计划
 │   ├── ai-report.md          AI 并行任务看板
 │   └── map.md                知识-功能全景图
 │
-└── archive/               ← 归档（历史文档）
+└── archive/               ← 归档
 ```
 
 ---
@@ -95,15 +103,15 @@ S1(会话记忆) + S2(任务协作) + S3(审批治理) = S2b 的基础设施
 | S7 | 5 | 实现：S3 + S2b | src/ |
 | S8 | 6-7 | 收尾：Eval + Portfolio | 面试 |
 
-### Unit 内容总览
+### Unit 内容总览（4 条线）
 
-| Unit | 主题 | 学习内容 | 实验 | 消险 |
-|------|------|---------|------|------|
-| **foundations** | 大模型基础 | F1-F3 Karpathy + F9 蒸馏 + F10 部署 | — | — |
-| **unit01** | Agent 核心循环 | BEA + Cookbook + ReAct + Weng | exp01 链式/并行/路由 | R1 notify |
-| **unit02** | 多 Agent 协作 | Orchestrator + OpenAI/Google + Swarm | exp02-04 | R2-R4 |
-| **unit03** | 状态 + 记忆 | LangGraph + CrewAI + 角色系统 | exp05-06 | R5-R6 |
-| **unit04** | Prompt 工程 | 7 层结构 + pua 骨架 | exp07 | — |
+| Unit | 📖 学习文档 | 🤖 AI 并行 | 🔧 OC 小任务 | 🏗️ 项目里程碑 |
+|------|-----------|-----------|-------------|-------------|
+| **foundations** | F1-F15 大模型基础 | — | — | — |
+| **unit01** | BEA + Cookbook + ReAct + Weng | exp01 / R1 | oc01-03 API+链式+路由 | Muse 循环理解 / 学助 V0 |
+| **unit02** | Orchestrator + Swarm | exp02-04 / R2-R4 | oc04-06 多session+Handoff+Hook | Muse harness / 学助 V1 索引 |
+| **unit03** | LangGraph + CrewAI | exp05-06 / R5-R6 | oc07-09 状态机+角色+记忆 | Muse memory / 学助 V2 记忆 |
+| **unit04** | 7 层 Prompt + pua | exp07 | oc10-12 Prompt+参数+格式 | Muse pua / 学助 V3 prompt |
 
 ---
 

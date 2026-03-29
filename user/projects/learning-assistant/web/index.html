@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse Learning Assistant - 学习助手 V0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="state-idle">
+    <div id="app">
+        <!-- Sidebar / Notes Area -->
+        <aside id="notes-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>📝 学习笔记</h2>
+                <button id="close-notes" class="icon-btn">×</button>
+            </div>
+            <div id="notes-content" contenteditable="true" placeholder="在此记录笔记..."></div>
+            <div class="sidebar-footer">
+                <button id="export-notes" class="primary-btn">导出 Markdown</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <header id="app-header">
+                <div class="header-left">
+                    <h1>🎤 Muse Voice Chat</h1>
+                    <span id="status-indicator" class="status-tag">闲置</span>
+                </div>
+                <div class="header-right">
+                    <button id="toggle-notes" class="icon-btn">📝</button>
+                    <button id="toggle-settings" class="icon-btn">⚙️</button>
+                </div>
+            </header>
+
+            <section id="dialogue-area" class="dialogue-container">
+                <!-- Messages will be injected here -->
+                <div class="message assistant welcome">
+                    <div class="content">你好 Later！我是你的 AI 学习伴侣小缪。有什么我可以帮你的吗？</div>
+                </div>
+            </section>
+
+            <section id="interim-results" class="interim-container hidden">
+                <p id="interim-text"></p>
+            </section>
+
+            <footer id="app-footer">
+                <div class="control-panel">
+                    <div class="voice-controls">
+                        <button id="voice-btn" class="voice-btn">
+                            <span class="icon">🎤</span>
+                            <span class="label">自由麦</span>
+                        </button>
+                        <div class="toggle-group">
+                            <label class="switch">
+                                <input type="checkbox" id="auto-play-toggle" checked>
+                                <span class="slider round"></span>
+                            </label>
+                            <span>自动播报</span>
+                        </div>
+                    </div>
+
+                    <div id="speech-preview" class="speech-preview hidden" aria-live="polite">
+                        <div class="speech-preview-header">
+                            <span class="speech-preview-title">语音转文字</span>
+                            <span id="speech-preview-status" class="speech-preview-status">实时识别中</span>
+                        </div>
+                        <div id="speech-preview-text" class="speech-preview-text"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="text" id="text-input" placeholder="输入问题..." autocomplete="off">
+                        <button id="send-btn" class="primary-btn">发送</button>
+                    </div>
+                </div>
+            </footer>
+        </main>
+        
+        <!-- Mock Mode Toggle (for testing) -->
+        <div id="test-controls" style="position: fixed; bottom: 10px; right: 10px; opacity: 0.5;">
+            <label><input type="checkbox" id="mock-mode-toggle" checked> Mock模式</label>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
