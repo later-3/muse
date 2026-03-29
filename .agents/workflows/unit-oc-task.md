@@ -5,7 +5,9 @@ description: Unit README + OC实战任务 + 项目拆解报告的标准格式
 # Unit / OC 实战文档规范
 
 > **适用范围：** `user/unitXX-*/README.md` + `oc-tasks/*.mjs` + `oc-tasks/*.md`
-> **核心原则：** 每个 unit 是一个完整的学习单元，结构清晰、可导航、可自检。
+> **核心原则：** AI 搭好完整框架 + 写好注释，Later 走一遍代码理解即可。
+> **模式：** AI 写骨架+注释 → Later 读代码走一遍 → Later 改参数/加场景验证理解 → 面试能讲
+> **和 experiments 的区别：** experiments = AI 验证理论可行性（纯 AI），OC = AI 搭框架 Later 走读（协作）
 
 ---
 
