@@ -28,10 +28,10 @@
 
 ```bash
 # 看 planner 的日志
-tail -f families/later-muse-family/pua/data/logs/muse_*.log
+tail -f families/later-muse-family/members/planner/data/logs/muse_*.log
 
 # 看 arch/coder 是否被触发
-tail -f families/later-muse-family/arch/data/logs/muse_*.log
+tail -f families/later-muse-family/members/arch/data/logs/muse_*.log
 ```
 
 ---

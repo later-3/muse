@@ -28,12 +28,15 @@
 ### Step 3: 看日志
 
 ```bash
-# 查看 Muse Node.js 日志
-tail -f families/later-muse-family/pua/data/logs/muse_*.log
+# 查看 Muse Node.js 日志 (路径: families/{family}/members/{member}/data/logs/)
+tail -f families/later-muse-family/members/planner/data/logs/muse_*.log
 
 # 查看 trace (OpenCode Plugin 写的)
 node src/plugin/trace-reader.mjs
 ```
+
+> **注意:** 当前实际存在的 member 有 planner / reviewer / arch / nvwa 等，
+> 按你启动的 member 替换路径。
 
 ### Step 4: 记录观察
 

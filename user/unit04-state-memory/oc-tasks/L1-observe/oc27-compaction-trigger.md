@@ -14,7 +14,7 @@
 
 ```bash
 # 看日志里有没有 compaction 相关输出
-grep -i "compact\|compress\|truncat" families/later-muse-family/pua/data/logs/muse_*.log
+grep -i "compact\|compress\|truncat" families/later-muse-family/members/planner/data/logs/muse_*.log
 ```
 
 ### Step 3: 用 hook 观察 (如果有 session.compacting 事件)

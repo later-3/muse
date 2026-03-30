@@ -14,7 +14,7 @@
 
 先完成 oc01（和 Muse 有过至少一次对话），trace 数据会自动写到：
 ```
-families/later-muse-family/pua/data/trace/
+families/later-muse-family/members/{member}/data/trace/
 ```
 
 ### Step 2: 运行 trace-reader
