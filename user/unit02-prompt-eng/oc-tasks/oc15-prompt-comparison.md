@@ -1,4 +1,4 @@
-# oc30: 对比 Claude Code / OpenCode / Muse 的 System Prompt
+# oc27: 对比 Claude Code / OpenCode / Muse 的 System Prompt
 
 > **USOLB:** `[S]`源码 | **Bloom:** 3 — 分析 | **理论:** 04a + 04b
 

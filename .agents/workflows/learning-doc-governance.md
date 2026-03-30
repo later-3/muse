@@ -29,6 +29,7 @@ description: 学习文档治理规则 — 所有 foundations/F*.md 和 unitXX/st
 - 具体文件映射见 `user/reference/SOURCE_MAP.md`
 - **写一个知识点前，先查 SOURCE_MAP 找素材，不要凭空写**
 - 本地有的资源（`repos/`）优先引用本地路径
+- **路线/排序/取舍决策必须对照权威课程**（C8/U2/G7/G5/Weng 的教学顺序），不靠感觉
 
 ### 1.3 资源获取流程
 

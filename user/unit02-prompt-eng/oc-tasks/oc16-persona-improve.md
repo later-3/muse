@@ -1,4 +1,4 @@
-# oc31: 优化 Muse Persona Prompt
+# oc28: 优化 Muse Persona Prompt
 
 > **USOLB:** `[B]`编译修改 `[U]`使用 | **Bloom:** 4 — 创造
 > **前置:** oc28(截获) + oc29(走读) + oc30(对比)

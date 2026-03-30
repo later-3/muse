@@ -41,6 +41,11 @@
 6. 双轨并行，AI 先踩坑
    - ✅ AI 踩坑 = 在 OpenCode/Muse 真实系统上实验
    - ❌ 反例：AI 造了一个和项目无关的 demo
+7. **依据参考资源做决策（不靠感觉）**
+   - ✅ 每个知识点标注 `[ref-XX]`，能追溯到课程/论文/项目
+   - ✅ 设计路线、排序、取舍都要对照 `reference/INDEX.md` 和 `reference/SOURCE_MAP.md`
+   - ✅ unit 排序依据: C8/U2/G7/G5/Weng 等权威课程的教学顺序
+   - ❌ 反例：凭感觉安排学习顺序，不对照权威课程
 
 ---
 
@@ -57,10 +62,13 @@ user/
 │   ├── F1  ✅ LLM 全貌
 │   ├── F2-F15 [占位]           Transformer / 训练 / Tokenization / ...
 │
-├── unit01-agent-core/     ← Part 1: Agent 核心循环
-├── unit02-multi-agent/    ← Part 2: 多 Agent 协作
-├── unit03-state-memory/   ← Part 3: 状态 + 记忆
-├── unit04-prompt-eng/     ← Part 4: Prompt 工程
+├── unit01-agent-core/     ← Part 1: Agent 核心循环 (oc01-11)
+├── unit02-prompt-eng/     ← Part 2: Prompt 工程 (oc12-17)  ← 在 Multi-Agent 前！
+├── unit03-multi-agent/    ← Part 3: 多 Agent 协作 (oc18-25)
+├── unit04-state-memory/   ← Part 4: 状态 + 记忆 (oc26-32)
+│   排序依据: hello-agents ch5-6(Prompt) 在 ch7-8(Multi-Agent) 前
+│             Weng 把 Planning(含Prompt) 作为三要素第一个
+│             C8/U2 都把 Memory 放最后
 │   每个 unit 包含:
 │     📖 study/          学习文档（AI 深加工的精读材料）
 │     🤖 experiments/    AI 并行实验 + 消险报告
@@ -104,8 +112,8 @@ user/
 | Week | 主题 | 对应 Unit | OC 任务 |
 |------|------|----------|--------|
 | **W1** | 大模型基础 (LLM/Transformer/训练) | foundations F1-F13 | — |
-| **W2** | Agent 核心 + Prompt 工程 | unit01 + unit04 | oc01-11 + oc27-32 |
-| **W3** | 多 Agent + 状态记忆 | unit02 + unit03 | oc12-26 |
+| **W2** | Agent 核心 + Prompt 工程 | unit01 + unit02 | oc01-17 |
+| **W3** | 多 Agent + 状态记忆 | unit03 + unit04 | oc18-32 |
 | **W4** | 综合实战 + 面试冲刺 | review + 创造类 OC | 落地改进 + 面试故事 |
 
 ### OC 任务设计原则 (Bloom 认知层次递进)

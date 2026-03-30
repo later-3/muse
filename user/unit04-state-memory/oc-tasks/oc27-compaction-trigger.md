@@ -1,4 +1,4 @@
-# oc21: 触发 Compaction
+# oc27: 触发 Compaction
 
 > **USOLB:** `[U]`使用 `[O]`观察hook `[L]`日志 | **Bloom:** 1 — 观察 | **理论:** 03b §Compaction
 

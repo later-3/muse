@@ -1,4 +1,4 @@
-# oc23: 走读 OpenCode Compaction 机制
+# oc29: 走读 OpenCode Compaction 机制
 
 > **USOLB:** `[S]`源码 | **Bloom:** 2 — 理解 | **理论:** 03b §Compaction
 

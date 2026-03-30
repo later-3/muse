@@ -1,4 +1,4 @@
-# oc29: 走读 Muse Prompt 组装链
+# oc32: 走读 Muse Prompt 组装链
 
 > **USOLB:** `[S]`源码 | **Bloom:** 2 — 理解 | **理论:** 04a §7层 + unit01 oc07
 

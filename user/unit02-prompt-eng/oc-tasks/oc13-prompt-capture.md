@@ -1,4 +1,4 @@
-# oc28: 观察 Prompt 注入链
+# oc31: 观察 Prompt 注入链
 
 > **USOLB:** `[O]`观察hook | **Bloom:** 1 — 观察 | **理论:** 04a §7层
 

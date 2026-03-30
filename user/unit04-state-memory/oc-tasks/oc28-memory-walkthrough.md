@@ -1,4 +1,4 @@
-# oc22: 走读 Muse memory.mjs 源码
+# oc28: 走读 Muse memory.mjs 源码
 
 > **USOLB:** `[S]`源码 | **Bloom:** 2 — 理解 | **理论:** 03a §Weng Memory
 

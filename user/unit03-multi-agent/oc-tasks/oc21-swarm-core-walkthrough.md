@@ -1,4 +1,4 @@
-# oc15: 走读 Swarm core.py
+# oc27: 走读 Swarm core.py
 
 > **USOLB:** `[S]`源码 | **Bloom:** 2 — 理解 | **理论:** 02b §Swarm Handoff
 

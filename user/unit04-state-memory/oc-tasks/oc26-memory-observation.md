@@ -1,4 +1,4 @@
-# oc20: 观察 Muse Memory 读写
+# oc32: 观察 Muse Memory 读写
 
 > **USOLB:** `[U]`使用 `[L]`日志 | **Bloom:** 1 — 观察 | **理论:** 03a §记忆
 
