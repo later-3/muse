@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "minimax-cn/MiniMax-M2.7-highspeed",
+  "username": "Later",
+
+  "permission": {
+    "bash": "deny",
+    "edit": "deny",
+    "read": "deny",
+    "glob": "deny",
+    "grep": "deny",
+    "webfetch": "deny",
+    "websearch": "deny"
+  }
+}
