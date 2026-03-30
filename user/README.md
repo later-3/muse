@@ -56,39 +56,47 @@ user/
 ├── README.md              ← 你正在看（唯一入口 + 7 条准则）
 ├── SYLLABUS.md            ← 📋 30 天学习大纲
 │
-│  ──── 🔧 OC 小任务线（学习驱动，32 个任务） ────
+│  ──── 🔧 OC 小任务（纯学习，27 个任务） ────
+│  = unit 理论 + reference 课程 → 用 OpenCode/Muse 走一遍
 │
 ├── unit01-agent-core/     ← Agent 核心循环
 │   ├── study/                📖 学习文档
-│   ├── oc-tasks/             🔧 oc01-11 (Bloom递进+USOLB)
+│   ├── oc-tasks/
+│   │   ├── L1-observe/       oc01-03 观察启动/trace/hook
+│   │   ├── L2-understand/    oc04-05 走读源码
+│   │   ├── L3-analyze/       oc06-07 审计/分析
+│   │   └── L5-synthesize/    oc10-11 对比/面试
 │   └── README.md             通关清单
 ├── unit02-prompt-eng/     ← Prompt 工程
-│   ├── study/                📖 学习文档
-│   ├── oc-tasks/             🔧 oc12-17
+│   ├── study/
+│   ├── oc-tasks/             L1→L3→L5 (oc12-15,17)
 │   └── README.md
 ├── unit03-multi-agent/    ← 多 Agent 协作
-│   ├── study/                📖 学习文档
-│   ├── oc-tasks/             🔧 oc18-25
+│   ├── study/
+│   ├── oc-tasks/             L1→L3→L5 (oc18-23,25)
 │   └── README.md
 ├── unit04-state-memory/   ← 状态 + 记忆
-│   ├── study/                📖 学习文档
-│   ├── oc-tasks/             🔧 oc26-32
+│   ├── study/
+│   ├── oc-tasks/             L1→L3→L5 (oc26-30,32)
 │   └── README.md
 │
-│  排序依据: hello-agents[G7] / Berkeley[U2] / MS C8 / Weng[W4]
-│
-│  ──── 🏗️ 主线: Muse 项目（11 个里程碑） ────
+│  ──── 🏗️ 主线: Muse 项目（5 个改进任务） ────
+│  = OC 学到 → 改进 Muse src/ 代码
 │
 ├── projects/
-│   ├── muse-milestones/      🏗️ M1-M11 里程碑跟踪 + 产出
-│   │                         代码改在 src/，文档记在这里
+│   ├── muse-milestones/
+│   │   ├── README.md         M1-M11 里程碑跟踪
+│   │   ├── unit01/           oc08 写MCP工具 + oc09 ACI修复
+│   │   ├── unit02/           oc16 Persona Prompt 改进
+│   │   ├── unit03/           oc24 Handoff 超时修复
+│   │   └── unit04/           oc31 Memory 改进
 │   │
-│   │── 🌊 支线: 学习助手（6 个版本） ────
+│   │── 🌊 支线: 学习助手（V0→V3） ────
 │   │
-│   └── learning-assistant/   🌊 S1-S6 版本迭代
-│       ├── web/                 前端代码
-│       ├── server/              后端代码
-│       └── README.md            设计文档
+│   └── learning-assistant/
+│       ├── web/              前端代码
+│       ├── server/           后端代码
+│       └── README.md         设计文档
 │
 │  ──── 📚 基础 + 复习 + 参考 ────
 │
