@@ -63,6 +63,30 @@ node src/plugin/trace-reader.mjs
 > OpenCode 才是真正跑 Agent Loop 的引擎。Muse 只负责：
 > Telegram 收消息 → 创建 OpenCode session → 等待完成 → 拿结果 → 发回 Telegram
 
+**追问 1: 为什么每次都新建 session?**
+
+看代码 `src/core/orchestrator.mjs` L109-112:
+```javascript
+async #resolveSession(context) {
+  if (context.sessionId) return context.sessionId  // 有就复用
+  const session = await this.#engine.createSession()  // 没有就新建
+  return session.id
+}
+```
+关键: **如果 context 里传了 sessionId 就复用, 没传就新建**.
+当前 Telegram 适配器每次收消息都没传 sessionId, 所以每次都新建.
+这意味着 **Muse 目前没有多轮对话记忆** (每次都是全新对话).
+理论依据: 这是最简单的无状态设计. ChatGPT 也类似, 每个对话是独立 session.
+其他项目: Claude Code / Aider 默认也是每次新建 session, 但会保存历史.
+
+**追问 2: 新建 session + 发消息的代码在哪?**
+
+- **新建 session:** `src/core/engine.mjs` L82: `this.#request('POST', '/session', {})`
+- **发消息:** `src/core/engine.mjs` L117-119: `POST /session/{id}/prompt_async`
+- **等待完成:** `src/core/engine.mjs` L132-190: `sendAndWait()` poll 状态直到 `unknown`
+- 这些都是调 OpenCode 的 REST API (OpenCode 跑在本地 HTTP 服务)
+
+
 ### Q2: 你看到了几次 LLM 调用？（对应 Agent Loop 的几轮）
 
 ```
@@ -86,6 +110,27 @@ node src/plugin/trace-reader.mjs
 > 1. OpenCode 自己的日志
 > 2. Plugin Hook 拦截（这就是 **oc03** 要做的事！）
 > 3. trace-reader 读取 member 目录下的 trace 数据
+
+**追问: trace-reader / OpenCode 日志 / 会话历史在哪?**
+
+- **trace-reader** 是 oc02 的任务. 它读的是 Muse Plugin Hook 写的数据, 不是 OpenCode 原生日志.
+- **OpenCode 自己没有传统日志文件.** 它的 session 数据在 `.opencode/agent/` 下, 但 session 完成后会被清理.
+- **会话历史被 Muse Plugin Hook 拦截并写到 member 的 trace 目录:**
+```
+families/later-muse-family/members/planner/data/trace/2026-03-27/
+  events.jsonl       <- session 生命周期
+  messages.jsonl     <- LLM 消息内容
+  tool-calls.jsonl   <- 工具调用记录 (Q3 要找的!)
+  tool-starts.jsonl  <- 工具开始调用
+```
+- **真实数据示例:**
+```json
+{"tool":"memory-server_workflow_create","sid":"ses_2d349...","durationMs":8}
+{"tool":"memory-server_handoff_to_member","sid":"ses_2d349...","durationMs":549}
+```
+- **这就是 Agent Loop 里的工具调用!** Muse 日志看不到, 但 trace 里全有.
+- oc02 会专门教你怎么用 trace-reader 读这些数据.
+
 
 ### Q3: 有没有看到工具调用？如果有，是什么工具？
 
