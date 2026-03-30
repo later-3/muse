@@ -4,7 +4,7 @@
 > **repos/ 参考：** `repos/ai-agents-for-beginners/01-intro-to-ai-agents/` [C8]
 > **上游：** 01a BEA 精读（先理解 5 种模式）
 > **下游：** 01b 项目分析 → unit02 多 Agent
-> **OC 关联：** oc01 (Agent Loop) / oc02 (Tool Use) / oc07 (Claude Code Loop)
+> **OC 关联：** oc01-03 (观察Agent Loop) / oc04 (OC Session走读) / oc10 (三Agent对比)
 > **学习目标：**
 > ① 什么是 ReAct？为什么它是 Agent 的基石？
 > ② Agent 系统的三要素是什么？每个要素解决什么问题？

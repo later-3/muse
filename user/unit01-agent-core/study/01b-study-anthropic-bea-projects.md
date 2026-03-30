@@ -4,7 +4,7 @@
 > **关联：** [← Part 1 主笔记](./01a-study-anthropic-bea.md) · [→ 01c 代码精读](./01c-course-cookbook-workflows.md)
 > **上游：** 01a BEA 精读 + 01e ReAct+Weng
 > **下游：** unit02 多 Agent 协作
-> **OC 关联：** oc07 (Claude Code 拆解) / oc08 (Aider 拆解) / oc09 (OpenCode 走读)
+> **OC 关联：** oc10 (Claude Code/Aider/OC Agent Loop 对比) / oc11 (面试STAR故事)
 
 ---
 

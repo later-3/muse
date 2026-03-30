@@ -6,7 +6,7 @@
 > **书籍底子：** [G5] `repos/anthropic-cookbook/patterns/agents/` — BEA 的代码版
 > **上游：** F1 LLM 入门 + F3 Function Calling
 > **下游：** 01e ReAct+Weng → 01b 项目分析 → 01c 代码精读
-> **OC 关联：** oc01 (Agent Loop) / oc03 (编排模式) / oc04 (Cookbook 复刻)
+> **OC 关联：** oc01-03 (观察Agent Loop) / oc06 (ACI审计) / oc08 (写MCP工具)
 > **一句话总结：** 最成功的 Agent 实现用简单可组合的模式，而非复杂框架。
 > *The most successful implementations use simple, composable patterns rather than complex frameworks.*
 

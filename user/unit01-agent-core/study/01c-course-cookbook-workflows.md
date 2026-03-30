@@ -3,8 +3,8 @@
 > **来源：** [G5] `repos/anthropic-cookbook/patterns/agents/basic_workflows.ipynb`
 > **补充：** [G7] `repos/hello-agents/docs/chapter1-2/` + [C6] Andrew Ng
 > **上游：** 01a BEA 精读（先理解 5 种模式的理论）
-> **下游：** oc04 (Cookbook 复刻) → unit02 Orchestrator-Workers
-> **OC 关联：** oc03 (编排模式对比) / oc04 (Cookbook 复刻)
+> **下游：** unit02 Orchestrator-Workers
+> **OC 关联：** oc04-05 (源码走读) / oc06 (ACI审计)
 > **学习目标：** 看完这篇，你能自己写出 chain / parallel / route 三种模式的代码。
 
 ---

@@ -1,6 +1,7 @@
 # Muse 学习路线 — Later 的 AI Agent 修炼手册
 
-> **4 个月** · 8 个 Sprint · 北极星：Muse 自开发闭环 (S2b)
+> **30 天** · 4 个 Unit · 32 个 OC 任务 · 11 个 Muse 里程碑
+> **终极目标：** AI Agent 技术大佬 + Muse 做好 + 有能力改 OpenCode
 
 ---
 
@@ -13,7 +14,7 @@
 |------------------|-------------------|
 | 读源码 → 提取精华 | 看精华 → 理解 → 能复述 |
 | 读论文 → 摘要 + 图表 | 看图 → 理解逻辑 → 能口述 |
-| 跨项目对比 → 对照表 | 看表 → 判断哪个更好 |
+| 搭框架 → 注释 + 走读指南 | 走读 → 改参数验证 → 面试能讲 |
 | 实验 + 消险 → 代码 + 报告 | 看报告 → 知道坑在哪 |
 
 **6 条准则：**
@@ -30,12 +31,12 @@
    - ✅ 每篇文档写完过 governance 检查清单
    - ❌ 反例：批量占位但不填内容
 5. **OpenCode 是贯穿线 — USOLB 实践模型**
-   - **U(使用):** 启动 OC，发消息，观察行为
-   - **S(源码):** 读 OC 源码，标注理论对应的文件+行号
+   - **U(使用):** 启动 OC/Muse，发消息，观察行为
+   - **S(源码):** 读 OC/Muse 源码，标注理论对应的文件+行号
    - **O(观察):** 写 plugin/hook 拦截事件，打印中间状态
    - **L(日志):** 用 trace-reader / muse 日志观察全链路
-   - **B(编译):** 改 OC 代码/配置，跑起来看行为变化
-   - ✅ 每个 OC 任务必须标注用了哪种方式 `[U]` `[S]` `[O]` `[L]` `[B]`
+   - **B(编译):** 改 OC/Muse 代码，跑起来看行为变化
+   - ✅ 每个 OC 任务必须标注 `[U]` `[S]` `[O]` `[L]` `[B]`
    - ❌ 反例：自己造 Agent Loop 玩具，和 OpenCode 无关
 6. 双轨并行，AI 先踩坑
    - ✅ AI 踩坑 = 在 OpenCode/Muse 真实系统上实验
@@ -47,54 +48,40 @@
 
 ```
 user/
-├── README.md              ← 你正在看（唯一入口）
+├── README.md              ← 你正在看（唯一入口 + 准则）
+│
+├── SYLLABUS.md            ← 📋 30 天学习大纲（总日历 + 知识地图 + 全景汇总）
 │
 ├── foundations/            ← Part 0: 大模型基础（按需查，不通读）
 │   ├── INDEX.md               知识层级图 + Unit 速查表
-│   ├── F1  ✅ LLM 全貌         (Karpathy: next-token/CoT/R1/o1)
-│   ├── F2  ✅ Transformer      (Karpathy: Attention/QKV)
-│   ├── F3  ✅ 训练管线          (Karpathy: SFT→RLHF)
-│   ├── F4  ⏳ 李宏毅           (中文大模型课)
-│   ├── F5  ⏳ 神经网络          (3Blue1Brown: backprop)
-│   ├── F6  ⏳ Prompt Eng       (吴恩达: 系统化技巧)
-│   ├── F7  ⏳ Building Systems (吴恩达: LLM 应用)
-│   ├── F8  ⏳ RAG              (Embedding/向量搜索)
-│   ├── F9  ✅ 蒸馏/微调         (KD/LoRA/3090)
-│   ├── F10 ✅ 本地部署          (GGUF/量化/ollama)
-│   ├── F11 ⏳ Tokenization     (BPE/中文成本)
-│   ├── F12 ⏳ 评测基准          (MMLU/Arena/SWE-Bench)
-│   ├── F13 ⏳ 推理优化          (Flash Attention/KV-Cache)
-│   ├── F14 ⏳ 多模态           (Vision-Language)(低优)
-│   └── F15 ⏳ AI Safety        (对齐/红队)(低优)
+│   ├── F1  ✅ LLM 全貌
+│   ├── F2-F15 [占位]           Transformer / 训练 / Tokenization / ...
 │
 ├── unit01-agent-core/     ← Part 1: Agent 核心循环
 ├── unit02-multi-agent/    ← Part 2: 多 Agent 协作
 ├── unit03-state-memory/   ← Part 3: 状态 + 记忆
 ├── unit04-prompt-eng/     ← Part 4: Prompt 工程
-│   每个 unit 包含 4 条线:
-│     📖 学习文档 (study-*.md)    AI 深加工的精读材料（标注来源 ref-XX）
-│     🤖 AI 并行 (exp/R)          实验代码 + 消险报告
-│     🔧 OC 实战 (oc*)            理论实操 + 课程练习 + 项目拆解
-│     🏗️ 项目里程碑               Muse + 学习助手的对应进度
+│   每个 unit 包含:
+│     📖 study/          学习文档（AI 深加工的精读材料）
+│     🤖 experiments/    AI 并行实验 + 消险报告
+│     🔧 oc-tasks/       OC 实战任务（Bloom 递进 + USOLB）
+│     🏗️ 里程碑          Muse + 学习助手的对应进度
+│     ✅ 通关检查         理论 + OpenCode + 项目 + 面试
 │
 ├── review/                ← 🎯 复习 + 面试冲刺
-│   ├── week1-3-cards.md      每周核心面试卡片
-│   ├── interview-master.md   全覆盖 50 题面试题库
+│   ├── week1-3-cards.md      每周面试卡片
+│   ├── interview-master.md   全覆盖 50+ 题库
 │   └── muse-mapping.md       Muse 全栈知识映射
 │
-├── SYLLABUS.md            ← 📋 30 天学习大纲（总日历 + 知识地图）
-│
-├── reference/             ← 📚 知识源头地图
+├── reference/             ← 📚 知识源头
 │   ├── INDEX.md              参考资料总索引 (书/课/论文/博客/项目)
-│   ├── SOURCE_MAP.md         源材料分类映射 (写XX去哪找?)
-│   └── repos/                clone 的 12 个参考项目 (gitignored)
+│   ├── SOURCE_MAP.md         源材料分类映射
+│   └── repos/                12 个参考项目 (gitignored)
 │
 ├── projects/              ← 支线项目
-│   └── learning-assistant/   语音学习助手（Web Speech + MiniMax）
+│   └── learning-assistant/   语音学习助手
 │
-├── track/                 ← 项目管理
-│   ├── sprint-1~8.md         Sprint 计划
-│   ├── ai-report.md          AI 并行任务看板
+├── track/                 ← 项目管理（归档参考）
 │   └── map.md                知识-功能全景图
 │
 └── archive/               ← 归档
@@ -102,69 +89,53 @@ user/
 
 ---
 
-## 🎯 北极星：S2b 自开发闭环
+## 🎯 北极星
 
-> Muse 能自己发现问题 → 立项 → 修改代码 → 审查 → 汇报给 Later
-
-S1(会话记忆) + S2(任务协作) + S3(审批治理) = S2b 的基础设施
-
-| 场景 | 一句话 | Sprint |
-|------|--------|--------|
-| S1 | 有性格有记忆的日常对话 | 6 |
-| S2 | planner→worker 工作流 | 6 |
-| S3 | 高风险动作审批 | 7 |
-| **S2b** | **Muse 自开发自己** | **7** |
+> **短期 (30 天):** AI Agent 技术大佬，面试随便聊
+> **中期:** Muse 核心功能做好（会话/协作/记忆/Prompt）
+> **长期 (S2b):** Muse 能自己发现问题 → 立项 → 修改代码 → 审查 → 汇报
 
 ---
 
-## 📚 学习路线
+## 📋 30 天路线总览
 
-### Sprint → Phase → Unit 映射
+> **详见 `SYLLABUS.md`**
 
-| Sprint | Phase | 做什么 | 对应 Unit |
-|--------|-------|--------|----------|
-| **→ S1** | 0 | 理论：Agent Core + Multi-Agent | foundations + unit01-04 |
-| S2 | 1 | 深化：Memory + Prompt + 工具 | unit03-04 扩展 |
-| S3 | 3 | 实践：Spike 1(Core) + Spike 3(Handoff) | 代码 |
-| S4 | 3 | 实践：Spike 2(Memory) + 场景锚定 | 代码 |
-| S5 | 4 | 设计：Architecture v2 | make-muse/ |
-| S6 | 5 | 实现：S1 + S2 | src/ |
-| S7 | 5 | 实现：S3 + S2b | src/ |
-| S8 | 6-7 | 收尾：Eval + Portfolio | 面试 |
+| Week | 主题 | 对应 Unit | OC 任务 |
+|------|------|----------|--------|
+| **W1** | 大模型基础 (LLM/Transformer/训练) | foundations F1-F13 | — |
+| **W2** | Agent 核心 + Prompt 工程 | unit01 + unit04 | oc01-11 + oc27-32 |
+| **W3** | 多 Agent + 状态记忆 | unit02 + unit03 | oc12-26 |
+| **W4** | 综合实战 + 面试冲刺 | review + 创造类 OC | 落地改进 + 面试故事 |
 
-### Unit 内容总览（4 条线）
+### OC 任务设计原则 (Bloom 认知层次递进)
 
-| Unit | 📖 学习文档 | 🤖 AI 并行 | 🔧 OC 实战 | 🏗️ 项目 |
-|------|-----------|-----------|-----------|---------|
-| **foundations** | F1-F15 大模型基础 | — | — | — |
-| **unit01** | BEA + Cookbook + ReAct | exp01 / R1 | oc01-09: Agent Loop + Tool Use + 拆 Claude Code/Aider/OC | V0 |
-| **unit02** | Orchestrator + Swarm | exp02-04 / R2-R4 | oc04-12: Orchestrator + Handoff + 拆 Cline/Continue/Harness | V1 |
-| **unit03** | LangGraph + CrewAI | exp05-06 / R5-R6 | oc13-21: Memory Store + 向量搜索 + 拆 OC Compaction/ChatGPT Memory | V2 |
-| **unit04** | 7 层 Prompt + pua | exp07 | oc22-30: Prompt Builder + 参数实验 + 拆 Claude Code/Cursor Prompt | V3 |
+```
+Level 1 观察: 我看到它在工作          → 启动/日志/trace
+Level 2 理解: 我知道它怎么工作        → 读源码/画调用链
+Level 3 分析: 我能评判它做得好不好    → ACI审计/Prompt分析
+Level 4 创造: 我能在它上面建新东西    → 写工具/改代码/修bug
+Level 5 综合: 我能讲清楚、能设计新的  → 对比分析/面试STAR
+```
 
-### OC 实战三大类
+### 全景数字
 
-| 类型 | 说明 | 目的 |
-|------|------|------|
-| **A. 理论实操** | 把 unit 核心概念变成可运行代码 | 学了就练，理解 HOW |
-| **B. 课程练习** | Anthropic Cookbook / Hello-Agents / 吴恩达 等优质课程跟练 | 站在巨人肩膀上 |
-| **C. 项目拆解** | Claude Code / Aider / Cline / OpenCode / Muse 源码走读 + mini 复现 | 看高手怎么把理论落地 |
+| 类别 | 数量 |
+|------|------|
+| OC 实战任务 | 32 个 (全部 USOLB + Bloom 递进) |
+| Muse 里程碑 | 11 个 (M1-M11，每个有代码/文档产出) |
+| 学习助手里程碑 | 6 个 (S1-S6，V0→V3) |
+| Study 文档 | 12 篇 |
+| Foundation 文档 | 15 篇 |
+| 面试准备 | 4 个 STAR 故事集 + 50+ 题库 |
 
 ---
 
-## 🔄 双轨并行模式
+## 🔄 协作模式
 
 ```
-你的轨道:  📖 吸收 → 🎯 Muse任务 → ✏️ 沉淀
-AI 轨道:   🧪 实验（巩固学习）+ 🔧 消险（服务 Muse）
-```
-
-### 每次对话 SOP（AI 必做）
-
-```
-1. 读本文件 → 了解背景
-2. 看 track/sprint-X.md → 确认当前 Sprint，找第一个 [ ]
-3. 告诉 Later："当前 Sprint X，今天任务是 XXX"
+AI 轨道:   🔧 搭框架+注释 → 🧪 先踩坑 → 📝 整理精华
+你的轨道:  📖 走读理解 → 🔨 改参数验证 → 💬 面试复述
 ```
 
 ### 状态标记
@@ -182,12 +153,13 @@ AI 轨道:   🧪 实验（巩固学习）+ 🔧 消险（服务 Muse）
 
 | 编号 | 含义 | 例子 |
 |------|------|------|
-| S1-S4, S2b | 锚点场景 | S2b = 自开发闭环 |
-| Phase 0-7 | RDD 阶段 | Phase 0 = 理论基础 |
-| Sprint 1-8 | 双周迭代 | Sprint 1 → Phase 0 |
 | Unit 01-04 | 知识单元 | Unit 01 = Agent Core |
-| Spike 1-3 | 最小验证原型 | Spike 3 = Handoff |
-| exp/R | AI 实验/消险 | exp01/R1 |
+| oc01-oc32 | OC 实战任务 | oc01 = 启动 Muse + 看日志 |
+| M1-M11 | Muse 里程碑 | M1 = 理解全调用链 |
+| S1-S6 | 学习助手里程碑 | S1 = Agent Loop 设计 |
+| exp/R | AI 实验/消险 | exp01 = 编排模式模拟 |
+| F1-F15 | 基础文档 | F1 = LLM 全貌 |
+| W1-W4 | 周 | W2 = Agent 核心 |
 
 ---
 
@@ -195,31 +167,22 @@ AI 轨道:   🧪 实验（巩固学习）+ 🔧 消险（服务 Muse）
 
 | 文档类型 | 规范文件 | 核心要求 |
 |---------|---------|---------|
-| 📖 研究笔记 | `.agents/workflows/research-note.md` | 速读版 + 上下文定位 + 三栏原理表 + 面试题 |
-| 🤖 AI 实验/消险 | `.agents/workflows/ai-parallel-task.md` | 文件头 JSDoc + 设计注释 + Muse 映射 |
-| 📘 Unit README + OC 实战 | `.agents/workflows/unit-oc-task.md` | 前置速查 + ABC 三类 OC + 项目拆解报告模板 |
+| 📖 学习文档 | `.agents/workflows/research-note.md` | 速读版 + 三栏原理表 + 面试题 |
+| 🤖 AI 实验 | `.agents/workflows/ai-parallel-task.md` | JSDoc + 设计注释 + Muse 映射 |
+| 📘 Unit README | `.agents/workflows/unit-oc-task.md` | Bloom 递进 + USOLB + 通关清单 |
+| 📚 学习文档治理 | `.agents/workflows/learning-doc-governance.md` | 最高约束 |
 
 ### 三栏原理表（强制）
 
 | 概念 | 能力来源（怎么获得的） | 激活方式（怎么触发的） | 类比（仅类比） |
-|------|---------------------|---------------------|--------------|
+|------|---------------------|---------------------| --------------|
 | XXX | 预训练/RLHF/... | Prompt/微调/... | 像人的XXX（**仅类比**） |
-
----
-
-## 🗂️ 文档边界
-
-| 目录 | 放什么 | 不放 |
-|------|--------|------|
-| `user/` | 学习、研究、设计草案、AI 实验 | 正式架构文档 |
-| `make-muse/` | 架构设计、ADR | 学习笔记 |
-| `src/` + `test/` | 实现代码 | 文档 |
 
 ---
 
 ## ⚠️ 注意事项
 
 - 不修改 `AGENTS.md`（引擎规范）
-- 研究阶段不改 `src/` 代码
-- 类比永远标注"仅类比"，不写成原理定义
 - 引用外部代码必须标注来源和位置
+- 类比永远标注"仅类比"，不写成原理定义
+- 允许延期，不允许偏离目标
