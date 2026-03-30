@@ -49,50 +49,67 @@
 
 ---
 
-## 📂 目录结构
+## 📂 目录结构 — 三条线分离
 
 ```
 user/
-├── README.md              ← 你正在看（唯一入口 + 准则）
+├── README.md              ← 你正在看（唯一入口 + 7 条准则）
+├── SYLLABUS.md            ← 📋 30 天学习大纲
 │
-├── SYLLABUS.md            ← 📋 30 天学习大纲（总日历 + 知识地图 + 全景汇总）
+│  ──── 🔧 OC 小任务线（学习驱动，32 个任务） ────
 │
-├── foundations/            ← Part 0: 大模型基础（按需查，不通读）
-│   ├── INDEX.md               知识层级图 + Unit 速查表
-│   ├── F1  ✅ LLM 全貌
-│   ├── F2-F15 [占位]           Transformer / 训练 / Tokenization / ...
+├── unit01-agent-core/     ← Agent 核心循环
+│   ├── study/                📖 学习文档
+│   ├── oc-tasks/             🔧 oc01-11 (Bloom递进+USOLB)
+│   └── README.md             通关清单
+├── unit02-prompt-eng/     ← Prompt 工程
+│   ├── study/                📖 学习文档
+│   ├── oc-tasks/             🔧 oc12-17
+│   └── README.md
+├── unit03-multi-agent/    ← 多 Agent 协作
+│   ├── study/                📖 学习文档
+│   ├── oc-tasks/             🔧 oc18-25
+│   └── README.md
+├── unit04-state-memory/   ← 状态 + 记忆
+│   ├── study/                📖 学习文档
+│   ├── oc-tasks/             🔧 oc26-32
+│   └── README.md
 │
-├── unit01-agent-core/     ← Part 1: Agent 核心循环 (oc01-11)
-├── unit02-prompt-eng/     ← Part 2: Prompt 工程 (oc12-17)  ← 在 Multi-Agent 前！
-├── unit03-multi-agent/    ← Part 3: 多 Agent 协作 (oc18-25)
-├── unit04-state-memory/   ← Part 4: 状态 + 记忆 (oc26-32)
-│   排序依据: hello-agents ch5-6(Prompt) 在 ch7-8(Multi-Agent) 前
-│             Weng 把 Planning(含Prompt) 作为三要素第一个
-│             C8/U2 都把 Memory 放最后
-│   每个 unit 包含:
-│     📖 study/          学习文档（AI 深加工的精读材料）
-│     🤖 experiments/    AI 并行实验 + 消险报告
-│     🔧 oc-tasks/       OC 实战任务（Bloom 递进 + USOLB）
-│     🏗️ 里程碑          Muse + 学习助手的对应进度
-│     ✅ 通关检查         理论 + OpenCode + 项目 + 面试
+│  排序依据: hello-agents[G7] / Berkeley[U2] / MS C8 / Weng[W4]
 │
-├── review/                ← 🎯 复习 + 面试冲刺
-│   ├── week1-3-cards.md      每周面试卡片
-│   ├── interview-master.md   全覆盖 50+ 题库
-│   └── muse-mapping.md       Muse 全栈知识映射
+│  ──── 🏗️ 主线: Muse 项目（11 个里程碑） ────
 │
-├── reference/             ← 📚 知识源头
-│   ├── INDEX.md              参考资料总索引 (书/课/论文/博客/项目)
-│   ├── SOURCE_MAP.md         源材料分类映射
-│   └── repos/                12 个参考项目 (gitignored)
+├── projects/
+│   ├── muse-milestones/      🏗️ M1-M11 里程碑跟踪 + 产出
+│   │                         代码改在 src/，文档记在这里
+│   │
+│   │── 🌊 支线: 学习助手（6 个版本） ────
+│   │
+│   └── learning-assistant/   🌊 S1-S6 版本迭代
+│       ├── web/                 前端代码
+│       ├── server/              后端代码
+│       └── README.md            设计文档
 │
-├── projects/              ← 支线项目
-│   └── learning-assistant/   语音学习助手
+│  ──── 📚 基础 + 复习 + 参考 ────
 │
+├── foundations/            ← 大模型基础 (F1-F15)
+├── review/                ← 面试冲刺 (卡片+题库)
+├── reference/             ← 知识源头 (INDEX+SOURCE_MAP+repos/)
 ├── track/                 ← 项目管理（归档参考）
-│   └── map.md                知识-功能全景图
-│
 └── archive/               ← 归档
+```
+
+### 三条线怎么协作
+
+```
+🔧 OC 小任务 (unit/oc-tasks/)
+  学理论 → 观察 OC/Muse → 读源码 → 分析
+  │
+  ├─ 发现 Muse 改进点 ──→ 🏗️ 主线项目 (projects/muse-milestones/)
+  │                         立项 → 改 src/ → 验证 → 记录
+  │
+  └─ 学到新能力 ──────→ 🌊 支线项目 (projects/learning-assistant/)
+                           设计 → 编码 → 迭代 → V0→V3
 ```
 
 ---
