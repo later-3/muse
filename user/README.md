@@ -99,17 +99,28 @@ user/
 └── archive/               ← 归档
 ```
 
-### 三条线怎么协作
+### 三条线的关系
 
 ```
+unit 理论 + reference 课程/作业 (foundations + study + repos/)
+  │
+  │  课程里教什么，我们就用 OpenCode/Muse 走一遍
+  │  (不是自己造玩具，是在真实系统上实践课程内容)
+  ↓
 🔧 OC 小任务 (unit/oc-tasks/)
-  学理论 → 观察 OC/Muse → 读源码 → 分析
+  = unit 理论的 OpenCode/Muse 实战版
+  = reference 课程作业的落地版
+  = 用 USOLB 方法在真实系统上观察、走读、分析、改代码
   │
-  ├─ 发现 Muse 改进点 ──→ 🏗️ 主线项目 (projects/muse-milestones/)
-  │                         立项 → 改 src/ → 验证 → 记录
-  │
-  └─ 学到新能力 ──────→ 🌊 支线项目 (projects/learning-assistant/)
-                           设计 → 编码 → 迭代 → V0→V3
+  │  在 OC 任务中发现的改进点 / 学到的能力
+  ↓
+🏗️ 主线: Muse 项目 (projects/muse-milestones/)
+  = OC 任务的项目实践（学到 → 改进 Muse）
+  例: oc06 ACI 审计 → M2 落地修复 src/mcp/
+
+🌊 支线: 学习助手 (projects/learning-assistant/)
+  = OC 任务能力的应用实践（学到 → 做新产品）
+  例: oc08 写 MCP 工具 → S3 学习助手 V0
 ```
 
 ---
