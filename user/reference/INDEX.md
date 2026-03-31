@@ -171,6 +171,28 @@ git clone https://github.com/karpathy/nn-zero-to-hero.git    # B2
 |----|------|------|-----------|
 | **G16** | [dair-ai/Prompt-Engineering-Guide](https://github.com/dair-ai/Prompt-Engineering-Guide) | F6, unit04 Prompt 大全 | `git clone https://github.com/dair-ai/Prompt-Engineering-Guide.git` |
 
+### Agent Harness 拆解 (重磅! 学习 Agent 架构)
+
+| ID | 项目 | 用于 | Clone 命令 |
+|----|------|------|-----------|
+| **G17** | [shareAI-lab/learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) ⭐⭐⭐ (44k⭐) | unit01-04 Harness 12步拆解 (Python+Anthropic SDK) | `git clone https://github.com/shareAI-lab/learn-claude-code.git` |
+| **G18** | [shareAI-lab/claw0](https://github.com/shareAI-lab/claw0) ⭐⭐ | unit03-04 Always-on Agent (heartbeat+cron+memory+soul) | `git clone https://github.com/shareAI-lab/claw0.git` |
+| **G19** | [openclaw/openclaw](https://github.com/openclaw/openclaw) ⭐⭐ | unit03-04 产品级 Agent (30s心跳+13+IM平台) | `git clone https://github.com/openclaw/openclaw.git` |
+| **G20** | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) ⭐⭐⭐ (37k⭐) | unit01-04 超轻量 OpenClaw (99%更少代码, 多平台) | `git clone https://github.com/HKUDS/nanobot.git` |
+
+> **G17 学习路径: learn-claude-code 的 12 个 session 和我们 unit01-04 的映射:**
+>
+> | learn-claude-code | 我们的 OC 任务 | 学什么 |
+> |-------------------|---------------|--------|
+> | s01 Agent Loop | oc01 | 最小 while loop |
+> | s02 Tool Use | oc02-03 | 工具注册+dispatch |
+> | s03 TodoWrite | oc07 | 计划能力 |
+> | s04 Subagent | unit03 oc18+ | 子任务隔离 |
+> | s05 Skill Loading | unit02 oc12+ | 按需知识注入 |
+> | s06 Context Compact | unit04 oc27+ | 上下文压缩 |
+> | s07-s08 Tasks | unit03 oc20+ | 任务图+后台 |
+> | s09-s12 Teams | unit03 oc18-25 | 多Agent协作 |
+
 ---
 
 ## 六、📐 引用规范
@@ -216,10 +238,10 @@ git clone https://github.com/karpathy/nn-zero-to-hero.git    # B2
 | **F10** | 部署 | **U6 HuggingFace** | — | W8 量化可视化 | G4 llama.cpp |
 | **F11** | Tokenization | C4 Karpathy Tokenizer | — | — | G2 minbpe |
 | **F13** | 推理优化 | **U5 CS285** (RL基础) | P10 FlashAttention | — | — |
-| **unit01** | Agent Core | **U2 Berkeley LLM Agents** | P6 ReAct | W4 Weng, W5 BEA | G5 Cookbook, G8 ReAct, G13 Aider |
-| **unit02** | Multi-Agent | C8 MS Agents, **U2 Berkeley**, **U3 CS329A**, **D2 crewAI** | — | W5 BEA | G6 Swarm, G7 Hello, G14 Cline |
-| **unit03** | State/Memory | C7 LangChain, **U3 CS329A**, **D3 LangGraph** | — | — | G7 Hello |
-| **unit04** | Prompt Eng | C6 Andrew Ng, **D4 Systems**, **D6 Eval** | — | W9 DAIR.AI | G5 Cookbook, G16 Prompt Guide |
+| **unit01** | Agent Core | **U2 Berkeley LLM Agents** | P6 ReAct | W4 Weng, W5 BEA | G5 Cookbook, G8 ReAct, G13 Aider, **G17 learn-claude-code**, **G20 nanobot** |
+| **unit02** | Multi-Agent | C8 MS Agents, **U2 Berkeley**, **U3 CS329A**, **D2 crewAI** | — | W5 BEA | G6 Swarm, G7 Hello, G14 Cline, **G17** s04-s05 |
+| **unit03** | State/Memory | C7 LangChain, **U3 CS329A**, **D3 LangGraph** | — | — | G7 Hello, **G17** s07-s12, **G18 claw0**, **G19 openclaw** |
+| **unit04** | Prompt Eng | C6 Andrew Ng, **D4 Systems**, **D6 Eval** | — | W9 DAIR.AI | G5 Cookbook, G16 Prompt Guide, **G17** s06, **G20 nanobot** |
 
 ---
 
