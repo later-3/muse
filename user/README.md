@@ -103,6 +103,12 @@ user/
 ├── foundations/            ← 大模型基础 (F1-F15)
 ├── review/                ← 面试冲刺 (卡片+题库)
 ├── reference/             ← 知识源头 (INDEX+SOURCE_MAP+repos/)
+├── teardowns/             ← 🔬 优秀项目拆解（独立模块）
+│   ├── README.md              拆解索引 + 方法论
+│   ├── learn-claude-code/     T1: 44k⭐ Harness 12步
+│   ├── nanobot/               T2: 37k⭐ 超轻量 OpenClaw
+│   ├── claw0/                 T3: Always-on Agent
+│   └── openclaw/              T4: 产品级 Agent
 ├── track/                 ← 项目管理（归档参考）
 └── archive/               ← 归档
 ```
