@@ -3,6 +3,10 @@
   "model": "minimax-cn/MiniMax-M2.7-highspeed",
   "username": "Later",
 
+  "plugin": [
+    "file:///Users/xulater/Code/assistant-agent/muse/user/unit01-agent-core/oc-tasks/L1-observe/demo-workspace/.opencode/plugins/dump-llm.js"
+  ],
+
   "permission": {
     "bash": "deny",
     "edit": "deny",
