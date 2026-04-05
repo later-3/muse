@@ -8,8 +8,8 @@
 
 | 仓库 | 作者/组织 | 语言 | 文件数 | Wiki 覆盖 |
 |------|----------|------|--------|----------|
-| **learn-claude-code** | Anthropic 社区 | EN | 10,487 | s01→agent-def / s02→tool-use / s05→prompt / s06→context / s09-10→multi-agent |
-| **ai-agents-for-beginners** | Microsoft | EN | 4,744 | L01→agent-def / L04→tool-use / L08→multi-agent / L12→context / L13→memory |
+| **learn-claude-code** | Anthropic 社区 | EN | 10,487 | s01→agent-def / s02→tool-use / s05→prompt / s06→context / s09-10→multi-agent / s03-s12→harness+failure |
+| **ai-agents-for-beginners** | Microsoft | EN | 4,744 | L01→agent-def / L04→tool-use / L08→multi-agent / L12→context / L13→memory / L06→identity+observ / L10→observ / L11→protocols |
 | **LLMs-from-scratch** | Sebastian Raschka | EN | 259 | ch02→tokenization / ch03→transformer / ch05-07→training+reasoning |
 | **anthropic-cookbook** | Anthropic | EN | 206 | tool_use→tool-use / patterns→prompt / capabilities→memory |
 
