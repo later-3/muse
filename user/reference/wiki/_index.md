@@ -13,6 +13,9 @@ agent-definition → tool-use-mcp → prompt-engineering
 基座路径 (理解底层):
 tokenization → transformer → training-pipeline → reasoning
 
+生产路径 (工程实践):
+harness-architecture → observability → agentic-protocols → failure-recovery
+
 深度路径 (按需查阅):
 任一文章 → 底部"概念间关系" → 跳转到相关文章
 ```
@@ -39,15 +42,15 @@ tokenization → transformer → training-pipeline → reasoning
 | 9 | [训练管线](foundations/training-pipeline.md) | 预训练→SFT→RLHF/GRPO 全流程 | ✅ |
 | 10 | [Reasoning 机制](foundations/reasoning.md) | CoT/ReAct/GRPO 推理能力从哪来？ | ✅ |
 
-## Phase 3: 生产级 (production/) — 📋 第三批待编译
+## Phase 3: 生产级 (production/) — ✅ 第三批已完成
 
 | # | 文章 | 核心问题 | 状态 |
 |---|------|---------|------|
-| 12 | 架构对比 | OpenCode/ZeroClaw/OpenClaw 比较 | 📋 |
-| 13 | 可观测性 | 如何监控 Agent 行为？ | 📋 |
-| 14 | 多通道 | Telegram/Web/CLI 如何统一？ | 📋 |
-| 15 | Identity | 如何设计 Agent 人格？ | 📋 |
-| 16 | 失败恢复 | Agent 挂了怎么办？ | 📋 |
+| 11 | [Harness 层架构](production/harness-architecture.md) | s01-s12 渐进式 Agent 工程化 | ✅ |
+| 12 | [可观测性与评估](production/observability.md) | Trace/Span + 评估 + 成本控制 | ✅ |
+| 13 | [Identity 与 Persona](production/identity-persona.md) | 结构化人格 + 四层 Prompt | ✅ |
+| 14 | [Agentic Protocols](production/agentic-protocols.md) | MCP/A2A/Handoff 协议对比 | ✅ |
+| 15 | [失败模式与恢复](production/failure-recovery.md) | 五层失败 + 防御性设计 | ✅ |
 
 ---
 
@@ -71,9 +74,18 @@ graph TB
         MM --> MA
     end
     
+    subgraph Production
+        HA["Harness Architecture"] --> OB["Observability"]
+        HA --> AP["Agentic Protocols"]
+        HA --> FR["Failure Recovery"]
+        ID["Identity / Persona"] --> HA
+    end
+    
     TF -.-> AD
     RS -.-> AD
     TK -.-> CE
+    MA -.-> HA
+    AD -.-> ID
     
     style TK fill:#607D8B,color:#fff
     style TF fill:#607D8B,color:#fff
@@ -85,6 +97,11 @@ graph TB
     style CE fill:#9C27B0,color:#fff
     style MM fill:#F44336,color:#fff
     style MA fill:#00BCD4,color:#fff
+    style HA fill:#E91E63,color:#fff
+    style OB fill:#E91E63,color:#fff
+    style AP fill:#E91E63,color:#fff
+    style FR fill:#E91E63,color:#fff
+    style ID fill:#E91E63,color:#fff
 ```
 
 ## 交叉引用速查
@@ -101,6 +118,11 @@ graph TB
 | 文本怎么变成 token | [tokenization](foundations/tokenization.md) |
 | 模型怎么训练的 | [training-pipeline](foundations/training-pipeline.md) |
 | 模型怎么学会推理 | [reasoning](foundations/reasoning.md) |
+| Harness 工程化递进 | [harness-architecture](production/harness-architecture.md) |
+| Agent 怪了怎么查 | [observability](production/observability.md) |
+| Agent 人格设计 | [identity-persona](production/identity-persona.md) |
+| MCP/A2A 协议 | [agentic-protocols](production/agentic-protocols.md) |
+| Agent 挂了怎么办 | [failure-recovery](production/failure-recovery.md) |
 
 ---
 
