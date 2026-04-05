@@ -10,6 +10,9 @@
 agent-definition → tool-use-mcp → prompt-engineering
     → context-engineering → memory → multi-agent
 
+基座路径 (理解底层):
+tokenization → transformer → training-pipeline → reasoning
+
 深度路径 (按需查阅):
 任一文章 → 底部"概念间关系" → 跳转到相关文章
 ```
@@ -27,15 +30,14 @@ agent-definition → tool-use-mcp → prompt-engineering
 | 5 | [Context Engineering](skills/context-engineering.md) | 如何管理有限的上下文窗口？ | ✅ |
 | 6 | [Memory 架构](skills/memory.md) | Agent 如何拥有长期记忆？ | ✅ |
 
-## Phase 1: 基座理论 (foundations/) — 📋 第二批待编译
+## Phase 1: 基座理论 (foundations/) — ✅ 第二批已完成
 
 | # | 文章 | 核心问题 | 状态 |
 |---|------|---------|------|
-| 7 | Transformer 架构 | 自注意力机制如何工作？ | 📋 |
-| 8 | BPE Tokenization | 文本如何变成 token？ | 📋 |
-| 9 | 训练管线 | 从预训练到 RLHF 的全流程 | 📋 |
-| 10 | 推理优化 | KV Cache、量化、推测解码 | 📋 |
-| 11 | Reasoning 机制 | CoT、ToT、GRPO 是什么？ | 📋 |
+| 7 | [Transformer 架构](foundations/transformer.md) | 自注意力如何工作？GPT 完整实现 | ✅ |
+| 8 | [BPE Tokenization](foundations/tokenization.md) | 文本如何变成 token？BPE 算法详解 | ✅ |
+| 9 | [训练管线](foundations/training-pipeline.md) | 预训练→SFT→RLHF/GRPO 全流程 | ✅ |
+| 10 | [Reasoning 机制](foundations/reasoning.md) | CoT/ReAct/GRPO 推理能力从哪来？ | ✅ |
 
 ## Phase 3: 生产级 (production/) — 📋 第三批待编译
 
@@ -52,15 +54,31 @@ agent-definition → tool-use-mcp → prompt-engineering
 ## 概念关系图
 
 ```mermaid
-graph LR
-    AD["Agent Definition"] --> TU["Tool Use / MCP"]
-    AD --> PE["Prompt Engineering"]
-    TU --> CE["Context Engineering"]
-    PE --> CE
-    CE --> MM["Memory"]
-    TU --> MA["Multi-Agent"]
-    MM --> MA
+graph TB
+    subgraph Foundations
+        TK["Tokenization"] --> TF["Transformer"]
+        TF --> TP["Training Pipeline"]
+        TP --> RS["Reasoning"]
+    end
     
+    subgraph Skills
+        AD["Agent Definition"] --> TU["Tool Use / MCP"]
+        AD --> PE["Prompt Engineering"]
+        TU --> CE["Context Engineering"]
+        PE --> CE
+        CE --> MM["Memory"]
+        TU --> MA["Multi-Agent"]
+        MM --> MA
+    end
+    
+    TF -.-> AD
+    RS -.-> AD
+    TK -.-> CE
+    
+    style TK fill:#607D8B,color:#fff
+    style TF fill:#607D8B,color:#fff
+    style TP fill:#607D8B,color:#fff
+    style RS fill:#607D8B,color:#fff
     style AD fill:#4CAF50,color:#fff
     style TU fill:#2196F3,color:#fff
     style PE fill:#FF9800,color:#fff
@@ -79,6 +97,10 @@ graph LR
 | Handoff vs Team vs Protocol | [multi-agent](skills/multi-agent.md) |
 | 上下文窗口快满了 | [context-engineering](skills/context-engineering.md) |
 | Agent 如何记住用户 | [memory](skills/memory.md) |
+| GPT 的内部结构 | [transformer](foundations/transformer.md) |
+| 文本怎么变成 token | [tokenization](foundations/tokenization.md) |
+| 模型怎么训练的 | [training-pipeline](foundations/training-pipeline.md) |
+| 模型怎么学会推理 | [reasoning](foundations/reasoning.md) |
 
 ---
 
