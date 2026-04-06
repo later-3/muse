@@ -34,10 +34,11 @@ Trace (一次完整任务)
 
 ### 代码级 Instrumentation
 
-两种方式添加可观测性：
+两种方式添加可观测性（以下为 ai-agents-for-beginners L10 描述的通用模式，非特定框架的源码提取）：
 
 **自动化 (框架集成)**：
 ```python
+# 编辑综合：基于 ai-agents-for-beginners L10 描述的 OpenTelemetry 模式
 from agent_framework.observability import get_tracer, get_meter
 tracer = get_tracer()
 meter = get_meter()
@@ -48,6 +49,7 @@ with tracer.start_as_current_span("agent_run"):
 
 **手动 Span 创建**：
 ```python
+# 编辑综合：基于 ai-agents-for-beginners L10 中 Langfuse 集成描述
 from langfuse import get_client
 langfuse = get_client()
 span = langfuse.start_span(name="my-span")
@@ -102,26 +104,13 @@ span.end()
 | **缓存响应** | 识别相似请求，直接返回缓存结果 |
 | **限制并发** | 防止攻击或 bug 导致的无限 API 循环 |
 
-### 安全与信任 (L06)
+### 安全与信任
 
-ai-agents-for-beginners L06 定义了五类威胁：
+Agent 安全涉及五类威胁（详见 [[failure-recovery]] 的"防御性设计清单"和 [[identity-persona]] 的"Boundaries 的层级合并"）。在可观测性语境下，关键是：
 
-| 威胁 | 攻击方式 | 缓解措施 |
-|------|---------|---------|
-| **指令篡改** | Prompt injection 修改 Agent 目标 | 输入过滤 + 对话轮次限制 |
-| **关键系统访问** | 通过 Agent 间接访问敏感系统 | 最小权限 + 认证 + 加密通信 |
-| **资源过载** | 通过 Agent 大量请求后端服务 | 请求频率限制 |
-| **知识库投毒** | 污染 RAG 数据源 | 定期数据审计 + 访问控制 |
-| **级联故障** | 一个工具失败导致连锁崩溃 | 沙箱隔离 + fallback + 重试 |
-
-**Human-in-the-Loop** — 关键缓解模式：
-```python
-response = provider.create_response(
-    input="执行敏感操作",
-    instructions="Ask for user approval before finalizing.",
-)
-user_input = input("Do you approve? (APPROVE/REJECT): ")
-```
+- 通过 trace 提供**审计轨迹**，检测 prompt injection 和 PII 泄露
+- Human-in-the-Loop 作为安全关键操作的确认门控
+- 监控 Agent 行为边界是否越权
 
 ### 常见生产问题速查
 
@@ -136,9 +125,9 @@ user_input = input("Do you approve? (APPROVE/REJECT): ")
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/10-ai-agents-production/) | L10: Production | ⭐⭐⭐ | Trace/Span + 评估 + 成本控制 |
-| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | 五类威胁 + Human-in-the-Loop |
-| [learn-claude-code](../../repos/learn-claude-code/) | s08 Background | ⭐ | 后台结果注入 = 事件追踪模式 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/10-ai-agents-production/README.md) | L10: Production | ⭐⭐⭐ | Trace/Span + 评估 + 成本控制 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/README.md) | L06: Trustworthy | ⭐⭐⭐ | 五类威胁 + Human-in-the-Loop |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s08-background-tasks.md) | s08: Background Tasks | ⭐ | 后台结果注入 = 事件追踪模式 |
 
 ## 概念间关系
 

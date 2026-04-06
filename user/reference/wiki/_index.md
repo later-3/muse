@@ -9,12 +9,14 @@
 入门路径 (从零开始):
 agent-definition → tool-use-mcp → prompt-engineering
     → context-engineering → memory → multi-agent
+(注: prompt-engineering 和 tool-use-mcp 可独立学习，不强制顺序)
 
 基座路径 (理解底层):
 tokenization → transformer → training-pipeline → reasoning
 
 生产路径 (工程实践):
-harness-architecture → observability → agentic-protocols → failure-recovery
+identity-persona → harness-architecture → observability
+    → agentic-protocols → failure-recovery
 
 深度路径 (按需查阅):
 任一文章 → 底部"概念间关系" → 跳转到相关文章
@@ -22,7 +24,7 @@ harness-architecture → observability → agentic-protocols → failure-recover
 
 ---
 
-## Phase 2: Agent 技能 (skills/) — ✅ 第一批已完成
+## Agent 技能 (skills/) — ✅ 已完成
 
 | # | 文章 | 核心问题 | 状态 |
 |---|------|---------|------|
@@ -33,7 +35,7 @@ harness-architecture → observability → agentic-protocols → failure-recover
 | 5 | [Context Engineering](skills/context-engineering.md) | 如何管理有限的上下文窗口？ | ✅ |
 | 6 | [Memory 架构](skills/memory.md) | Agent 如何拥有长期记忆？ | ✅ |
 
-## Phase 1: 基座理论 (foundations/) — ✅ 第二批已完成
+## LLM 基座理论 (foundations/) — ✅ 已完成
 
 | # | 文章 | 核心问题 | 状态 |
 |---|------|---------|------|
@@ -42,7 +44,7 @@ harness-architecture → observability → agentic-protocols → failure-recover
 | 9 | [训练管线](foundations/training-pipeline.md) | 预训练→SFT→RLHF/GRPO 全流程 | ✅ |
 | 10 | [Reasoning 机制](foundations/reasoning.md) | CoT/ReAct/GRPO 推理能力从哪来？ | ✅ |
 
-## Phase 3: 生产级 (production/) — ✅ 第三批已完成
+## 生产级工程 (production/) — ✅ 已完成
 
 | # | 文章 | 核心问题 | 状态 |
 |---|------|---------|------|

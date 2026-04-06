@@ -5,6 +5,17 @@
 
 ---
 
+## [2026-04-06] lint | v2 质量改造 — 代码实证/合成标注/去重/路径精化
+
+- 涉及 10 个 wiki 页面
+- 关键变更:
+  - **memory.md**: 从零代码升级为代码密集 — 补充 hello-agents ch8 的 5 个核心代码片段（MemoryTool add/search/forget/consolidate + WorkingMemory.retrieve），新增四层架构图
+  - **observability.md**: 标注合成代码为"编辑综合"（OpenTelemetry/Langfuse 示例），消除 L06 威胁表重复（改为交叉引用 failure-recovery + identity-persona）
+  - **identity-persona.md**: 标注 JSON schema 为"编辑综合，非单一来源直接提取"
+  - **failure-recovery.md**: 消除 safe_path 重复（改为交叉引用 tool-use-mcp），消除上下文失败表重复（改为交叉引用 context-engineering）
+  - **_index.md**: "Phase 1/2/3" 改为功能标签（Agent 技能/LLM 基座理论/生产级工程），阅读路径加入 identity-persona 且标注 skills 路径非强制线性
+  - **production 5 篇来源路径**: 根目录 → 具体文件（learn-claude-code/, ai-agents-for-beginners/, swarm/ → 具体 .md 文件）
+
 ## [2026-04-06] lint | DoD 合规检查 — 修复路径/死链/注册表
 
 - 涉及 17 个 wiki 页面

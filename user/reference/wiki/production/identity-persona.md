@@ -31,7 +31,7 @@ Step 4: 迭代优化
 
 ### 结构化 Identity Schema
 
-从 ai-agents-for-beginners L06 和 learn-claude-code s05 综合提炼的 Identity 数据模型：
+从 ai-agents-for-beginners L06 和 learn-claude-code s05 综合提炼的 Identity 数据模型（编辑综合，非单一来源的直接提取）：
 
 ```json
 {
@@ -143,9 +143,9 @@ Layer 3: 成员级覆盖 (boundaries.json)
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | System Message Framework |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/README.md) | L06: Trustworthy | ⭐⭐⭐ | System Message Framework |
 | [learn-claude-code](../../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skill Loading | ⭐⭐ | AGENTS.md 模式 + 两层 prompt |
-| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/13-agent-memory/) | L13: Memory | ⭐ | Persona Memory 类型 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/13-agent-memory/README.md) | L13: Memory | ⭐ | Persona Memory 类型 |
 
 ## 概念间关系
 

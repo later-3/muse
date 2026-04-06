@@ -26,15 +26,7 @@ Level 1: 模型级         ← 幻觉 / 拒绝回答 / token 用尽
 
 ### Level 2: 工具级失败
 
-learn-claude-code s02 的 safe_path 模式展示了工具安全：
-
-```python
-def safe_path(path):
-    resolved = os.path.abspath(os.path.join(WORKDIR, path))
-    if not resolved.startswith(WORKDIR):
-        raise ValueError(f"Path escapes workdir: {path}")
-    return resolved
-```
+learn-claude-code s02 的 safe_path 模式展示了工具安全（详见 [[tool-use-mcp]] 的“路径安全: safe_path 模式”一节）。
 
 **常见工具故障**：
 
@@ -47,12 +39,10 @@ def safe_path(path):
 
 ### Level 3: 上下文级失败
 
-ai-agents-for-beginners L12 定义的四种上下文失败模式：
+详见 [[context-engineering]] 的“四种上下文失败模式”一节。在失败恢复的语境下，补充两个额外的模式：
 
 | 失败模式 | 症状 | 原因 |
 |---------|------|------|
-| **Context Confusion** | 混淆不同来源的信息 | 多源信息未标注来源 |
-| **Context Overload** | 响应质量下降 | 上下文超过模型有效处理范围 |
 | **Context Stale** | 使用过时信息 | 缓存未更新 |
 | **Context Leakage** | 泄露敏感信息 | 未清理前序对话的隐私数据 |
 
@@ -140,9 +130,9 @@ Agent 重启后:
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [learn-claude-code](../../repos/learn-claude-code/) | s02-s12 | ⭐⭐⭐ | 每层对应一种失败恢复 |
-| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/) | L06 + L10 + L12 | ⭐⭐⭐ | 威胁模型 + 上下文失败 |
-| [swarm](../../repos/swarm/) | 错误处理 | ⭐ | 简洁的 Handoff 错误处理 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s02-tool-use.md) | s02-s12 | ⭐⭐⭐ | 每层对应一种失败恢复 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/README.md) | L06 + L10 + L12 | ⭐⭐⭐ | 威胁模型 + 上下文失败 |
+| [swarm](../../repos/swarm/README.md) | 错误处理 | ⭐ | 简洁的 Handoff 错误处理 |
 
 ## 概念间关系
 
