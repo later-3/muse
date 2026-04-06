@@ -159,10 +159,10 @@ Test-Time Scaling: 固定模型 + 更多推理 token
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [open-r1](../repos/open-r1/) | 完整 README | ⭐⭐⭐ | GRPO + 蒸馏 + 完整复现管线 |
-| [Prompt-Engineering-Guide](../repos/Prompt-Engineering-Guide/) | CoT 章节 | ⭐⭐⭐ | CoT/ToT/ReAct 技术详解 |
-| [LLMs-from-scratch](../repos/LLMs-from-scratch/ch07/) | ch07: DPO | ⭐⭐ | 偏好优化的原理 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/) | L09: Metacognition | ⭐ | Agent 自省与推理 |
+| [open-r1](../../repos/open-r1/) | 完整 README | ⭐⭐⭐ | GRPO + 蒸馏 + 完整复现管线 |
+| [Prompt-Engineering-Guide](../../repos/Prompt-Engineering-Guide/) | CoT 章节 | ⭐⭐⭐ | CoT/ToT/ReAct 技术详解 |
+| [LLMs-from-scratch](../../repos/LLMs-from-scratch/ch07/) | ch07: DPO | ⭐⭐ | 偏好优化的原理 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/) | L09: Metacognition | ⭐ | Agent 自省与推理 |
 
 ## 概念间关系
 

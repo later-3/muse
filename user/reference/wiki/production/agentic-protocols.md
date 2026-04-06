@@ -124,10 +124,10 @@ sales_agent = Agent(
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/11-agentic-protocols/) | L11: Protocols | ⭐⭐⭐ | MCP + A2A 协议对比 |
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s10-team-protocols.md) | s10: Team Protocols | ⭐⭐⭐ | FSM + request_id 协议 |
-| [swarm](../repos/swarm/) | README | ⭐⭐ | Handoff 最简协议 |
-| [anthropic-cookbook](../repos/anthropic-cookbook/) | MCP 示例 | ⭐ | MCP 实际用例 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/11-agentic-protocols/) | L11: Protocols | ⭐⭐⭐ | MCP + A2A 协议对比 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s10-team-protocols.md) | s10: Team Protocols | ⭐⭐⭐ | FSM + request_id 协议 |
+| [swarm](../../repos/swarm/) | README | ⭐⭐ | Handoff 最简协议 |
+| [anthropic-cookbook](../../repos/anthropic-cookbook/) | MCP 示例 | ⭐ | MCP 实际用例 |
 
 ## 概念间关系
 

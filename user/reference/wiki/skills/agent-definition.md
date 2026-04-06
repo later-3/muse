@@ -94,11 +94,11 @@ agent = Agent(
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s01-the-agent-loop.md) | s01: The Agent Loop | ⭐⭐⭐ 定义级 | 30 行最简实现 + 循环不变性原则 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/01-intro-to-ai-agents/README.md) | L01: Intro to AI Agents | ⭐⭐⭐ 定义级 | 四组件模型 + 类型谱系 |
-| [hello-agents](../repos/hello-agents/docs/chapter1/) | 第一章: 初识智能体 | ⭐⭐⭐ 定义级 | "Agent is the model" 观点 + 历史演进 |
-| [swarm](../repos/swarm/README.md) | README + examples/basic | ⭐⭐ 实现级 | agents + handoffs 双原语 |
-| [anthropic-cookbook](../repos/anthropic-cookbook/patterns/) | patterns/ | ⭐⭐ 实现级 | 生产级 Agent 模式 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s01-the-agent-loop.md) | s01: The Agent Loop | ⭐⭐⭐ 定义级 | 30 行最简实现 + 循环不变性原则 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/01-intro-to-ai-agents/README.md) | L01: Intro to AI Agents | ⭐⭐⭐ 定义级 | 四组件模型 + 类型谱系 |
+| [hello-agents](../../repos/hello-agents/docs/chapter1/) | 第一章: 初识智能体 | ⭐⭐⭐ 定义级 | "Agent is the model" 观点 + 历史演进 |
+| [swarm](../../repos/swarm/README.md) | README + examples/basic | ⭐⭐ 实现级 | agents + handoffs 双原语 |
+| [anthropic-cookbook](../../repos/anthropic-cookbook/patterns/) | patterns/ | ⭐⭐ 实现级 | 生产级 Agent 模式 |
 
 ## 关键代码片段
 

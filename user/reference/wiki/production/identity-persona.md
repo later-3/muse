@@ -143,9 +143,9 @@ Layer 3: 成员级覆盖 (boundaries.json)
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | System Message Framework |
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skill Loading | ⭐⭐ | AGENTS.md 模式 + 两层 prompt |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/13-agent-memory/) | L13: Memory | ⭐ | Persona Memory 类型 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | System Message Framework |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skill Loading | ⭐⭐ | AGENTS.md 模式 + 两层 prompt |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/13-agent-memory/) | L13: Memory | ⭐ | Persona Memory 类型 |
 
 ## 概念间关系
 

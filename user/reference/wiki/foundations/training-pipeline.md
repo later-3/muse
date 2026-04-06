@@ -164,10 +164,10 @@ OpenR1-Distill-7B
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [nanoGPT](../repos/nanoGPT/) | train.py + README | ⭐⭐⭐ | 预训练完整实现 (~300 行) |
-| [LLMs-from-scratch](../repos/LLMs-from-scratch/) | ch05-ch07 | ⭐⭐⭐ | 预训练+微调+DPO 全流程 |
-| [open-r1](../repos/open-r1/) | 完整 README | ⭐⭐⭐ | SFT + GRPO + 蒸馏 |
-| [huggingface-course](../repos/huggingface-course/) | 课程内容 | ⭐ | 训练基础设施 |
+| [nanoGPT](../../repos/nanoGPT/) | train.py + README | ⭐⭐⭐ | 预训练完整实现 (~300 行) |
+| [LLMs-from-scratch](../../repos/LLMs-from-scratch/) | ch05-ch07 | ⭐⭐⭐ | 预训练+微调+DPO 全流程 |
+| [open-r1](../../repos/open-r1/) | 完整 README | ⭐⭐⭐ | SFT + GRPO + 蒸馏 |
+| [huggingface-course](../../repos/huggingface-course/) | 课程内容 | ⭐ | 训练基础设施 |
 
 ## 概念间关系
 

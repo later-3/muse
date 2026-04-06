@@ -97,9 +97,9 @@ tok_emb = self.token_embedding_table(idx)  # token_id → 向量
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [minbpe](../repos/minbpe/) | README + lecture.md | ⭐⭐⭐ | BPE 完整实现 + 讲座 |
-| [LLMs-from-scratch](../repos/LLMs-from-scratch/ch02/) | ch02 | ⭐⭐⭐ | 从字符级到 BPE 演进 |
-| [nanoGPT](../repos/nanoGPT/) | data/prepare.py | ⭐⭐ | 训练数据预处理 |
+| [minbpe](../../repos/minbpe/) | README + lecture.md | ⭐⭐⭐ | BPE 完整实现 + 讲座 |
+| [LLMs-from-scratch](../../repos/LLMs-from-scratch/ch02/) | ch02 | ⭐⭐⭐ | 从字符级到 BPE 演进 |
+| [nanoGPT](../../repos/nanoGPT/) | data/prepare.py | ⭐⭐ | 训练数据预处理 |
 
 ## 概念间关系
 

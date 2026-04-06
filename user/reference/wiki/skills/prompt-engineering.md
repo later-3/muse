@@ -111,11 +111,11 @@ skills/
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skills | ⭐⭐⭐ | 两层 Prompt 架构 + Skill 文件系统 |
-| [Prompt-Engineering-Guide](../repos/Prompt-Engineering-Guide/) | 全书 | ⭐⭐⭐ | 六大技术分类 + 完整参考 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/03-agentic-design-patterns/README.md) | L03: Design Principles | ⭐⭐ | 透明性/控制/一致性三原则 |
-| [swarm](../repos/swarm/README.md) | README: Instructions | ⭐⭐ | 动态 instructions + handoff prompt 切换 |
-| [anthropic-cookbook](../repos/anthropic-cookbook/patterns/) | patterns/ | ⭐⭐ | 生产级 prompt patterns |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skills | ⭐⭐⭐ | 两层 Prompt 架构 + Skill 文件系统 |
+| [Prompt-Engineering-Guide](../../repos/Prompt-Engineering-Guide/) | 全书 | ⭐⭐⭐ | 六大技术分类 + 完整参考 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/03-agentic-design-patterns/README.md) | L03: Design Principles | ⭐⭐ | 透明性/控制/一致性三原则 |
+| [swarm](../../repos/swarm/README.md) | README: Instructions | ⭐⭐ | 动态 instructions + handoff prompt 切换 |
+| [anthropic-cookbook](../../repos/anthropic-cookbook/patterns/) | patterns/ | ⭐⭐ | 生产级 prompt patterns |
 
 ## 关键代码片段
 

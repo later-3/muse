@@ -137,11 +137,11 @@ Lead             Teammate    Teammate           Lead
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s09-agent-teams.md) | s09: Agent Teams | ⭐⭐⭐ | Team 模式完整实现 |
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s10-team-protocols.md) | s10: Team Protocols | ⭐⭐⭐ | 协议 FSM + request_id 关联 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/08-multi-agent/README.md) | L08: Multi-Agent | ⭐⭐⭐ | 建筑构件 + 模式分类 |
-| [swarm](../repos/swarm/README.md) | 完整 README | ⭐⭐⭐ | Handoff 模式 + 极简实现 |
-| [hello-agents](../repos/hello-agents/docs/chapter10/) | 第十章: 通信协议 | ⭐⭐ | MCP / A2A / ANP 协议 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s09-agent-teams.md) | s09: Agent Teams | ⭐⭐⭐ | Team 模式完整实现 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s10-team-protocols.md) | s10: Team Protocols | ⭐⭐⭐ | 协议 FSM + request_id 关联 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/08-multi-agent/README.md) | L08: Multi-Agent | ⭐⭐⭐ | 建筑构件 + 模式分类 |
+| [swarm](../../repos/swarm/README.md) | 完整 README | ⭐⭐⭐ | Handoff 模式 + 极简实现 |
+| [hello-agents](../../repos/hello-agents/docs/chapter10/) | 第十章: 通信协议 | ⭐⭐ | MCP / A2A / ANP 协议 |
 
 ## 关键代码片段
 
@@ -181,7 +181,7 @@ class MessageBus:
 - **前置概念**: [[agent-definition]] (理解单 Agent 循环) → [[tool-use-mcp]] (Agent 的能力扩展)
 - **后续概念**: [[context-engineering]] (多 Agent 的上下文隔离) / [[memory]] (跨 Agent 的记忆共享)
 - **相关概念**: [[prompt-engineering]] (每个 Agent 有独立的 instructions)
-- **高阶实践**: [[runtime-comparison]] (不同框架的 Multi-Agent 方案)
+- **高阶实践**: [[agentic-protocols]] (不同框架的 Multi-Agent 协议对比)
 
 ## Muse 对应实践
 

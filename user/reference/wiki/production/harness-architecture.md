@@ -152,8 +152,8 @@ State machines:
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/) | s01-s12 全部 | ⭐⭐⭐ | 渐进式教学 + 完整代码 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/) | L07: Planning | ⭐⭐ | 规划设计模式 |
+| [learn-claude-code](../../repos/learn-claude-code/) | s01-s12 全部 | ⭐⭐⭐ | 渐进式教学 + 完整代码 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/) | L07: Planning | ⭐⭐ | 规划设计模式 |
 
 ## 概念间关系
 

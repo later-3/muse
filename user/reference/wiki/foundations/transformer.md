@@ -175,9 +175,9 @@ def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [nanoGPT](../repos/nanoGPT/model.py) | model.py (~300 行) | ⭐⭐⭐ | 完整 GPT 工程实现 + 生成 + 训练 |
-| [LLMs-from-scratch](../repos/LLMs-from-scratch/) | ch02-ch04 | ⭐⭐⭐ | 从零构建 + 注意力机制详解 |
-| [introtodeeplearning](../repos/introtodeeplearning/) | Lecture notes | ⭐ | MIT 课程视角的 Transformer |
+| [nanoGPT](../../repos/nanoGPT/model.py) | model.py (~300 行) | ⭐⭐⭐ | 完整 GPT 工程实现 + 生成 + 训练 |
+| [LLMs-from-scratch](../../repos/LLMs-from-scratch/) | ch02-ch04 | ⭐⭐⭐ | 从零构建 + 注意力机制详解 |
+| [introtodeeplearning](../../repos/introtodeeplearning/) | Lecture notes | ⭐ | MIT 课程视角的 Transformer |
 
 ## 概念间关系
 

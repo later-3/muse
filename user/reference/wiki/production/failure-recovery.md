@@ -140,9 +140,9 @@ Agent 重启后:
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/) | s02-s12 | ⭐⭐⭐ | 每层对应一种失败恢复 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/) | L06 + L10 + L12 | ⭐⭐⭐ | 威胁模型 + 上下文失败 |
-| [swarm](../repos/swarm/) | 错误处理 | ⭐ | 简洁的 Handoff 错误处理 |
+| [learn-claude-code](../../repos/learn-claude-code/) | s02-s12 | ⭐⭐⭐ | 每层对应一种失败恢复 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/) | L06 + L10 + L12 | ⭐⭐⭐ | 威胁模型 + 上下文失败 |
+| [swarm](../../repos/swarm/) | 错误处理 | ⭐ | 简洁的 Handoff 错误处理 |
 
 ## 概念间关系
 

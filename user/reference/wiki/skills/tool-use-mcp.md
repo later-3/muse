@@ -125,11 +125,11 @@ MCP 方式:
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s02-tool-use.md) | s02: Tool Use | ⭐⭐⭐ | dispatch map 模式 + safe_path 安全 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/04-tool-use/README.md) | L04: Tool Use Design Pattern | ⭐⭐⭐ | Function Calling 三要素 + 六构件模型 |
-| [swarm](../repos/swarm/README.md) | README: Functions | ⭐⭐ | 自动 Schema 推导 + handoff-as-function |
-| [anthropic-cookbook](../repos/anthropic-cookbook/tool_use/) | tool_use/ | ⭐⭐ | 高级 tool use 模式 |
-| [hello-agents](../repos/hello-agents/docs/chapter10/) | 第十章: 智能体通信协议 | ⭐⭐ | MCP / A2A / ANP 协议对比 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s02-tool-use.md) | s02: Tool Use | ⭐⭐⭐ | dispatch map 模式 + safe_path 安全 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/04-tool-use/README.md) | L04: Tool Use Design Pattern | ⭐⭐⭐ | Function Calling 三要素 + 六构件模型 |
+| [swarm](../../repos/swarm/README.md) | README: Functions | ⭐⭐ | 自动 Schema 推导 + handoff-as-function |
+| [anthropic-cookbook](../../repos/anthropic-cookbook/tool_use/) | tool_use/ | ⭐⭐ | 高级 tool use 模式 |
+| [hello-agents](../../repos/hello-agents/docs/chapter10/) | 第十章: 智能体通信协议 | ⭐⭐ | MCP / A2A / ANP 协议对比 |
 
 ## 关键代码片段
 
@@ -155,7 +155,7 @@ agent_a = Agent(functions=[transfer_to_sales])
 - **前置概念**: [[agent-definition]] (理解什么是 Agent)
 - **后续概念**: [[prompt-engineering]] (优化工具描述) → [[context-engineering]] (Tool 结果的管理)
 - **相关概念**: [[multi-agent]] (跨 Agent 的工具共享) / [[memory]] (工具执行历史的记忆)
-- **高阶实践**: [[runtime-comparison]] (不同框架的 Tool 实现对比)
+- **高阶实践**: [[agentic-protocols]] (不同框架的 Tool/协议实现对比)
 
 ## Muse 对应实践
 

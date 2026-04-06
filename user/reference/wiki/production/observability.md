@@ -136,9 +136,9 @@ user_input = input("Do you approve? (APPROVE/REJECT): ")
 
 | 来源 | 章节 | 覆盖深度 | 关键贡献 |
 |------|------|---------|---------|
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/10-ai-agents-production/) | L10: Production | ⭐⭐⭐ | Trace/Span + 评估 + 成本控制 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | 五类威胁 + Human-in-the-Loop |
-| [learn-claude-code](../repos/learn-claude-code/) | s08 Background | ⭐ | 后台结果注入 = 事件追踪模式 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/10-ai-agents-production/) | L10: Production | ⭐⭐⭐ | Trace/Span + 评估 + 成本控制 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/06-building-trustworthy-agents/) | L06: Trustworthy | ⭐⭐⭐ | 五类威胁 + Human-in-the-Loop |
+| [learn-claude-code](../../repos/learn-claude-code/) | s08 Background | ⭐ | 后台结果注入 = 事件追踪模式 |
 
 ## 概念间关系
 

@@ -122,10 +122,10 @@ ai-agents-for-beginners L12 归纳的实用策略：
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s06-context-compact.md) | s06: Context Compact | ⭐⭐⭐ | 三层压缩策略完整代码 |
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/12-context-engineering/README.md) | L12: Context Engineering | ⭐⭐⭐ | 概念定义 + 五类型 + 四失败模式 |
-| [hello-agents](../repos/hello-agents/docs/chapter9/) | 第九章: 上下文工程 | ⭐⭐ | 中文视角的上下文理解 |
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skills | ⭐⭐ | 两层注入（system prompt vs tool_result） |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s06-context-compact.md) | s06: Context Compact | ⭐⭐⭐ | 三层压缩策略完整代码 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/12-context-engineering/README.md) | L12: Context Engineering | ⭐⭐⭐ | 概念定义 + 五类型 + 四失败模式 |
+| [hello-agents](../../repos/hello-agents/docs/chapter9/) | 第九章: 上下文工程 | ⭐⭐ | 中文视角的上下文理解 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s05-skill-loading.md) | s05: Skills | ⭐⭐ | 两层注入（system prompt vs tool_result） |
 | OpenCode | context compaction | ⭐⭐ | 生产级压缩实现参考 |
 
 ## 概念间关系

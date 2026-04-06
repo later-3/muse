@@ -106,10 +106,10 @@ ai-agents-for-beginners L13 描述的核心模式 — 一个 **独立的 Knowled
 
 | 来源 | 章节/位置 | 覆盖深度 | 关键贡献 |
 |------|----------|---------|---------|
-| [ai-agents-for-beginners](../repos/ai-agents-for-beginners/13-agent-memory/README.md) | L13: Agent Memory | ⭐⭐⭐ | 六类型 + 自改进模式 + Mem0/Cognee |
-| [hello-agents](../repos/hello-agents/docs/chapter8/) | 第八章: 记忆与检索 | ⭐⭐⭐ | 记忆系统 + RAG + 存储 |
-| [learn-claude-code](../repos/learn-claude-code/docs/en/s06-context-compact.md) | s06: Context Compact | ⭐⭐ | Transcript 持久化 = 原始记忆 |
-| [anthropic-cookbook](../repos/anthropic-cookbook/capabilities/) | capabilities/ | ⭐ | Memory 相关的能力模式 |
+| [ai-agents-for-beginners](../../repos/ai-agents-for-beginners/13-agent-memory/README.md) | L13: Agent Memory | ⭐⭐⭐ | 六类型 + 自改进模式 + Mem0/Cognee |
+| [hello-agents](../../repos/hello-agents/docs/chapter8/) | 第八章: 记忆与检索 | ⭐⭐⭐ | 记忆系统 + RAG + 存储 |
+| [learn-claude-code](../../repos/learn-claude-code/docs/en/s06-context-compact.md) | s06: Context Compact | ⭐⭐ | Transcript 持久化 = 原始记忆 |
+| [anthropic-cookbook](../../repos/anthropic-cookbook/capabilities/) | capabilities/ | ⭐ | Memory 相关的能力模式 |
 
 ## 概念间关系
 
