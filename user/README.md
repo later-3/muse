@@ -1,7 +1,7 @@
 # Muse 学习路线 — Later 的 AI Agent 修炼手册
 
-> **30 天** · 4 个 Unit · 32 个 OC 任务 · 11 个 Muse 里程碑
-> **终极目标：** AI Agent 技术大佬 + Muse 做好 + 有能力改 OpenCode
+> **6 周** · 12 个理论节点 · 4 个 Unit · 32 个 OC 任务 · 4 个 Agent 项目
+> **终极目标：** Agent 开发工程师 + 4 个 Agent 产品 + 面试大厂
 
 ---
 
@@ -53,8 +53,9 @@
 
 ```
 user/
-├── README.md              ← 你正在看（唯一入口 + 7 条准则）
-├── SYLLABUS.md            ← 📋 30 天学习大纲
+├── README.md              ← 你正在看（唯一入口 + 准则）
+├── THEORY_ROADMAP.md      ← 🗺️ 理论×实践统一路线图（每天看这个）
+├── SYLLABUS.md            ← 📋 OC 任务详细大纲
 │
 │  ──── 🔧 OC 小任务（纯学习，27 个任务） ────
 │  = unit 理论 + reference 课程 → 用 OpenCode/Muse 走一遍
@@ -141,22 +142,38 @@ unit 理论 + reference 课程/作业 (foundations + study + repos/)
 
 ## 🎯 北极星
 
-> **短期 (30 天):** AI Agent 技术大佬，面试随便聊
-> **中期:** Muse 核心功能做好（会话/协作/记忆/Prompt）
-> **长期 (S2b):** Muse 能自己发现问题 → 立项 → 修改代码 → 审查 → 汇报
+> **短期 (6 周):** Agent 开发工程师，面试随便聊
+> **中期:** 4 个 Agent 产品做出来（Muse社交 / 钢琴教学 / 专注助手 / 笔记Agent）
+> **长期:** Muse 能自己发现问题 → 立项 → 修改代码 → 审查 → 汇报
 
 ---
 
-## 📋 30 天路线总览
+## 🗺️ 理论 × 实践 的关系
 
-> **详见 `SYLLABUS.md`**
+> **详见 `THEORY_ROADMAP.md`** — 这是你每天打开的第一个文档
 
-| Week | 主题 | 对应 Unit | OC 任务 |
-|------|------|----------|--------|
-| **W1** | 大模型基础 (LLM/Transformer/训练) | foundations F1-F13 | — |
-| **W2** | Agent 核心 + Prompt 工程 | unit01 + unit02 | oc01-17 |
-| **W3** | 多 Agent + 状态记忆 | unit03 + unit04 | oc18-32 |
-| **W4** | 综合实战 + 面试冲刺 | review + 创造类 OC | 落地改进 + 面试故事 |
+```
+THEORY_ROADMAP.md (理论骨架)              unit/OC 系统 (实践肌肉)
+─────────────────────                     ─────────────────────
+12 个 N 节点 (来自三位大师课程)             32 个 OC 任务 (在 Muse/OC 上验证)
+      │                                         │
+      └──── 每天：学什么理论 ──→ 做哪个 OC ──────┘
+```
+
+- **THEORY_ROADMAP.md** = 统一调度表（理论节点 + OC任务 + F文档 + 资源链接）
+- **SYLLABUS.md** = OC 任务的详细规格说明（USOLB 标注、状态跟踪）
+- **unit01-04/** = 实践产出的存放目录（study 文档 + OC 任务文件）
+
+### 6 周路线总览
+
+| Week | 理论节点 | 对应 Unit | OC 任务 | 项目 |
+|------|---------|----------|--------|------|
+| **W1** | N01 反向传播 · N02 Transformer · N06 训练管线 | foundations | oc01-02 | Muse |
+| **W2** | N03 Tokenization · N10 Agent核心 · N09 Reasoning | unit01 | oc03-07 | Muse |
+| **W3** | N11 Context工程 · N10 Prompt 实践 | unit02 + unit04 | oc10-15 | 笔记Agent |
+| **W4** | N10 多Agent · N05 推理优化 · N04 PE · N12 评估 | unit03 | oc18-22 | 钢琴Agent |
+| **W5** | N07 缩放 · N08 后训练 · 改进落地 | unit01-04 | oc08-09,16,23,26-27 | 专注助手 |
+| **W6** | 深度实践 + 面试冲刺 | 全部 | oc24,28-32,11,17,25 | 全部打磨 |
 
 ### OC 任务设计原则 (Bloom 认知层次递进)
 
@@ -203,13 +220,14 @@ AI 轨道:   🔧 搭框架+注释 → 🧪 先踩坑 → 📝 整理精华
 
 | 编号 | 含义 | 例子 |
 |------|------|------|
+| **N01-N12** | 理论知识节点 | N02 = Transformer 架构 |
 | Unit 01-04 | 知识单元 | Unit 01 = Agent Core |
 | oc01-oc32 | OC 实战任务 | oc01 = 启动 Muse + 看日志 |
 | M1-M11 | Muse 里程碑 | M1 = 理解全调用链 |
 | S1-S6 | 学习助手里程碑 | S1 = Agent Loop 设计 |
 | exp/R | AI 实验/消险 | exp01 = 编排模式模拟 |
 | F1-F15 | 基础文档 | F1 = LLM 全貌 |
-| W1-W4 | 周 | W2 = Agent 核心 |
+| W1-W6 | 周 | W2 = Agent 核心 |
 
 ---
 
