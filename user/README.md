@@ -55,6 +55,7 @@
 user/
 ├── README.md              ← 你正在看（唯一入口 + 准则）
 ├── THEORY_ROADMAP.md      ← 🗺️ 理论×实践统一路线图（每天看这个）
+├── MUSE_FEATURES.md       ← 🔥 Muse 功能点亮路线图（学到→改进 Muse）
 ├── SYLLABUS.md            ← 📋 OC 任务详细大纲
 │
 │  ──── 🔧 OC 小任务（纯学习，27 个任务） ────
@@ -148,21 +149,22 @@ unit 理论 + reference 课程/作业 (foundations + study + repos/)
 
 ---
 
-## 🗺️ 理论 × 实践 的关系
-
-> **详见 `THEORY_ROADMAP.md`** — 这是你每天打开的第一个文档
+## 🗺️ 三份文档的关系
 
 ```
-THEORY_ROADMAP.md (理论骨架)              unit/OC 系统 (实践肌肉)
-─────────────────────                     ─────────────────────
-12 个 N 节点 (来自三位大师课程)             32 个 OC 任务 (在 Muse/OC 上验证)
-      │                                         │
-      └──── 每天：学什么理论 ──→ 做哪个 OC ──────┘
+THEORY_ROADMAP.md (每天学什么)    MUSE_FEATURES.md (Muse 怎么变强)
+─────────────────────              ──────────────────────
+12个N节点 + 32个OC任务               28个功能点 × 5个Phase
+        │                                    │
+        └──── 学完理论 → 做OC → 点亮功能 ────┘
 ```
 
-- **THEORY_ROADMAP.md** = 统一调度表（理论节点 + OC任务 + F文档 + 资源链接）
-- **SYLLABUS.md** = OC 任务的详细规格说明（USOLB 标注、状态跟踪）
-- **unit01-04/** = 实践产出的存放目录（study 文档 + OC 任务文件）
+| 文档 | 定位 | 打开时机 |
+|------|------|--------|
+| **THEORY_ROADMAP.md** | 统一调度表：今天学什么理论 + 做哪个 OC | 每天第一个打开 |
+| **MUSE_FEATURES.md** | Muse 功能进度：学到的东西怎么改进 Muse | 每完成一个 OC 回来勾选 |
+| **SYLLABUS.md** | OC 任务规格：每个 OC 的 USOLB 标注和详细要求 | 做 OC 任务时参考 |
+| **unit01-04/** | 实践产出目录：study 文档 + OC 任务文件 | 写文档时存放 |
 
 ### 6 周路线总览
 
