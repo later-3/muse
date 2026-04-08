@@ -30,6 +30,21 @@
 > 以下是 AI 从 Karpathy Micrograd (2h37min) 中提炼的核心知识。
 > 你读完这一节就掌握了反向传播，不需要看完整视频。
 
+### 🌍 背景：为什么要学这个？
+
+**你现在在哪：** 这是 6 周路线的第 1 天。你即将进入大模型的世界，而大模型（GPT/Claude/Gemini）的训练全部依赖反向传播。
+
+**技术栈位置：**
+```
+Layer 0: 数学根基 ← 反向传播在这里（N01）
+Layer 2: Transformer ← 明天学（N02），它的参数靠反向传播训练
+Layer 3: 训练管线 ← D05-D06 学（N06），整个流程建立在反向传播之上
+```
+
+**前置知识：** 不需要任何前置知识。反向传播是从零开始的第一块积木。
+
+**和 Agent 的关系：** 你做的 Muse Agent 调用 LLM → LLM 的所有能力都是训练出来的 → 训练的核心引擎就是反向传播。**不理解这个，后面的一切都是空中楼阁。**
+
 ### 第一性原理：反向传播到底是什么？
 
 **一句话：反向传播就是"从结果倒推原因"——告诉每个参数"你应该往哪个方向调、调多少，才能让输出更接近正确答案"。**
@@ -150,6 +165,17 @@ class Value:
 ```
 
 再算一次：y = 3.16 × 2 = 6.32，Loss = (6.32-10)² = 13.5 → **Loss 确实变小了！**
+
+---
+
+### 📜 原文对照（关键论文/博客引用）
+
+| 📄 原文 | 🗣️ 大白话 |
+|---------|----------|
+| "We describe a new learning procedure, back-propagation, for networks of neurone-like units." — Rumelhart, Hinton, Williams, Nature 1986 | 1986 年，Hinton 等人首次系统描述了反向传播算法。这篇 Nature 论文开启了神经网络的现代训练时代。 |
+| "The key insight is that the chain rule can be used to compute the gradient of the loss with respect to any weight in the network." — Karpathy, Micrograd 视频 | 链式法则是整个反向传播的数学基础：不管网络多深多复杂，梯度都能通过"局部梯度相乘"一步步传回去。 |
+| "What I cannot create, I do not understand." — Richard Feynman（Karpathy 在 Micrograd 开头引用） | Karpathy 引用费曼这句话解释他为什么要从零实现反向传播——只有自己写出来才算真正理解。这也是你做 OC 任务的意义。 |
+| "Autograd — automatically computing gradients — is what makes modern deep learning possible." — PyTorch 文档 | 自动微分不是学术玩具，它是 PyTorch/TensorFlow 的核心引擎。你调用 `loss.backward()` 时，底层就在做 Karpathy Micrograd 展示的那些事。 |
 
 ---
 
