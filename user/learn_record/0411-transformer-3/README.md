@@ -127,7 +127,7 @@ x = self.transformer.drop(tok_emb + pos_emb)  # 相加 + Dropout
 
 **[Fact] GPT-2 用的是 Learnable Position Embedding**（可学习的位置嵌入），不是原始 Transformer 的 Sinusoidal PE。每个位置有一个可训练的向量，通过反向传播（D01）学出来。
 
-**[Fact] Weight Tying：** nanoGPT [model.py:L138](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L138) 中 `self.transformer.wte.weight = self.lm_head.weight`。Token Embedding 和 LM Head 共享同一个权重矩阵。好处：减少参数量 + 让"输入表示"和"输出预测"在同一语义空间中。
+**[Fact] Weight Tying：** nanoGPT [model.py:L138](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L138) 中 `self.transformer.wte.weight = self.lm_head.weight`。Token Embedding 和 LM Head 共享同一个权重矩阵。好处：减少参数量 + 让"输入表示"和"输出预测"在同一语义空间中。
 
 #### 阶段 2：Transformer Block × N（特征提取）
 
@@ -150,7 +150,7 @@ x = self.transformer.ln_f(x)  # 最终 LayerNorm
 | GPT-2 Large | 36 | 20 | 1280 | 774M |
 | GPT-2 XL | 48 | 25 | 1600 | 1558M |
 
-> 来源：[nanoGPT model.py:L217-L220](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L217)
+> 来源：[nanoGPT model.py:L217-L220](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L217)
 
 #### 阶段 3：LM Head + Generation（输出生成）
 
@@ -183,7 +183,7 @@ logits = self.lm_head(x[:, [-1], :])              # 只取最后一个 token 的
  ...循环直到生成 <EOS> 或达到 max_length
 ```
 
-来源：[nanoGPT model.py:L306-L330](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L306)（`generate` 方法）
+来源：[nanoGPT model.py:L306-L330](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L306)（`generate` 方法）
 
 ---
 
@@ -265,12 +265,12 @@ softmax(logits) → 概率分布 → 选择下一个 token
 
 | 主题 | 本地实现 | 能证明什么 |
 |------|---------|-----------|
-| **完整 GPT 架构定义** | [model.py:L118-L148](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L118) | GPT 类的 __init__：wte + wpe + Block × N + ln_f + lm_head 完整组装 |
-| **Forward 全流程** | [model.py:L170-L193](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L170) | tok_emb + pos_emb → Block 循环 → ln_f → lm_head → loss |
-| **Weight Tying** | [model.py:L138](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L138) | `self.transformer.wte.weight = self.lm_head.weight` |
-| **GPT 配置超参** | [model.py:L108-L116](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L108) | GPTConfig: n_layer=12, n_head=12, n_embd=768 (GPT-2 Small) |
-| **Autoregressive 生成** | [model.py:L306-L330](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L306) | generate 方法：循环预测 → 采样 → 拼接 → 再预测 |
-| **教学版完整 GPT** | [ch04 gpt.py:L1-L100](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/ch04/01_main-chapter-code/gpt.py#L1) | Raschka 的教学实现：TransformerBlock + GPTModel 完整组装 |
+| **完整 GPT 架构定义** | [model.py:L118-L148](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L118) | GPT 类的 __init__：wte + wpe + Block × N + ln_f + lm_head 完整组装 |
+| **Forward 全流程** | [model.py:L170-L193](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L170) | tok_emb + pos_emb → Block 循环 → ln_f → lm_head → loss |
+| **Weight Tying** | [model.py:L138](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L138) | `self.transformer.wte.weight = self.lm_head.weight` |
+| **GPT 配置超参** | [model.py:L108-L116](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L108) | GPTConfig: n_layer=12, n_head=12, n_embd=768 (GPT-2 Small) |
+| **Autoregressive 生成** | [model.py:L306-L330](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L306) | generate 方法：循环预测 → 采样 → 拼接 → 再预测 |
+| **教学版完整 GPT** | [gpt.py:L1-L100](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/ch04/01_main-chapter-code/gpt.py#L1) | Raschka 的教学实现：TransformerBlock + GPTModel 完整组装 |
 
 ---
 
@@ -343,8 +343,8 @@ Q3: Decoder-Only、Encoder-Only、Encoder-Decoder 有什么区别？
 | 资源 | 链接 | 看什么 |
 |------|------|--------|
 | Karpathy Build GPT | https://www.youtube.com/watch?v=kCc8FmEb1nY | 1:40:00 后 — 完整 GPT 组装 |
-| 李宏毅 解剖LLM | YouTube 搜索 | GPT 架构全景 |
-| nanoGPT 源码 | user/reference/repos/nanoGPT/model.py | 完整实现一个 GPT |
+| 李宏毅《解剖 LLM》 | https://youtu.be/8iFvM7WUUs8 | GPT 架构全景 |
+| nanoGPT 源码 | [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py) | 完整实现一个 GPT |
 | Jay Alammar GPT-2 图解 | https://jalammar.github.io/illustrated-gpt2/ | GPT-2 可视化 |
 
 ---
@@ -353,8 +353,8 @@ Q3: Decoder-Only、Encoder-Only、Encoder-Decoder 有什么区别？
 
 先把"仓库里的本地代码"和"远端模型内部"分开：
 
-- **[Fact] 本地代码实际做的事：** [engine.mjs](file:///Users/xulater/Code/assistant-agent/muse/src/core/engine.mjs#L107) 组装 payload 发给模型服务。你调用的 Claude/GPT 在远端服务器上运行完整的 GPT 架构（今天学的全部内容）。
-- **[Fact] 远端模型做了什么：** 收到你的 prompt 后，做 Token Embedding → 过 N 层 Block → LM Head → Autoregressive 生成。每个 Block 内部做 D02 的 Attention 和 D03 的 Multi-Head + Residual + Norm。
+- **[Fact] 本地代码实际做的事：** [engine.mjs:L107-L125](/Users/xulater/Code/assistant-agent/muse/src/core/engine.mjs#L107) 负责组装请求参数、拼接消息并把 payload 发给模型服务。
+- **[Fact] 远端模型做了什么：** Claude/GPT 在远端服务器上执行完整的 GPT/Transformer 推理：Token Embedding → N 层 Block → LM Head → Autoregressive 生成。每个 Block 内部才会做 D02 的 Attention 和 D03 的 Multi-Head + Residual + Norm。
 - **[Infer] 为什么 Agent 开发者需要懂完整架构：**
   - **上下文窗口** = GPT 配置中的 `block_size`（如 GPT-2 是 1024 token），超过就截断
   - **token 数量** 直接影响推理成本：每个 token 都要经过 N 层 Block 的完整计算

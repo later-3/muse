@@ -27,7 +27,7 @@
 
 ## 📖 知识精华（AI 为你提炼）
 
-> 以下是 AI 从 Karpathy "State of GPT" 前 30 分钟 + 原始论文（InstructGPT P3）+ nanoGPT train.py 中提炼的核心知识。
+> 以下是 AI 从 Karpathy "State of GPT" 前 30 分钟 + Ouyang et al.《InstructGPT》+ nanoGPT `train.py` 中提炼的核心知识。
 > 今天是训练管线两天学习的第一天：**Pretraining + SFT 两个阶段**。明天补 RLHF/DPO。
 
 ### 🧩 5 分钟预备词汇表
@@ -144,7 +144,7 @@ Target Y: [cat, sat, on, the, mat]      ← 各自的"下一个 token"
 | `warmup_iters` | 2000 | 学习率预热步数 |
 | `grad_clip` | 1.0 | 梯度裁剪阈值 |
 
-> 来源：[nanoGPT train.py:L58-L68](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L58)
+> 来源：[nanoGPT train.py:L58-L68](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L58)
 
 **[Fact] Learning Rate Schedule（学习率调度）：**
 
@@ -161,7 +161,7 @@ Target Y: [cat, sat, on, the, mat]      ← 各自的"下一个 token"
 
 Warmup（预热）：前 2000 步从 0 线性升到 6e-4，避免初始化阶段大梯度破坏模型。之后 Cosine Decay 缓慢降到 min_lr。
 
-> 来源：[nanoGPT train.py:L231-L242](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L231)
+> 来源：[nanoGPT train.py:L231-L242](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L231)
 
 **Pretraining 的结果 = Base Model：**
 - ✅ 知道语言的语法、语义、世界知识
@@ -234,13 +234,15 @@ RLHF Model:
 
 #### Pretraining 的规模感受
 
-| 模型 | 训练数据 | 训练算力 | 训练时间 | 估算成本 |
-|------|---------|---------|---------|---------|
-| GPT-2 | ~40GB 文本 | ~256 GPU·天 | 数天 | ~$50K |
-| GPT-3 | ~570GB (300B token) | ~3640 GPU·天 | ~30 天 | ~$4.6M |
-| LLaMA-2 70B | ~2T token | ~1.7M GPU·小时 | ~数月 | ~$数千万 |
+| 模型 | 训练数据 | 训练算力 | 训练时间 |
+|------|---------|---------|---------|
+| GPT-2 | ~40GB 文本 | 相对后续 GPT 系列更小 | 数天级 |
+| GPT-3 | ~570GB（300B token） | 大规模 GPU 集群 | 周到月级 |
+| LLaMA-2 70B | ~2T token | 极大规模 GPU·小时 | 月级 |
 
 **[Fact] Scaling Laws（缩放定律）：** Kaplan et al. 2020 发现模型性能和参数量、数据量、计算量之间存在可预测的幂律关系。这意味着：给够资源，模型**可预测地**变强。
+
+**[Infer] 说明：** 训练成本高度依赖 GPU 型号、并行策略、云厂商报价和时间点。为了避免把粗略估算写成硬事实，这里不写死具体美元数字。
 
 ---
 
@@ -260,12 +262,12 @@ RLHF Model:
 
 | 主题 | 本地实现 | 能证明什么 |
 |------|---------|-----------|
-| **完整训练循环** | [train.py:L255-L314](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L255) | forward → backward → clip → step → zero_grad 五步循环 |
-| **Learning Rate Schedule** | [train.py:L231-L242](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L231) | Warmup + Cosine Decay 的真实实现 |
-| **数据加载 (Next Token)** | [train.py:L116-L131](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L116) | X = data[i:i+block_size], Y = data[i+1:i+1+block_size] — 就是右移一位 |
-| **Cross-Entropy Loss** | [model.py:L187](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L187) | `F.cross_entropy(logits, targets)` — 标准分类损失 |
-| **Gradient Clipping** | [train.py:L307-L309](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L307) | `clip_grad_norm_(model.parameters(), 1.0)` 防止梯度爆炸 |
-| **Gradient Accumulation** | [train.py:L292-L301](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L292) | 多次 micro-step 累积梯度，模拟更大 batch size |
+| **完整训练循环** | [train.py:L255-L314](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L255) | forward → backward → clip → step → zero_grad 五步循环 |
+| **Learning Rate Schedule** | [train.py:L231-L242](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L231) | Warmup + Cosine Decay 的真实实现 |
+| **数据加载 (Next Token)** | [train.py:L116-L131](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L116) | X = data[i:i+block_size], Y = data[i+1:i+1+block_size] — 就是右移一位 |
+| **Cross-Entropy Loss** | [model.py:L187](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L187) | `F.cross_entropy(logits, targets)` — 标准分类损失 |
+| **Gradient Clipping** | [train.py:L307-L309](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L307) | `clip_grad_norm_(model.parameters(), 1.0)` 防止梯度爆炸 |
+| **Gradient Accumulation** | [train.py:L292-L301](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L292) | 多次 micro-step 累积梯度，模拟更大 batch size |
 
 ---
 
@@ -298,9 +300,9 @@ Q2: Base Model 和 Chat Model 有什么区别？
 → 答: 架构相同。Base Model 只经过 Pretraining，会续写但不会对话。
       Chat Model 额外经过 SFT + RLHF，能理解指令并给出高质量回答。
   Q2.1: SFT 用了多少数据？
-  → 答: 远少于 Pretraining。InstructGPT 用了约 13K 条指令对，
-        而 Pretraining 用了 3000 亿 token。SFT 改变的是行为模式，
-        不是知识。
+  → 答: 远少于 Pretraining。SFT 通常是 10K-100K 级高质量指令对，
+        而 Pretraining 是数百亿到数千亿 token 级别。SFT 主要改变的是行为模式，
+        不是重新学习全部知识。
     Q2.1.1: 那 SFT 会不会让模型忘记 Pretraining 学到的知识？
     → 答: 会有 Catastrophic Forgetting（灾难性遗忘）的风险。
           所以 SFT 的学习率非常小（~1e-5），数据量也小，
@@ -342,13 +344,13 @@ Q3: 什么是 Scaling Laws？
 | Karpathy State of GPT | https://www.youtube.com/watch?v=bZQun8Y4L2A | 前 30min — 训练管线全景 |
 | InstructGPT 论文 | https://arxiv.org/abs/2203.02155 | §2-§3 三阶段训练方法 |
 | Scaling Laws 论文 | https://arxiv.org/abs/2001.08361 | 幂律关系图 |
-| nanoGPT train.py | user/reference/repos/nanoGPT/train.py | 完整 Pretraining 实现 |
+| nanoGPT train.py | [train.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py) | 完整 Pretraining 实现 |
 
 ---
 
 ## 🧠 与 Muse/项目 的映射
 
-- **[Fact] Muse 用的是别人训好的模型：** 你调用 Claude/GPT 时，这些模型已经走完了三阶段训练。你不需要自己做 Pretraining（那需要几百万美金）。
+- **[Fact] Muse 用的是别人训好的模型：** 你调用 Claude/GPT 时，这些模型已经走完了三阶段训练。你不需要自己做 Pretraining，因为那通常需要极高算力、海量数据和很高预算，不是当前项目范围。
 - **[Fact] 但你需要理解训练管线的原因：**
   - **选模型**：Base Model（续写/补全） vs Chat Model（对话/指令）对应不同场景
   - **System Prompt 为什么有效**：SFT 阶段模型学会了"看 system prompt → 遵循"的模式
