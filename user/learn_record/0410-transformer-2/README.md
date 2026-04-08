@@ -34,12 +34,12 @@
 
 | 词 | 一句话解释 | 今天先怎么理解 | 暂时不用深究 |
 |---|---|---|---|
-| **多头注意力（Multi-Head）** | 把注意力拆成多个独立的小组并行计算 | 像多个侦探各自查线索，最后汇总 | 头数怎么选、不同头学到了什么 |
-| **位置编码（Positional Encoding）** | 告诉模型每个词在句子中的位置 | 给每个词贴一个"座位号" | sinusoidal vs RoPE 的数学推导 |
-| **残差连接（Residual Connection）** | 把输入直接加到输出上 | 像给信号开了一条"高速直通车" | ResNet 原始论文细节 |
+| **Multi-Head Attention（多头注意力）** | 把注意力拆成多个独立的小组并行计算 | 像多个侦探各自查线索，最后汇总 | 头数怎么选、不同头学到了什么 |
+| **Positional Encoding（位置编码）** | 告诉模型每个词在句子中的位置 | 给每个词贴一个"座位号" | sinusoidal vs RoPE 的数学推导 |
+| **Residual Connection（残差连接）** | 把输入直接加到输出上 | 像给信号开了一条"高速直通车" | ResNet 原始论文细节 |
 | **LayerNorm** | 把每一层的输出数值范围拉回"正常区间" | 防止数字越算越大或越小 | BatchNorm vs LayerNorm 差异 |
-| **Masked Attention** | 遮住未来的词，只看过去 | GPT 生成文字时不能偷看后面的答案 | 不同 mask 策略（causal/padding） |
-| **Transformer Block** | 一个注意力层 + 一个前馈层 + 残差 + Norm 的完整单元 | 像一个"思考单元"，堆多个就是深度思考 | Block 内部的初始化和训练技巧 |
+| **Causal Masking（因果遮蔽）** | 遮住未来的词，只看过去 | GPT 生成文字时不能偷看后面的答案 | 不同 mask 策略（causal/padding） |
+| **Transformer Block（变换器块）** | 一个注意力层 + 一个前馈层 + 残差 + Norm 的完整单元 | 像一个"思考单元"，堆多个就是深度思考 | Block 内部的初始化和训练技巧 |
 
 ### 🌍 背景：为什么要学这个？
 
@@ -103,7 +103,9 @@ MultiHead = Concat(head_1, ..., head_h) × W_O
 
 **Layer 3 — 完整理解**
 
-**[Fact] Multi-Head Attention 是"在多个不同的子空间中并行执行 Scaled Dot-Product Attention，然后拼接结果并线性投影"。** 参数总量和单头基本相同（因为每个头的维度 = d_model/h），但表达能力更强。
+**[Fact] 面试级一句话：** Multi-Head Attention performs Scaled Dot-Product Attention in parallel across multiple representation subspaces, then concatenates and linearly projects the results — with roughly the same parameter count as single-head attention (since d_k = d_model/h) but richer expressiveness.
+
+**[Fact] 中文展开：** Multi-Head Attention 是"在多个不同的 Subspace（子空间）中并行执行 Scaled Dot-Product Attention，然后 Concatenate（拼接）结果并通过 Linear Projection（线性投影）W_O 映射回原始维度"。参数总量和单头基本相同（因为每个头的维度 d_k = d_model/h），但表达能力更强。
 
 ---
 
@@ -196,7 +198,7 @@ softmax(−∞) = 0，所以未来位置的 V 权重为 0，等于"看不到"。
 | **Positional Encoding** | Attention 不知道词序 | "我喜欢你" = "你喜欢我"，模型分不清 |
 | **Residual Connection** | 深层网络信号退化 | 超过 6 层就训不动，GPT-3 的 96 层不可能 |
 | **LayerNorm** | 各层数值范围不一致 | 训练不稳定，loss 震荡或发散 |
-| **Masked Attention** | 生成时看到未来词 | 模型"作弊"，不能真正学会生成 |
+| **Causal Masking（因果遮蔽）** | 生成时看到未来词 | 模型"作弊"，不能真正学会生成 |
 
 ---
 

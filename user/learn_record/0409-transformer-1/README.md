@@ -34,11 +34,11 @@
 
 | 词 | 一句话解释 | 今天先怎么理解 | 暂时不用深究 |
 |---|---|---|---|
-| **embedding** | 把词变成一串数字 | 先把它看成“词的数字身份证” | 训练时如何学到 |
-| **向量内积** | 两串数字做乘加得到一个分数 | 分数越大，通常表示越相关 | 几何证明 |
-| **softmax** | 把一串分数变成一组和为 1 的权重 | 像把“关注分数”归一化成“关注比例” | 数值稳定性技巧 |
-| **d_model / d_k** | 向量的维度大小 | 就是“这串数字有多长” | 各模型的具体超参数 |
-| **attention 权重** | 当前词对其他词分配的关注比例 | 像“我现在主要看谁” | 多头之间怎么分工 |
+| **Embedding（嵌入）** | 把词变成一串数字（向量） | 先把它看成“词的数字身份证” | 训练时如何学到 |
+| **Dot Product（向量内积）** | 两串数字对应相乘再求和，得到一个标量 | 分数越大，通常表示越相关 | 几何证明 |
+| **Softmax** | 把一串分数变成一组和为 1 的概率分布 | 像把“关注分数”归一化成“关注比例” | 数值稳定性技巧 |
+| **d_model / d_k** | 模型维度 / Key 维度 | 就是“这串数字有多长” | 各模型的具体超参数 |
+| **Attention Weight（注意力权重）** | 当前 token 对其他 token 分配的关注比例 | 像“我现在主要看谁” | 多头之间怎么分工 |
 
 ### 🌍 背景：为什么要学这个？
 
@@ -106,7 +106,9 @@ Transformer 的方式（并行处理）：
 
 **Layer 3 — 完整定义**
 
-**[Fact] Transformer 是一种以 Self-Attention 为核心的神经网络架构。它通过计算序列中每个位置对其他位置的注意力权重来捕获全局依赖关系。经典 Transformer 不依赖 RNN 的循环结构，因此更适合并行计算。**
+**[Fact] 面试级一句话：** Transformer is a neural network architecture that uses Self-Attention to compute pairwise relationships between all positions in a sequence in parallel, replacing the sequential processing of RNNs.
+
+**[Fact] 中文展开：** Transformer 是一种以 Self-Attention（自注意力）为核心的神经网络架构。它通过计算序列中每个位置对其他位置的 Attention Weight（注意力权重）来捕获全局依赖关系（global dependency）。经典 Transformer 不依赖 RNN 的 Recurrence（循环结构），因此更适合并行计算。
 
 > **类比（仅类比）：** RNN 像一个人从头到尾读一本书，读到最后已经忘了开头。Transformer 像把整本书摊在桌上，每读一个字都能同时看到所有其他字。
 
@@ -205,13 +207,13 @@ output = 0.27 × v1 + 0.73 × v2
 
 你现在不用关心这个输出向量具体语义是什么，只需要先抓住一点：**attention 的本质就是“先算相关度，再按相关度混合信息”。**
 
-#### 完整公式
+#### 完整公式：Scaled Dot-Product Attention
 
 ```
 Attention(Q, K, V) = softmax(Q × K^T / √d_k) × V
 ```
 
-2017 年论文的精华浓缩在这一行里。
+这就是论文 §3.2.1 定义的 **Scaled Dot-Product Attention**。"Scaled"指除以 √d_k，"Dot-Product"指 Q×K^T 内积。2017 年论文的精华浓缩在这一行里。
 
 ---
 
