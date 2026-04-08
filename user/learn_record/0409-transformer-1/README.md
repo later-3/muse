@@ -352,6 +352,17 @@ Q3: Transformer 之前的方案是什么？
 - **[Infer] 为什么 Agent 开发者要懂这个：** 你写 prompt、控上下文长度、设计 memory，本质上都在和 Transformer 的“注意力如何分配、长上下文为什么更贵”打交道。
 - **[Fact] 明天 D03** 学多头注意力、位置信息、残差连接和 GPT 为什么只能看前文。
 
+### 📚 本地参考实现（双证据）
+
+> 论文/课程提供概念来源，本地代码提供实现级事实。
+
+| 主题 | 本地实现 | 能证明什么 |
+|------|---------|-----------|
+| **教学版单头 Attention** | [ch03.py:L10-L29](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L10) | `SelfAttention_v1`：W_query/W_key/W_value 三个矩阵 → `queries @ keys.T` → 除以 `keys.shape[-1]**0.5` → softmax → `@ values`，和 D02 讲的 4 步完全对应 |
+| **√d_k 缩放的真实代码** | [ch03.py:L25](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L25) | `attn_scores / keys.shape[-1]**0.5` — 就是除以 √d_k |
+| **nanoGPT 的产品级 Attention** | [model.py:L56-L71](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L56) | 合并了多头 + causal mask + Flash Attention 的完整实现。L67 的 `(1.0 / math.sqrt(k.size(-1)))` 就是 √d_k 缩放 |
+| **注意力矩阵 [n,n]** | [model.py:L67](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L67) | `q @ k.transpose(-2, -1)` 产生 [T,T] 矩阵 — 就是 D02 讲的 n×n 注意力矩阵（O(n²)的来源） |
+
 ---
 
 ## ✅ 自检清单

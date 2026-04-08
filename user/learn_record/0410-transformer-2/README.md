@@ -66,7 +66,7 @@ D01 反向传播 ✅ → D02 单头 Self-Attention ✅ → D03 你在这里
 | 2015 | He et al. (微软亚研) | 提出 ResNet（残差网络） | 残差连接让 150+ 层深度网络成为可能，Transformer 直接借用了这个思想 |
 | 2016 | Ba, Kiros & Hinton | 提出 Layer Normalization | 替代 BatchNorm 用于序列模型，成为 Transformer 的标配 |
 | 2017 | Vaswani et al. | 在 Transformer 中使用 Multi-Head Attention + Sinusoidal PE | 多头让模型同时关注不同类型的关系，PE 解决了无循环结构下的词序问题 |
-| 2023 | Su et al. (追一科技) | 提出 RoPE（旋转位置编码） | 被 LLaMA/Qwen/DeepSeek 广泛采用，支持更灵活的长度外推 |
+| 2021 | Su et al. | 提出 RoPE（旋转位置编码） | 后续被 LLaMA/Qwen/DeepSeek 等模型广泛采用，支持更灵活的长度外推 |
 
 ### 第一性原理：为什么单头注意力不够？
 
@@ -147,7 +147,7 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 
 **[Analogy] 把它想象成一个"刻度尺"：** 每个位置有一个独特的刻度组合，就像 GPS 坐标一样。偶数维用 sin，奇数维用 cos，频率逐渐降低——高频编码精细位置，低频编码粗略位置。
 
-**[Fact] 加法而非拼接：** 位置编码是**加到**词向量上的（`X + PE`），不是拼接。因加法是可逆的，模型可以学会把位置信息和语义信息分开。
+**[Fact] 加法而非拼接：** 位置编码通常是**加到**词向量上的（`X + PE`），不是拼接。这样做的直接好处是：**不增加向量维度、实现简单、工程上已被大量模型验证有效**。例如教学实现 [ch04.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch04.py#L97) 和 GPT 类实现 [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L177) 都是直接把 token embedding 和位置表示相加。
 
 **[Fact] 现代模型已基本不用 sinusoidal PE：** LLaMA、Qwen、DeepSeek 用 RoPE（旋转位置编码），它在注意力计算时直接旋转 Q 和 K，更灵活且支持长度外推。D04/N04 会详细讲。
 
@@ -158,6 +158,7 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 **[Fact] 解法：** 把每一层的输入直接"跳过"该层，加到输出上：
 
 ```python
+# 原始 Transformer 论文（Post-Norm）常见写法
 output = LayerNorm(x + SubLayer(x))
 #        ↑ 归一化   ↑ 原始输入直接加上来
 ```
@@ -204,6 +205,8 @@ softmax(−∞) = 0，所以未来位置的 V 权重为 0，等于"看不到"。
 #### 一个完整的 Transformer Block（可以画下来）
 
 ```text
+原始 Transformer 论文版 Block（Post-Norm）
+
 输入 x (词向量 + 位置编码)
  │
  ├──────────────────────╮
@@ -225,7 +228,33 @@ softmax(−∞) = 0，所以未来位置的 V 权重为 0，等于"看不到"。
 输出 (送入下一个 Block)
 ```
 
-**[Fact] 这就是一个 Transformer Block 的完整结构。** GPT-2 Small 堆 12 个这样的 Block，GPT-3 堆 96 个。
+**[Fact] 这张图对应的是原始论文里常见的 Post-Norm 画法。** 如果你想对照现代 GPT 风格实现，更常见的是 Pre-Norm：
+
+```text
+现代 GPT / nanoGPT 常见 Block（Pre-Norm）
+
+输入 x
+ │
+ ├──────────────────────╮
+ ↓                      │
+[LayerNorm]             │
+ ↓                      │
+[Causal Multi-Head Attention]
+ ↓                      │
+ + ←────────────────────╯
+ │
+ ├──────────────────────╮
+ ↓                      │
+[LayerNorm]             │
+ ↓                      │
+[Feed-Forward Network]
+ ↓                      │
+ + ←────────────────────╯
+ ↓
+输出
+```
+
+**[Fact] 本地实现证据：** [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L103) 采用 `x = x + self.attn(self.ln_1(x))` 和 `x = x + self.mlp(self.ln_2(x))`，这是典型 Pre-Norm；教学实现 [ch04.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch04.py#L64) 也是 Pre-Norm。
 
 #### 数值例子：多头拆分
 
@@ -266,7 +295,21 @@ pos=2:  [sin(2), cos(2), sin(0.02), cos(0.02)]     ≈ [0.91, -0.42, 0.02, 1.00]
 |---------|----------|
 | "Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions." — Vaswani et al., 2017 §3.2.2 | 多头的好处：让模型能同时在不同子空间里关注不同位置的信息。一个头学语法，另一个头学语义，各司其职。 |
 | "Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens." — §3.5 | 作者自己说了：Transformer 没有循环也没有卷积，所以必须额外注入位置信息，否则模型不知道词序。 |
-| "We employ a residual connection around each of the two sub-layers, followed by layer normalization." — §3.1 [ref-01] | 每个子层（attention 和 FFN）都包了一层残差 + LayerNorm。这是让深层网络能训练的关键。 |
+| "We employ a residual connection around each of the two sub-layers, followed by layer normalization." — §3.1 | 每个子层（attention 和 FFN）都包了一层残差 + LayerNorm。这是让深层网络能训练的关键。 |
+
+---
+
+### 📚 本地参考实现（强事实依据）
+
+> 下面这些不是“额外资料”，而是你本地 `user/reference/repos` 里能直接对照的实现证据。
+
+| 主题 | 本地实现 | 能证明什么 |
+|------|---------|-----------|
+| **GPT 的 causal mask** | [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L48) | 用下三角 mask 限制只能看左侧上下文 |
+| **GPT 的 Pre-Norm Block** | [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L103) | 现代 GPT 类实现常用 `x = x + sublayer(LN(x))` |
+| **GPT-2 的 learnable position embedding** | [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L127) | `wte` 是 token embedding，`wpe` 是位置 embedding |
+| **教学版 token + position 相加** | [ch04.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch04.py#L97) | 位置表示直接与 token embedding 相加 |
+| **现代模型里的 RoPE 与 mask** | [qwen3.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/kv_cache_batched/qwen3.py#L177) | 现代实现会对 Q/K 应用 RoPE，并用 `masked_fill(-inf)` 做 mask |
 
 ---
 
@@ -290,8 +333,9 @@ Q1: 什么是 Multi-Head Attention？为什么要"多头"？
   → 答: 基本没变。d_model=512, h=8 时，每头 d_k=64。
         8 个 [512,64] 矩阵 = 1 个 [512,512] 矩阵，参数量相同。
     Q1.1.1: 头数 h 怎么选？
-    → 答: 一般和层数匹配。GPT-2 用 12 头/12 层，GPT-3 用 96/96。
-          论文里实验过 1/4/8/16 头，8 头效果最优且稳定。
+    → 答: 头数是模型设计超参数，没有“必须等于层数”的通则。
+          例如 GPT-2 small 是 12 层 12 头，但 medium 是 24 层 16 头，
+          large 是 36 层 20 头。看模型规模、head_dim 和训练稳定性来定。
 
 Q2: Transformer 怎么知道词序？
 → 答: 通过位置编码。原始 Transformer 用 sinusoidal 函数，
@@ -347,7 +391,7 @@ Q3: GPT 为什么只能看到前面的词？
 
 先把"仓库里的本地代码"和"远端模型内部"分开：
 
-- **[Fact] 本地代码实际做的事：** [engine.mjs](file:///Users/xulater/Code/assistant-agent/muse/src/core/engine.mjs#L107-L125) 的 `#buildPayload` 方法组装消息 payload（text + model + system prompt），通过 HTTP 发给模型服务。它不涉及 attention 计算。
+- **[Fact] 本地代码实际做的事：** [engine.mjs](/Users/xulater/Code/assistant-agent/muse/src/core/engine.mjs#L107) 到 [engine.mjs](/Users/xulater/Code/assistant-agent/muse/src/core/engine.mjs#L125) 的 `#buildPayload` 和发送逻辑负责组装消息 payload（text + model + system prompt），通过 HTTP 发给模型服务。它不涉及 attention 计算。
 - **[Fact] 远端模型内部做的事：** 你调用的 Claude/GPT 在服务端推理时，才会执行今天学的多头注意力、位置编码、残差连接等计算。每一层 Transformer Block 都在做这些操作。
 - **[Infer] 为什么 Agent 开发者要懂这个：**
   - **System Prompt 的位置效应：** system prompt 在序列开头，通过 causal mask，它影响后续所有 token 的注意力。理解 mask 机制就能理解为什么 system prompt 放开头最有效。

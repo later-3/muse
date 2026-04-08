@@ -253,6 +253,17 @@ L = c² = 36
 - **[Infer] 为什么 Agent 开发者也该懂这个：** 你虽然不亲手训练大模型，但理解“模型能力来自训练、不是凭空出现”，会帮助你更清楚地判断模型的能力边界、成本和幻觉风险。
 - **[Fact] 明天 N02 Transformer：** Attention 里的 Q/K/V 权重矩阵，也是训练时通过反向传播学出来的参数。
 
+### 📚 本地参考实现（双证据）
+
+> 除了论文/课程，你本地 `user/reference/repos` 里也有可以直接对照的实现。
+
+| 主题 | 本地实现 | 能证明什么 |
+|------|---------|-----------| 
+| **反向传播三步曲** | [nanoGPT/train.py](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py#L263) | `optimizer.zero_grad()` → `loss.backward()` → `optimizer.step()` 就是"清梯度→反向传播→更新参数"三步 |
+| **loss.backward() 触发链式法则** | [nanoGPT/model.py](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L187) | `loss = F.cross_entropy(...)` 计算 loss 后，调 `.backward()` 就自动执行链式法则求所有参数梯度 |
+| **可学习参数用 nn.Parameter** | [LLMs-from-scratch ch03.py](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L14) | `self.W_query = nn.Parameter(torch.rand(d_in, d_out))` — W_Q/W_K/W_V 都是 nn.Parameter，反向传播自动算它们的梯度 |
+| **教学版 SelfAttention_v1** | [LLMs-from-scratch ch03.py](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L10) | Raschka 的教学版：先用 `nn.Parameter` 显式创建 W 矩阵，forward 里手动做矩阵乘法 — 和 D01 学的原理完全对应 |
+
 ---
 
 ## ✅ 自检清单
