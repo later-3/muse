@@ -110,36 +110,38 @@ Muse 映射                  README.md 通关清单
 
 | Day | 日期 | Week | N节点 | 理论来源 | OC任务 | F文档 |
 |-----|------|------|-------|---------|--------|------|
-| D01 | 4/8 | W1 | N01 反向传播 | Karpathy Micrograd | — | F5 |
-| D02 | 4/9 | W1 | N02 Transformer 1/3 | Karpathy Build GPT 前40min | — | F2 开始 |
-| D03 | 4/10 | W1 | N02 Transformer 2/3 | Build GPT 40-80min | oc01 启动Muse看日志 | F2 续写 |
-| D04 | 4/11 | W1 | N02 Transformer 3/3 | Build GPT 后段 + 李宏毅解剖LLM | oc02 trace-reader | F2 完成 |
-| D05 | 4/12 | W1 | N06 训练管线 1/2 | Karpathy State of GPT 前30min | 跑通最简Agent | F3 开始 |
-| D06 | 4/13 | W1 | N06 训练管线 2/2 | State of GPT 后半 + 李宏毅Pretrain | 完善Agent | F3 完成 |
+| D01 | 4/8 | W1 | N01 反向传播 | Karpathy [Micrograd](https://youtu.be/VMj-3S1tku0) + [LH25F] [Backprop](https://youtu.be/ibJpTrp5mcE) | — | F5 |
+| D02 | 4/9 | W1 | N02 Transformer 1/3 | Karpathy [Build GPT](https://youtu.be/kCc8FmEb1nY) 前40min + [LH25F] [GenAI概览](https://youtu.be/TigfpYPJk1s) | — | F2 开始 |
+| D03 | 4/10 | W1 | N02 Transformer 2/3 | Build GPT 40-80min + [LH25F] [解剖LLM](https://youtu.be/8iFvM7WUUs8) + [LH25] [Model Inside](https://youtu.be/Xnil63UDW2o) | oc01 启动Muse看日志 | F2 续写 |
+| D04 | 4/11 | W1 | N02 Transformer 3/3 | Build GPT 后段 + [LH25F] [解剖LLM](https://youtu.be/8iFvM7WUUs8) + [LH25] [Mamba](https://youtu.be/gjsdVi90yQo) | oc02 trace-reader | F2 完成 |
+| D05 | 4/12 | W1 | N06 训练管线 1/2 | Karpathy [State of GPT](https://youtu.be/bZQun8Y4L2A) 前30min + [LH25] [Pretrain](https://youtu.be/Ozos6M1JtIE) | 跑通最简Agent | F3 开始 |
+| D06 | 4/13 | W1 | N06 训练管线 2/2 | State of GPT 后半 + [LH25F] [LLM学习历程](https://youtu.be/YJoegm7kiUM) + [LH25F] [RL概述](https://youtu.be/XWukX-ayIrs) | 完善Agent | F3 完成 |
 | D07 | 4/14 | W1 | 复习 | — | 面试卡片5道 | — |
-| D08 | 4/15 | W2 | N03 Tokenization | Karpathy Tokenizer | 实测token差异 | F11 开始 |
+| D08 | 4/15 | W2 | N03 Tokenization | Karpathy [Tokenizer](https://youtu.be/zduSFxRajkE) | 实测token差异 | F11 开始 |
 | D09 | 4/16 | W2 | N03 续 | Tokenizer + minbpe走读 | oc03 hook观察 | F11 完成 |
-| D10 | 4/17 | W2 | N10 Agent 1/3 | 吴恩达 Agentic AI M1 + BEA | oc04 走读OC Session | — |
+| D10 | 4/17 | W2 | N10 Agent 1/3 | 吴恩达 Agentic AI M1 + BEA + [LH25] [AI Agent](https://youtu.be/M2Yg1kwPpts) | oc04 走读OC Session | — |
 | D11 | 4/18 | W2 | N10 Agent 2/3 | 吴恩达M2 + Weng Blog | oc05 走读Muse调用链 | — |
 | D12 | 4/19 | W2 | N10 Agent 3/3 | 吴恩达M3 Tool Use + BEA | oc06 ACI审计 | — |
-| D13 | 4/20 | W2 | N09 Reasoning 1/2 | 李宏毅Reasoning + CoT论文 | oc07 Prompt注入链 | — |
+| D13 | 4/20 | W2 | N09 Reasoning 1/2 | [LH25] [Reasoning](https://youtu.be/bJFtcwLSNxI) + CoT论文 | oc07 Prompt注入链 | — |
 | D14 | 4/21 | W2 | 复习 | — | 面试卡片5道 + 流程图 | — |
-| D15 | 4/22 | W3 | N09 Reasoning 2/2 | 李宏毅Agent原理 + open-r1 | oc10 三Loop对比 | — |
-| D16 | 4/23 | W3 | N11 Context 1/3 | 李宏毅 Context Engineering | oc12 参数实验 | — |
+| D15 | 4/22 | W3 | N09 Reasoning 2/2 | [LH25] [Reason Eval](https://youtu.be/s266BzGNKKc) + [Reason Shorter](https://youtu.be/ip3XnTpcxoA) + open-r1 | oc10 三Loop对比 | — |
+| D16 | 4/23 | W3 | N11 Context 1/3 | [LH26] [Context Engineering](https://youtu.be/urwDLyNa9FU) + [LH25F] [CE讲](https://youtu.be/lVdajtNpaGI) | oc12 参数实验 | — |
 | D17 | 4/24 | W3 | N11 Context 2/3 | 吴恩达 MCP短课 | oc13 Prompt注入观察 | — |
 | D18 | 4/25 | W3 | N11 Context 3/3 | 吴恩达 Memory短课 | oc14 Prompt组装链 | — |
 | D19 | 4/26 | W3 | N11 RAG | hello-agents RAG章 | 笔记Agent RAG设计 | F8 完成 |
 | D20 | 4/27 | W3 | N10 Prompt实践 | study 04a 七层Prompt | oc15 System Prompt对比 | — |
 | D21 | 4/28 | W3 | 复习 | — | 面试卡片5道 | — |
-| D22 | 4/29 | W4 | N10 多Agent | 吴恩达M5 + swarm | oc18 触发Harness | — |
-| D23 | 4/30 | W4 | N10 多Agent续 | 李宏毅 OpenClaw | oc19 Swarm demo | — |
-| D24 | 5/1 | W4 | N05 推理优化 1/2 | 李宏毅 Flash Attention | oc20 Harness走读 | F13 开始 |
-| D25 | 5/2 | W4 | N05 推理优化 2/2 | 李宏毅 KV Cache | oc21 Swarm core.py | F13 完成 |
-| D26 | 5/3 | W4 | N04 位置编码 | 李宏毅 PE | 钢琴Agent原型 | — |
+| D22 | 4/29 | W4 | N10 多Agent | 吴恩达M5 + swarm + [LH26] [Agent互动](https://youtu.be/mmPmNezjCi0) | oc18 触发Harness | — |
+| D23 | 4/30 | W4 | N10 多Agent续 | [LH26] [解剖小龙虾/OpenClaw](https://youtu.be/2rcJdFuNbZQ) | oc19 Swarm demo | — |
+| D24 | 5/1 | W4 | N05 推理优化 1/2 | [LH26] [Flash Attention](https://youtu.be/vXb2QYOUzl4) | oc20 Harness走读 | F13 开始 |
+| D25 | 5/2 | W4 | N05 推理优化 2/2 | [LH26] [KV Cache](https://youtu.be/fDQaadKysSA) | oc21 Swarm core.py | F13 完成 |
+| D26 | 5/3 | W4 | N04 位置编码 | [LH26] [Positional Embedding](https://youtu.be/Ll-wk8x3G_g) | 钢琴Agent原型 | — |
 | D27 | 5/4 | W4 | N12 评估 1/2 | 吴恩达 Eval Agents | oc22 Harness审计 | F12 开始 |
 | D28 | 5/5 | W4 | 复习 | — | 面试卡片5道 | — |
-| D29 | 5/6 | W5 | N12 评估 2/2 | 李宏毅评估的坑 | oc23 评估框架 | F12 完成 |
-| D30 | 5/7 | W5 | N07+N08 | Karpathy Intro + 李宏毅终身学习 | 专注助手原型 | — |
+| D29 | 5/6 | W5 | N12 评估 2/2 | [LH25F] [评估的坑](https://youtu.be/dWQVY_h0YXU) | oc23 评估框架 | F12 完成 |
+| D30 | 5/7 | W5 | N07+N08 | Karpathy [Intro LLMs](https://youtu.be/zjkBMFhNj_g) + [LH25F] [终身学习](https://youtu.be/EnWz5XuOnIQ) + [LH25] [Post-training](https://youtu.be/Z6b5-77EfGk) | 专注助手原型 | — |
+
+> **来源索引：** 所有课程视频 + PDF 课件的完整索引见 `user/reference/courses/`（[李宏毅](../reference/courses/lee-hongyi/README.md) · [Karpathy](../reference/courses/karpathy/README.md) · [吴恩达](../reference/courses/andrew-ng/README.md)）
 | D31 | 5/8 | W5 | — | — | oc08 新MCP工具 | — |
 | D32 | 5/9 | W5 | — | — | oc09 ACI修复 | — |
 | D33 | 5/10 | W5 | — | — | oc16 Persona优化 | — |
@@ -514,6 +516,13 @@ Q1: {表面问题}
 14. **未过自检不得交付**
     - 必须执行“AI 交付前检查清单”
     - 任何一项未满足，先优化修复，再交付
+15. **多来源内容要融入正文，不加附注**
+    - 当同一主题有多个来源（如 Karpathy 代码 + 李宏毅讲解 + 论文原文），**必须把每个来源的核心内容提炼后融入「📖 知识精华」正文**
+    - ❌ 禁止在资源表下面加"💡 XX补充视角"一段话了事——这是走过场，不是学习
+    - ✅ 正确做法：提取来源的**具体教学内容**（公式推导、代码例子、实验数据、类比解释），作为独立的 `###` 小节插入正文
+    - 每个来源贡献的内容必须有 `[Fact]` 标注，标明出处（视频+课件）
+    - 来源之间的关系要显式对照（如"李宏毅的3步骤 = Karpathy Micrograd 的3个阶段"）
+    - **判断标准：** Later 只读正文（不看视频），就能吸收该来源的核心知识点。如果还需要去看视频才能理解，说明提炼不够
 
 ### 必做
 

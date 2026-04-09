@@ -191,7 +191,7 @@ logits = self.lm_head(x[:, [-1], :])              # 只取最后一个 token 的
 
 | 设计选择 | 为什么 | 如果不这样 |
 |---------|--------|----------|
-| **Decoder-Only** | 生成任务天然适合单向 Causal Mask | Encoder-Decoder 更复杂、参数更多，且 GPT-3 证明 Decoder-Only 缩放效果更好 |
+| **Decoder-Only** | 生成任务天然适合单向 Causal Mask，且在大规模生成式预训练中展现了很强的可扩展性 | Encoder-Decoder 通常更复杂，在纯生成式预训练场景下工程成本也更高 |
 | **Learnable PE** | 灵活，让模型自己学位置规律 | Sinusoidal 是固定的，缺少适应性（但 RoPE 在此基础上更进一步） |
 | **Weight Tying** | 减少参数 + 语义一致性 | 输入和输出"说不同的语言"，参数量也接近翻倍 |
 | **Pre-Norm** | 训练更稳定，尤其深层模型 | Post-Norm 在深层时容易梯度不稳 |
@@ -276,10 +276,10 @@ softmax(logits) → 概率分布 → 选择下一个 token
 
 ### 这几个概念不要混
 
-- **Decoder-Only ≠ 没有 Encoder**：GPT 是 Decoder-Only，但它不需要 Encoder 的输出——它自己就是完整的模型。"Decoder" 只是说它用了 Causal Mask
+- **Decoder-Only ≠ 没有 Encoder 就完事**：GPT 用的是解码器式的单向 Self-Attention 堆叠，不包含 Encoder-Decoder Cross-Attention；"Decoder-Only" 不只是"有个 Causal Mask"这么简单
 - **Logits ≠ 概率**：Logits 是 LM Head 的原始输出（可以是任意实数），经过 Softmax 后才变成概率分布
-- **Pretraining ≠ Fine-tuning**：GPT 先在海量文本上做 Pretraining（预训练，无监督），再针对特定任务 Fine-tuning（微调，有监督）——明天 D05 详细讲
-- **Token ≠ Word**：一个英文词可能被拆成多个 token（"unhappiness" → "un" + "happiness"），中文一个字通常是 2-3 个 token——Week 2 详细讲
+- **Pretraining ≠ Fine-tuning**：Pretraining 是第一阶段的大规模通用训练；Fine-tuning 是在已有模型上继续针对特定数据分布训练，不一定只指有监督任务——明天 D05 详细讲
+- **Token ≠ Word / Character**：一个英文词可能被拆成多个 token（"unhappiness" → "un" + "happiness"）；中文里"一个字 = 一个 token"也不总成立，具体要看 tokenizer——Week 2 详细讲
 - **Temperature 调整 ≠ 改变模型**：Temperature 只影响 Softmax 的"锐利度"，不改变模型参数
 
 ---
@@ -312,9 +312,10 @@ Q3: Decoder-Only、Encoder-Only、Encoder-Decoder 有什么区别？
 → 答: Decoder-Only (GPT) = Causal Mask 单向，适合生成。
       Encoder-Only (BERT) = 双向 Attention，适合理解/分类。
       Encoder-Decoder (T5) = Encoder 看全文 + Decoder 生成，适合翻译/摘要。
-  Q3.1: 为什么 GPT-3 之后主流都是 Decoder-Only？
-  → 答: 实验证明 Decoder-Only + 足够的规模可以同时做理解和生成，
-        架构更简单，缩放效率更好。
+  Q3.1: 为什么当前很多主流生成式 LLM 采用 Decoder-Only？
+  → 答: 因为生成任务天然适合单向预测，Decoder-Only 架构也更直接。
+        在大规模生成式预训练里，它已经证明了很强的工程可扩展性，
+        所以 GPT 系列、LLaMA 系列都采用这一路线。
     Q3.1.1: ChatGPT 和 GPT-3 的架构有什么区别？
     → 答: 架构相同（Decoder-Only Transformer），差异在训练方法：
           GPT-3 是纯 Pretraining，ChatGPT 加了 SFT + RLHF。
@@ -344,8 +345,11 @@ Q3: Decoder-Only、Encoder-Only、Encoder-Decoder 有什么区别？
 |------|------|--------|
 | Karpathy Build GPT | https://www.youtube.com/watch?v=kCc8FmEb1nY | 1:40:00 后 — 完整 GPT 组装 |
 | 李宏毅《解剖 LLM》 | https://youtu.be/8iFvM7WUUs8 | GPT 架构全景 |
+| **[LH25] 李宏毅 Transformer 竞争者** | https://youtu.be/gjsdVi90yQo | Mamba/SSM 介绍 |
 | nanoGPT 源码 | [model.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py) | 完整实现一个 GPT |
 | Jay Alammar GPT-2 图解 | https://jalammar.github.io/illustrated-gpt2/ | GPT-2 可视化 |
+
+> **📚 李宏毅知识包：** [LH25F_03_llm_understand.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25F_03_llm_understand.md) — 包含 Logit Lens（偷看模型每层"想到了什么"）、拒绝向量、Probing 等解剖 LLM 的方法论
 
 ---
 

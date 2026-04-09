@@ -68,6 +68,71 @@ D01 反向传播 ✅ → D02 单头 Self-Attention ✅ → D03 你在这里
 | 2017 | Vaswani et al. | 在 Transformer 中使用 Multi-Head Attention + Sinusoidal PE | 多头让模型同时关注不同类型的关系，PE 解决了无循环结构下的词序问题 |
 | 2021 | Su et al. | 提出 RoPE（旋转位置编码） | 后续被 LLaMA/Qwen/DeepSeek 等模型广泛采用，支持更灵活的长度外推 |
 
+### 李宏毅《解剖大型语言模型》— Attention 的直觉解释
+
+> 来源：[LH25F] 第 3 讲《LLMunderstand》课件 · [视频](https://youtu.be/8iFvM7WUUs8)
+
+**[Fact] 李宏毅用"两颗青苹果"讲 Attention 机制：**
+
+```text
+Attention 要做两件事：
+  1. 寻找输入中"会影响「果」的意思"的 Token
+  2. 把这些 Token 的信息加进来
+
+例子："两 颗 青 蘋 果"
+
+对 "果" 这个字做 Attention：
+  果 × W_q → query（"我在找什么"）
+  青 × W_k → key  （"我有什么"）
+  dot product(query, key) = 2.5    ← 高分！"青"对"果"的含义有影响
+
+  颗 × W_k → key
+  dot product(query, key) = -0.5   ← 低分！"颗"影响不大
+
+→ 结论：Attention 就是让模型决定"这个词该多关注前面哪个词"
+→ "青苹果"和"水果"里的"果"含义不同，就是因为 Attention 看了不同的上下文
+```
+
+**[Fact] 层层递进——每一层把 Embedding 变得"更理解上下文"：**
+
+```text
+Token Embedding（查表得到的初始向量）：
+  "苹果"的两次出现 → 相同的 Embedding（还没看上下文）
+
+经过 Layer 1 后（Contextualized Embedding）：
+  "苹果使用…"中的"苹果" → 开始像 iPhone
+  "来吃苹果…"中的"苹果" → 开始像水果
+
+→ 同一个 Token，经过不同上下文后，Embedding 就不同了！
+```
+
+**[Fact] 模型最后怎么输出下一个词——LM Head 和 "首尾呼应"：**
+
+```text
+最后一层输出的向量 → LM Head（= Embedding Table 的转置）→ 和每个 Token 的 Embedding 做 dot product
+→ 分数最高的那个 Token 就是"最可能的下一个词"
+
+这就叫"首尾呼应、以始为终"：
+  输入端的 Embedding 把词变成向量，
+  输出端的 LM Head 就是反过来看"这个向量最像哪个词"
+```
+
+**[Fact] 有趣的发现——Logit Lens（用透镜偷看模型的思考过程）：**
+
+李宏毅介绍了 Logit Lens 技术：对每一层中间结果都做一次 Unembedding（反查词表），可以看到**模型在每一层"想到了什么"**。比如做翻译 "fleur → 花" 时，LLaMA 2 在中间层可能先走英文思路，后面几层才转成中文输出。
+
+**[Fact] 拒绝向量（Refusal Vector）——Representation Engineering：**
+
+模型在某一层的中间结果中包含"拒绝成份"。把"拒绝请求"和"不拒绝"两类场景的中间向量取平均再相减，就可以提取出一个**拒绝向量**。把它加到正常请求上 → 模型开始拒绝；减掉 → 模型不再拒绝。这说明模型内部确实学到了可解释的语义方向。
+
+**[Fact] 每层 Attention Head 各司其职——现场解剖 Gemma/Llama：**
+
+李宏毅在 Colab 中现场查看了从第 1 层到第 34 层的 Attention 模式：**"每一层的 Attention Head 做的事情都不太一样。"** 早期层偏向语法和局部关系，后期层偏向语义和全局推理。这为多头注意力的设计动机提供了**实验级证据**。
+
+> **📚 完整知识包：** [LH25F_03_llm_understand.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25F_03_llm_understand.md)
+
+---
+
 ### 第一性原理：为什么单头注意力不够？
 
 > ⚠️ 从 D02 的单头出发，逐层往上搭建。
@@ -386,6 +451,9 @@ Q3: GPT 为什么只能看到前面的词？
 | 原始论文 §3.2-§3.5 | https://arxiv.org/abs/1706.03762 | Fig.2 Multi-Head + §3.5 位置编码 |
 | Jay Alammar 图解 | https://jalammar.github.io/illustrated-transformer/ | Multi-Head 可视化部分 |
 | RoPE 原始论文 | https://arxiv.org/abs/2104.09864 | Su et al., 如需深入 N04 |
+| **[LH25F] 李宏毅《解剖大型语言模型》** | https://youtu.be/8iFvM7WUUs8 | 第 3 讲 — 两颗青苹果讲 Attention + Logit Lens + 拒绝向量（上方已提炼核心内容） |
+| **[LH25] 李宏毅 Model Inside** | https://youtu.be/Xnil63UDW2o | 深入解剖模型内部机制，神经元分析 |
+| **[LH25] 李宏毅 Mamba** | https://youtu.be/gjsdVi90yQo | Transformer 的竞争者们 |
 
 ---
 

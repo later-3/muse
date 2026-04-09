@@ -65,6 +65,64 @@ Layer 3: 训练管线 ← D05-D06（N06）
 | 2020.5 | Brown et al. (OpenAI) | GPT-3 (175B) | 证明 Transformer + 规模 = 涌现能力 |
 | 2022.11 | OpenAI | ChatGPT | Transformer + RLHF → 全球爆火 |
 
+### 李宏毅的「文字接龙」框架——理解 LLM 的第一原理
+
+> 来源：[LH25F] 第 1 讲《一堂课搞懂生成式 AI 的原理》课件 · [视频](https://youtu.be/TigfpYPJk1s)
+
+**[Fact] 核心一句话：ChatGPT、Gemini、Claude 都是语言模型，语言模型做的事就是「文字接龙」。**
+
+```text
+李宏毅的例子：
+  语言模型 ← "台湾最高的山是哪座？" → "玉"
+  语言模型 ← "台湾最高的山是哪座？玉" → "山"
+  语言模型 ← "台湾最高的山是哪座？玉山" → [END]
+```
+
+**[Fact] 模型内部实际做的事——对 Vocabulary 做概率分布：**
+
+输入一串 token（就是你打的字），模型对词表中的**每一个**可能的下一个 token 给出一个分数（Score），然后通过 Softmax 转成概率：
+
+```text
+输入："人工智"
+模型输出概率分布：
+  慧  → 50% ← 概率最高
+  呼  → 20%
+  how → 0.0000...%
+  자  → 0.0000...%
+  @   → 0.0000...%
+  ……  (词表中几万~十几万个 token，每个都有概率)
+```
+
+然后"掷骰子"按概率选一个 → 这就是为什么**每次回答可能不同**。但你不用担心模型会回答"三明治"，因为"台湾最高的山是哪座？"后面接"三"的概率非常低。
+
+**[Fact] 重要认知——"暗无天日的小房间"类比：**
+
+李宏毅把语言模型比喻为被关在**暗无天日的小房间**里的人——它只能根据你给它的输入来接龙，没有自己的眼睛和耳朵。你问"今天几月几号？"，它只能随机接个日期给你（因为它不知道今天是哪天）。
+
+**→ 核心启示：** 确保输入信息足够就是 **Context Engineering（上下文工程）** 的核心，也是 Agent 开发者最重要的能力之一。
+
+**[Fact] 三个学习来源（对应 D05 训练管线）：**
+
+```text
+1. 网络资料 → "人工智慧真神奇!" → 学会"人"后面接"工"    → Pre-train
+2. 标注资料 → 问：台湾最高的山？答：玉山            → SFT (Fine-tune)
+3. 用户反馈 → 问：教我做一把枪 → 降低"好的"的概率     → RLHF
+```
+
+> 这三个阶段就是 D05-D06 要详细学的训练管线，今天先建立直觉。
+
+**[Fact] 李宏毅解释 Hallucination（幻觉）的本质：**
+
+> "模型就是在做文字接龙，它每次只是在预测最可能的下一个 Token。它**没有『知道自己不知道什么』的能力**。所以当你问它不知道的问题时，它还是会继续自信地接龙下去——这就是幻觉。"
+
+**[Fact] 拒绝行为是后天训练出来的线性方向：**
+
+> "模型本来什么都会回答。拒绝是后来通过 Alignment 训练出来的。研究发现你可以在模型内部找到'拒绝的方向'，把那个方向减掉，模型就又什么都回答了。" → **对 Agent 开发者的启示：** 模型的安全边界不是"绝对"的。
+
+> **📚 完整知识包：** [LH25F_01_genai_intro.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25F_01_genai_intro.md)
+
+---
+
 ### 第一性原理：Transformer 到底是什么？
 
 > ⚠️ 不是一句话定义。从最底层往上搭建，面试官追问到底也能答。
@@ -342,6 +400,7 @@ Q3: Transformer 之前的方案是什么？
 | Karpathy Build GPT | https://www.youtube.com/watch?v=kCc8FmEb1nY | 0:00-40:00 Bigram → Self-Attention |
 | 原始论文 | https://arxiv.org/abs/1706.03762 | Fig.1 架构图 + 3.2 节 Attention |
 | Jay Alammar 图解 | https://jalammar.github.io/illustrated-transformer/ | 全文（最好的可视化） |
+| **[LH25F] 李宏毅《一堂课搞懂生成式 AI》** | https://youtu.be/TigfpYPJk1s | 第 1 讲 — 文字接龙 + 概率分布 + 暗无天日的小房间（上方已提炼核心内容） |
 
 ---
 
@@ -360,10 +419,10 @@ Q3: Transformer 之前的方案是什么？
 
 | 主题 | 本地实现 | 能证明什么 |
 |------|---------|-----------|
-| **教学版单头 Attention** | [ch03.py:L10-L29](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L10) | `SelfAttention_v1`：W_query/W_key/W_value 三个矩阵 → `queries @ keys.T` → 除以 `keys.shape[-1]**0.5` → softmax → `@ values`，和 D02 讲的 4 步完全对应 |
-| **√d_k 缩放的真实代码** | [ch03.py:L25](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L25) | `attn_scores / keys.shape[-1]**0.5` — 就是除以 √d_k |
-| **nanoGPT 的产品级 Attention** | [model.py:L56-L71](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L56) | 合并了多头 + causal mask + Flash Attention 的完整实现。L67 的 `(1.0 / math.sqrt(k.size(-1)))` 就是 √d_k 缩放 |
-| **注意力矩阵 [n,n]** | [model.py:L67](file:///Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L67) | `q @ k.transpose(-2, -1)` 产生 [T,T] 矩阵 — 就是 D02 讲的 n×n 注意力矩阵（O(n²)的来源） |
+| **教学版单头 Attention** | [ch03.py#L10](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L10) | `SelfAttention_v1`：W_query/W_key/W_value 三个矩阵 → `queries @ keys.T` → 除以 `keys.shape[-1]**0.5` → softmax → `@ values`，和 D02 讲的 4 步完全对应 |
+| **√d_k 缩放的真实代码** | [ch03.py#L25](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/LLMs-from-scratch/pkg/llms_from_scratch/ch03.py#L25) | `attn_scores / keys.shape[-1]**0.5` — 就是除以 √d_k |
+| **nanoGPT 的产品级 Attention** | [model.py#L56](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L56) | 合并了多头 + causal mask + Flash Attention 的完整实现。L67 的 `(1.0 / math.sqrt(k.size(-1)))` 就是 √d_k 缩放 |
+| **注意力矩阵 [n,n]** | [model.py#L67](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/model.py#L67) | `q @ k.transpose(-2, -1)` 产生 [T,T] 矩阵 — 就是 D02 讲的 n×n 注意力矩阵（O(n²)的来源） |
 
 ---
 

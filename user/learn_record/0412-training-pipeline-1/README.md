@@ -67,6 +67,94 @@ D06 明天 → 模型怎么变好用的（Stage 3: RLHF）
 | 2022.11 | OpenAI | ChatGPT | InstructGPT 路线的产品化，全球爆火 |
 | 2023.5 | Rafailov et al. (Stanford) | DPO (Direct Preference Optimization) | 简化 RLHF，不需要训 Reward Model |
 
+### 李宏毅《大型语言模型的学习历程》— 训练管线的直觉理解
+
+> 来源：[LH25F] 第 7 讲《LLMtraining》课件 · [视频](https://youtu.be/YJoegm7kiUM)
+> 来源：[LH25] 《Pretrain + Alignment》课件 · [视频](https://youtu.be/Ozos6M1JtIE)
+
+**[Fact] 核心框架——三个阶段就像人的成长：**
+
+```text
+Pre-train     =  学龄前    →  "熟悉人类语言"    → 从海量网络文本学文字接龙
+SFT           =  上学校    →  "应该如何回应"    → 人类提供标准答案
+RLHF          =  出社会    →  "什么回答更好"    → 人类仅提供反馈（不给标准答案）
+```
+
+**[Fact] 关键洞察 1 — 三个阶段都在“改模型的下一个输出”，但训练信号不一样**
+
+Pretraining 和很多 SFT 的直接训练形式都可以理解成文字接龙（Next Token Prediction）：Pretrain 用网络文章，SFT 用问答对。  
+但 **RLHF/DPO 不是简单地继续做同一种文字接龙训练**，而是额外引入人类偏好信号、reward model 或 preference optimization，去改变模型更偏好的回答方向。  
+共同点是：它们都在调整模型参数，而且通常都拿上一阶段训练出的参数作为**初始化**。
+
+**[Fact] 关键洞察 2 — 15T token 到底有多少？李宏毅的类比：**
+
+```text
+LLaMA 3 和 DeepSeek-V3 都用了约 15T（万亿）个 token 来做 Pretraining。
+把这些 token 印出来：
+  - 假设 100 张纸厚 1 公分
+  - 厚度有 1500 公里 ← 比从地面到外太空还高！
+  - 假设你每十秒读一页，需要阅读 4756 年
+  - 如果有人从商朝开始读起，到现在都还没读完
+```
+
+**[Fact] 关键洞察 3 — Pretrain 模型是"璞玉"，不是废物**
+
+李宏毅强调：Pretrain 出来的 Base Model **不是不能回答问题**，而是它可能用各种奇怪的方式续写（因为网络文本就是这样的风格）。
+
+```text
+输入："台湾最高的山是哪座？"
+
+Base Model 可能的回答：
+  → "玉山 [END]"                ← 有时候刚好对
+  → "谁来告诉我呀？"            ← 续写成论坛帖子
+  → "(A) 雪山 (B) 阿里山 ..."   ← 续写成选择题
+  → "第二高的又是哪座？"         ← 续写成更多问题
+```
+
+SFT 和 RLHF **主要**是在调整模型的行为模式和输出偏好，不是训练新知识的主战场；但它们也可能顺带强化某些格式、任务习惯，甚至引入少量新信息。
+
+**[Fact] 关键洞察 4 — SFT 是"画龙点睛"**
+
+李宏毅用了两个硬证据：
+
+1. **InstructGPT**：SFT 只用了约 1 万条标注数据，但模型行为脱胎换骨（GPT-3 Base → InstructGPT）
+2. **LIMA 论文**："Less Is More for Alignment"——仅用 1000 条训练数据，回答质量就能和 GPT-4 打平 43% 的情况
+
+→ **结论：Alignment = 画龙点睛，Pretrain = 画龙。眼睛的位置要点对！** 用错误的 SFT 数据反而会变差。
+
+**[Fact] 关键洞察 5 — Pretrain 的威力从"知识重排"而来**
+
+李宏毅用日本动漫 MyGO!!!!! 角色做实验（来自 "Physics of Language Models" 论文）：
+
+```text
+训练文本只出现一次："千早爱音是MyGO!!!!!的节奏吉他手"
+SFT 问："谁是MyGO!!!!!的节奏吉他手？"
+结果：0% 正确率 ← 只看过一种说法，完全不会
+
+改进：用多种改写版本做 Pretrain
+  "千早爱音是MyGO!!!!!的节奏吉他手，也是羽丘女子学园高中一年级学生"
+  "千早爱音是羽丘女子学园高中一年级学生，同时也是MyGO!!!!!的节奏吉他手"
+结果：0% → 96% 正确率 ← 同样的知识用不同方式反复说，模型才真正学会
+```
+
+**→ 核心结论：Pretrain 需要大量资料，不是因为要记更多知识，而是同样的知识需要从不同角度反复讲。**
+
+**[Fact] 关键洞察 6 — Pretrain 不是死背，而是压缩**
+
+李宏毅举了《孔乙己》的例子：模型不是把原文一字不差地背下来，而是**学到了文字之间的规律和逻辑**。这就像人读完一本书后，不是记住每个字，而是记住了内容的结构和意义。
+
+**[Fact] 关键洞察 7 — Alignment 改变的 Token 极少（来自 LH25_04 讲）**
+
+> "研究发现 shift token 的比例非常非常的少——模型在 Aligned 前后的行为其实没有那么大的变化。为什么答案看起来差很多？因为模型做文字接龙**一步错步步错**——中间有一个 Token 改了，后面接的东西可以完全不同。"
+
+**[Fact] 关键洞察 8 — 数据品质 > 数量：改写后的数据效率 ≈ 未改写的 3 倍**
+
+> 李宏毅引用 RefinedWeb 论文：从网络直接爬到的数据往往不能直接用。经过多步清理后的数据，训练效率是原始数据的约 3 倍。
+
+> **📚 完整知识包：** [LH25_04_pretrain_alignment.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25_04_pretrain_alignment.md) · [LH25F_07_llm_training.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25F_07_llm_training.md)
+
+---
+
 ### 第一性原理：LLM 是怎么训出来的？
 
 > ⚠️ 从"一个什么都不会的模型"开始，逐步搭建到 ChatGPT。
@@ -184,7 +272,7 @@ Warmup（预热）：前 2000 步从 0 线性升到 6e-4，避免初始化阶段
   Assistant: "In circuits deep and data wide..."
 ```
 
-**[Fact] SFT 的训练目标和 Pretraining 相同** — 仍然是 Next Token Prediction + Cross-Entropy Loss。但数据分布变了：从"互联网文章"变成"指令-回答对"。
+**[Fact] 在标准 causal LM 式 SFT 中，训练目标和 Pretraining 很接近** — 仍然常写成 Next Token Prediction + Cross-Entropy Loss。但数据分布变了：从"互联网文章"变成"指令-回答对"。
 
 **[Fact] SFT 的数据量远小于 Pretraining：** Pretraining 用数万亿 token，SFT 通常只需 10K-100K 条高质量指令对。这就是为什么 SFT 只需要几小时到几天。
 
@@ -345,6 +433,10 @@ Q3: 什么是 Scaling Laws？
 | InstructGPT 论文 | https://arxiv.org/abs/2203.02155 | §2-§3 三阶段训练方法 |
 | Scaling Laws 论文 | https://arxiv.org/abs/2001.08361 | 幂律关系图 |
 | nanoGPT train.py | [train.py](/Users/xulater/Code/assistant-agent/muse/user/reference/repos/nanoGPT/train.py) | 完整 Pretraining 实现 |
+| **[LH25] 李宏毅 Pretrain + Alignment** | https://youtu.be/Ozos6M1JtIE | 预训练和对齐的完整讲解（上方已提炼核心内容） |
+| **[LH25F] 李宏毅《大型语言模型的学习历程》** | https://youtu.be/YJoegm7kiUM | 第 7 讲 — 学龄前/上学校/出社会 + MyGO 实验 + 画龙点睛（上方已提炼核心内容） |
+| **[LH25F] 李宏毅 RL 概述** | https://youtu.be/XWukX-ayIrs | 强化学习基础，为明天 D06 RLHF 做准备 |
+| **[LH25F] 李宏毅《训练诀窍》** | https://youtu.be/mPWvAN4hzzY | 第 6 讲 — Pretrain 详解 + Normalization + Dropout |
 
 ---
 
