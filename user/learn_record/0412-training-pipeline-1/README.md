@@ -440,6 +440,15 @@ Q3: 什么是 Scaling Laws？
 
 ---
 
+### 补充资源 — 李宏毅知识包
+
+> 这份知识包补的是训练工程和优化细节，不替代 D05 的三阶段总框架，但能帮助你把 “Pretraining / SFT 怎么训” 这件事想得更落地。
+
+- [LH25F_06_training_tips.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25F_06_training_tips.md)
+  核心价值：把 optimizer、validation、overfitting、训练决策流程这些“训练诀窍”串起来，补足 D05 更偏框架视角的部分。
+
+---
+
 ## 🧠 与 Muse/项目 的映射
 
 - **[Fact] Muse 用的是别人训好的模型：** 你调用 Claude/GPT 时，这些模型已经走完了三阶段训练。你不需要自己做 Pretraining，因为那通常需要极高算力、海量数据和很高预算，不是当前项目范围。
@@ -476,6 +485,21 @@ Q3: 什么是 Scaling Laws？
 > 你的回答：___
 >
 > 参考：目标函数相同（都是 Next Token Prediction + Cross-Entropy），但数据不同：Pretraining 用海量无标注文本，SFT 用人工标注的指令-回答对。SFT 改变的是行为模式而非知识。
+
+---
+
+### 补充资源 — 李宏毅知识包
+
+> 以下知识包来自李宏毅 ML 课程，经 AI 从完整转录稿中提炼，每篇包含 [Fact] 标记的讲师原话和第一性原理分析。
+
+- [LH25F_06_training_tips — 训练神经网络的各种诀窍](../../reference/courses/lee-hongyi/knowledge/LH25F_06_training_tips.md)
+  - 核心价值：LR 调度（Warmup/Cosine Decay）、Batch Size 选择、AdamW、混合精度训练、梯度裁剪
+- [LH25_06_post_training — Post-training + Forgetting](../../reference/courses/lee-hongyi/knowledge/LH25_06_post_training.md)
+  - 核心价值：三阶段训练管线（Pretrain→SFT→RLHF）、灾难性遗忘及对抗策略
+- [LH25_05_multi_gpu_training — 多 GPU 训练大型模型](../../reference/courses/lee-hongyi/knowledge/LH25_05_multi_gpu_training.md)
+  - 核心价值：Data/Tensor/Pipeline 三种并行策略 + ZeRO 优化
+- [LH25F_04_evaluation — 评估生成式 AI 的各种坑](../../reference/courses/lee-hongyi/knowledge/LH25F_04_evaluation.md)
+  - 核心价值：BLEU/ROUGE 局限、LLM-as-Judge 偏见、Benchmark 失效案例、安全评估
 
 ---
 

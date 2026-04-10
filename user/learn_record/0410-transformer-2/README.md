@@ -457,6 +457,15 @@ Q3: GPT 为什么只能看到前面的词？
 
 ---
 
+### 补充资源 — 李宏毅知识包
+
+> 这份知识包适合在学完 Transformer Block 后看，用来回答一个更高阶的问题：为什么大家已经有 Transformer 了，还在继续找替代架构。
+
+- [LH25_03_mamba.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25_03_mamba.md)
+  核心价值：从架构对比角度理解 Transformer 的长处和代价，帮助你把 Multi-Head / PE / Block 放到更大的模型设计空间里看。
+
+---
+
 ## 🧠 与 Muse/项目 的映射
 
 先把"仓库里的本地代码"和"远端模型内部"分开：
@@ -496,6 +505,17 @@ Q3: GPT 为什么只能看到前面的词？
 > 你的回答：___
 >
 > 参考：Input → MHA → 残差+Norm → FFN → 残差+Norm → Output。残差=梯度直通，Norm=数值稳定，MHA=多维关系捕捉，FFN=非线性变换
+
+---
+
+### 补充资源 — 李宏毅知识包
+
+> 以下知识包来自李宏毅 ML 课程，经 AI 从完整转录稿中提炼，每篇包含 [Fact] 标记的讲师原话和第一性原理分析。
+
+- [LH21_transformer_2 — Transformer/Seq2Seq 经典手推（下）](../../reference/courses/lee-hongyi/knowledge/LH21_transformer_2.md)
+  - 核心价值：Decoder（Auto-Regressive）、Cross-Attention、Beam Search、Teacher Forcing 完整推导
+- [LH25_03_mamba — 非 Attention 架构](../../reference/courses/lee-hongyi/knowledge/LH25_03_mamba.md)
+  - 核心价值：理解 Attention 的 O(n²) 瓶颈，SSM/Mamba 的 O(n) 替代方案，混合架构趋势
 
 ---
 

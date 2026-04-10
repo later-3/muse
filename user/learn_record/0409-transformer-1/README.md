@@ -404,6 +404,15 @@ Q3: Transformer 之前的方案是什么？
 
 ---
 
+### 补充资源 — 李宏毅知识包
+
+> 这份知识包补的是“模型内部怎么看 Transformer”这条线，不替代 D02 的 Self-Attention 入门，但能补强你对内部机制的直觉。
+
+- [LH25_02_model_inside.md](/Users/xulater/Code/assistant-agent/muse/user/reference/courses/lee-hongyi/knowledge/LH25_02_model_inside.md)
+  核心价值：把“Transformer 只是文字接龙机器”往前推进一步，开始看 embedding、logits、神经元和 attention head 在内部如何被分析。
+
+---
+
 ## 🧠 与 Muse/项目 的映射
 
 先把“仓库里的本地代码”和“远端模型内部”分开：
@@ -450,6 +459,21 @@ Q3: Transformer 之前的方案是什么？
 > 你的回答：___
 >
 > 参考：Hochreiter 1997 LSTM → Bahdanau 2014 首个Attention → Vaswani 2017 Transformer → Radford 2018 GPT-1 → Brown 2020 GPT-3
+
+---
+
+### 补充资源 — 李宏毅知识包
+
+> 以下知识包来自李宏毅 ML 课程，经 AI 从完整转录稿中提炼，每篇包含 [Fact] 标记的讲师原话和第一性原理分析。
+
+- [LH21_self_attention_1 — Self-Attention 经典手推（上）](../../reference/courses/lee-hongyi/knowledge/LH21_self_attention_1.md)
+  - 核心价值：Q/K/V 推导的完整手推过程，从"输入是一排向量"的问题设定出发
+- [LH21_self_attention_2 — Self-Attention 经典手推（下）](../../reference/courses/lee-hongyi/knowledge/LH21_self_attention_2.md)
+  - 核心价值：Multi-Head Attention、Positional Encoding、Self-Attention vs CNN vs RNN 系统比较
+- [LH25_02_model_inside — 语言模型的内部运作](../../reference/courses/lee-hongyi/knowledge/LH25_02_model_inside.md)
+  - 核心价值：打开 Transformer 黑盒子 — Embedding → Block → Causal Mask → Scaling Laws
+- [LH21_transformer_1 — Transformer/Seq2Seq 经典手推（上）](../../reference/courses/lee-hongyi/knowledge/LH21_transformer_1.md)
+  - 核心价值：Encoder 结构讲解，Seq2Seq 问题定义
 
 ---
 
