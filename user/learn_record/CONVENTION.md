@@ -142,6 +142,8 @@ Muse 映射                  README.md 通关清单
 | D30 | 5/7 | W5 | N07+N08 | Karpathy [Intro LLMs](https://youtu.be/zjkBMFhNj_g) + [LH25F] [终身学习](https://youtu.be/EnWz5XuOnIQ) + [LH25] [Post-training](https://youtu.be/Z6b5-77EfGk) | 专注助手原型 | — |
 
 > **来源索引：** 所有课程视频 + PDF 课件的完整索引见 `user/reference/courses/`（[李宏毅](../reference/courses/lee-hongyi/README.md) · [Karpathy](../reference/courses/karpathy/README.md) · [吴恩达](../reference/courses/andrew-ng/README.md)）
+>
+> **知识包管线：** 李宏毅课程已建立完整的 **音频→转录→知识包** 自动化管线（见 `reference/courses/TRANSCRIPT_PIPELINE.md`）。24 个知识包存放在 `reference/courses/lee-hongyi/knowledge/` 下，每篇包含 [Fact] 标记的讲师原话引用，可直接作为 learn_record 的补充资源引用。
 | D31 | 5/8 | W5 | — | — | oc08 新MCP工具 | — |
 | D32 | 5/9 | W5 | — | — | oc09 ACI修复 | — |
 | D33 | 5/10 | W5 | — | — | oc16 Persona优化 | — |
@@ -678,6 +680,11 @@ Week 6: [ ][ ][ ][ ][ ][ ][ ]  0/7
 
 ### 已创建的每日记录
 
-| Day | 目录 | 状态 |
-|-----|------|------|
-| D01 | 0408-backpropagation/ | [ ] |
+| Day | 目录 | 状态 | 知识包融合 |
+|-----|------|------|----------|
+| D01 | 0408-backpropagation/ | [ ] | — |
+| D02 | 0409-transformer-1/ | [ ] | ✅ LH21 Self-Attention × 2 + Model Inside + Transformer Encoder |
+| D03 | 0410-transformer-2/ | [ ] | ✅ LH21 Transformer Decoder + Mamba |
+| D04 | 0411-transformer-3/ | [ ] | — |
+| D05 | 0412-training-pipeline-1/ | [ ] | ✅ Training Tips + Post-training + Multi-GPU + Evaluation |
+| D06 | 0413-training-pipeline-2/ | [ ] | 待创建 |
