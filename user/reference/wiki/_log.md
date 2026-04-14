@@ -5,6 +5,16 @@
 
 ---
 
+## [2026-04-08] ingest | 来源对齐 — 新建 courses/ 目录 + 补齐李宏毅/Karpathy/吴恩达链接
+
+- 涉及 15+ 个文件
+- 关键变更:
+  - **新建 `reference/courses/`** 目录，为李宏毅（3门课）、Karpathy（6个视频）、吴恩达（5门课）、Anthropic（BEA博文）建立索引 README.md
+  - **`_source-registry.md`** 新增"课程来源"section，课程和 repos 并行作为 Layer 1 Raw Sources
+  - **`CONVENTION.md`** 42天计划表全部补齐具体 YouTube 链接（30 个 Day 中 22 个有链接更新）
+  - **D01-D05** 深入资源表新增李宏毅视频 + 补充视角说明（通俗类比、教学举例）
+  - 李宏毅来源覆盖：N01-N12 全部 12 个 N 节点中 10 个有李宏毅对应视频
+
 ## [2026-04-06] lint | v2 质量改造 — 代码实证/合成标注/去重/路径精化
 
 - 涉及 10 个 wiki 页面

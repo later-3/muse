@@ -32,6 +32,29 @@
 | **introtodeeplearning** | MIT | EN | 38 | 📋 (补充参考) |
 | **llm-agents-mooc** | UC Berkeley | EN | 2 | 📋 (大纲参考) |
 
+## 课程来源（reference/courses/）
+
+> 视频 + PDF 课件来源，与 repos/ 并行的 Layer 1 Raw Sources
+
+### ⭐⭐⭐ 核心来源
+
+| 来源 | 编号 | 讲师 | Wiki 覆盖 |
+|------|------|------|----------|
+| **李宏毅 ML 2026 Spring** | [LH26] | 李宏毅 (NTU) | agent-def / context / inference-opt / positional-emb |
+| **李宏毅 ML 2025 Spring** | [LH25] | 李宏毅 (NTU) | transformer(Model Inside+Mamba) / training(Pretrain+Alignment) / reasoning(3讲) / post-training |
+| **李宏毅 GenAI-ML 2025 Fall** | [LH25F] | 李宏毅 (NTU) | transformer(解剖LLM) / training(学习历程+训练诀窍) / evaluation / backprop |
+
+### ⭐⭐ 重要来源
+
+| 来源 | 编号 | 讲师 | Wiki 覆盖 |
+|------|------|------|----------|
+| **Karpathy 视频系列** | — | Karpathy | backprop(Micrograd) / transformer(Build GPT) / training(State of GPT) / tokenization(Tokenizer) |
+| **吴恩达 Agentic AI** | [AN-AG] | Andrew Ng | agent-def / tool-use / multi-agent / eval |
+| **吴恩达短课** | [AN-*] | Andrew Ng | eval / mcp / memory / voice |
+| **Anthropic BEA** | [BEA] | Anthropic | agent-def / multi-agent / failure-recovery |
+
+> 完整索引见 `reference/courses/` 下各讲师的 README.md
+
 ## 验证项目（make-muse/reference/）
 
 | 项目 | 角色 | Wiki 覆盖 |
