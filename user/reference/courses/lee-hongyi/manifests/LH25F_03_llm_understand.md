@@ -1,0 +1,35 @@
+# LH25F_03_llm_understand
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] GenAI-ML 2025 Fall — 李宏毅
+- canonical_title: 解剖大型语言模型
+- canonical_url: https://youtu.be/8iFvM7WUUs8
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/LLMunderstand.pdf
+  - existing_slides_text: user/reference/courses/lee-hongyi/slides_text/LLMunderstand.txt
+- mapping:
+  - n_nodes: [N02]
+  - learn_record_priority: P0
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25F_03_llm_understand.mp4
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LLMunderstand.txt
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_03_llm_understand_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_03_llm_understand_segments.json
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_03_llm_understand.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_03_llm_understand.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 3275
+  - transcript_chars: 43507
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~124.7 min
+  - transcribe_time: 19.1 min
+  - next_action: none — pipeline complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

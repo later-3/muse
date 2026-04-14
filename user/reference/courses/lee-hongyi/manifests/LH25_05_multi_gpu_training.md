@@ -1,0 +1,34 @@
+# LH25_05_multi_gpu_training
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A2
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: 多 GPU 训练大型模型
+- canonical_url: https://youtu.be/mpuRca2UZtI
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: 无
+- mapping:
+  - n_nodes: [N06]
+  - learn_record_priority: P2
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_05_multi_gpu_training.mp4
+  - raw_pdf: 无
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_05_multi_gpu_training_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_05_multi_gpu_training_segments.json
+  - slides_text: 无
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_05_multi_gpu_training.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_05_multi_gpu_training.md
+- qa_notes:
+  - slides_text_ready: false
+  - transcript_ready: true
+  - segments_count: 1032
+  - transcript_chars: 16917
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~54.9 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

@@ -1,0 +1,34 @@
+# LH25_07_reasoning
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: Reasoning (深度思考)
+- canonical_url: https://youtu.be/bJFtcwLSNxI
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/reasoning.pdf
+- mapping:
+  - n_nodes: [N09]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_07_reasoning.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/reasoning.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_07_reasoning_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_07_reasoning_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_07_reasoning.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_07_reasoning.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_07_reasoning.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 2067
+  - transcript_chars: 26120
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~78.5 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

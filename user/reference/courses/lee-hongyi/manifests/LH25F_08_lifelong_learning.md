@@ -1,0 +1,34 @@
+# LH25F_08_lifelong_learning
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] 李宏毅 GenAI-ML 2025 Fall
+- canonical_title: 通用模型的终身学习
+- canonical_url: https://youtu.be/EnWz5XuOnIQ
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/Post.pdf
+- mapping:
+  - n_nodes: [N08]
+  - learn_record_priority: P2
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25F_08_lifelong_learning.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/Post.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_08_lifelong_learning_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_08_lifelong_learning_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25F_08_lifelong_learning.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_08_lifelong_learning.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_08_lifelong_learning.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 3259
+  - transcript_chars: 42444
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~120.2 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

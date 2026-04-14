@@ -32,3 +32,10 @@ src/models/
 
 # 开发工作区（不上传）
 make-muse/
+
+# 课程资源文件（体积大，只保留提炼后的知识包）
+user/reference/courses/**/raw_audio/
+user/reference/courses/**/raw_video/
+user/reference/courses/**/raw_pdf/
+user/reference/courses/**/transcripts/
+user/reference/courses/**/slides_text/

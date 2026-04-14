@@ -1,0 +1,34 @@
+# LH25_02_model_inside
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: Model Inside
+- canonical_url: https://youtu.be/Xnil63UDW2o
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/model_inside.pdf
+- mapping:
+  - n_nodes: [N02]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_02_model_inside.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/model_inside.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_02_model_inside_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_02_model_inside_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_02_model_inside.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_02_model_inside.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_02_model_inside.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 2704
+  - transcript_chars: 34730
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~109.9 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

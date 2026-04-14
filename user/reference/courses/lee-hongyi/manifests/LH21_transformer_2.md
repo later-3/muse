@@ -1,0 +1,35 @@
+# LH21_transformer_2
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH21] 李宏毅 ML 2021 Spring
+- canonical_title: Transformer/Seq2Seq (下)
+- canonical_url: https://youtu.be/N6aRv06iv2g
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2021-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2021-course-data/seq2seq_v9.pdf
+  - slides_text_note: 共享 seq2seq_v9.pdf，与 LH21_transformer_1 相同
+- mapping:
+  - n_nodes: [N02]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH21_transformer_2.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/seq2seq_v9.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH21_transformer_2_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH21_transformer_2_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH21_transformer.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH21_transformer_2.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH21_transformer_2.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 1502
+  - transcript_chars: 21929
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~60.6 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

@@ -1,0 +1,34 @@
+# LH25F_06_training_tips
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] 李宏毅 GenAI-ML 2025 Fall
+- canonical_title: 训练神经网络的各种诀窍
+- canonical_url: https://youtu.be/mPWvAN4hzzY
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/TrainingTip.pdf
+- mapping:
+  - n_nodes: [N06]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25F_06_training_tips.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/TrainingTip.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_06_training_tips_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_06_training_tips_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25F_06_training_tips.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_06_training_tips.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_06_training_tips.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 3661
+  - transcript_chars: 47080
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~126.4 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

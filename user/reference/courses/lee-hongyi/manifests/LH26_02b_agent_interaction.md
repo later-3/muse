@@ -1,0 +1,34 @@
+# LH26_02b_agent_interaction
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A2
+- source: [LH26] 李宏毅 ML 2026 Spring
+- canonical_title: AI Agent 之间的互动
+- canonical_url: https://youtu.be/mmPmNezjCi0
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php
+  - pdf_url: 无
+- mapping:
+  - n_nodes: [N10]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH26_02b_agent_interaction.mp4
+  - raw_pdf: 无
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH26_02b_agent_interaction_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH26_02b_agent_interaction_segments.json
+  - slides_text: 无
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH26_02b_agent_interaction.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH26_02b_agent_interaction.md
+- qa_notes:
+  - slides_text_ready: false
+  - transcript_ready: true
+  - segments_count: 631
+  - transcript_chars: 7296
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~22.5 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

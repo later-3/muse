@@ -1,0 +1,34 @@
+# LH25F_09_generation
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] 李宏毅 GenAI-ML 2025 Fall
+- canonical_title: 影像和声音上的生成策略
+- canonical_url: https://youtu.be/ccqCDD9LqCA
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/Generation.pdf
+- mapping:
+  - n_nodes: []
+  - learn_record_priority: P3
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25F_09_generation.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/Generation.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_09_generation_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_09_generation_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25F_09_generation.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_09_generation.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_09_generation.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 3285
+  - transcript_chars: 42405
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~123.3 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

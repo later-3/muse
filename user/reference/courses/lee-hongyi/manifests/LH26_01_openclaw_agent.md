@@ -1,0 +1,34 @@
+# LH26_01_openclaw_agent
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH26] 李宏毅 ML 2026 Spring
+- canonical_title: 解剖小龙虾 — AI Agent 原理
+- canonical_url: https://youtu.be/2rcJdFuNbZQ
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/intro.pdf
+- mapping:
+  - n_nodes: [N10]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH26_01_openclaw_agent.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/intro.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH26_01_openclaw_agent_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH26_01_openclaw_agent_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH26_01_openclaw_agent.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH26_01_openclaw_agent.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH26_01_openclaw_agent.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 2603
+  - transcript_chars: 27756
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~83.3 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

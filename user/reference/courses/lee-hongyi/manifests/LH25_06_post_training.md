@@ -1,0 +1,34 @@
+# LH25_06_post_training
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: Post-training + Forgetting
+- canonical_url: https://youtu.be/Z6b5-77EfGk
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/post_training.pdf
+- mapping:
+  - n_nodes: [N08]
+  - learn_record_priority: P2
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_06_post_training.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/post_training.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_06_post_training_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_06_post_training_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_06_post_training.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_06_post_training.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_06_post_training.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 1970
+  - transcript_chars: 26375
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~75.5 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

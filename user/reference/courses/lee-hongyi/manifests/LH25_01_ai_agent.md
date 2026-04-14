@@ -1,0 +1,34 @@
+# LH25_01_ai_agent
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: AI Agent 原理 (2025版)
+- canonical_url: https://youtu.be/M2Yg1kwPpts
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/ai_agent.pdf
+- mapping:
+  - n_nodes: [N10]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_01_ai_agent.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/ai_agent.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_01_ai_agent_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_01_ai_agent_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_01_ai_agent.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_01_ai_agent.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_01_ai_agent.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 2825
+  - transcript_chars: 32305
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~102.0 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

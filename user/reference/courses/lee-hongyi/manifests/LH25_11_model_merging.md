@@ -1,0 +1,31 @@
+# LH25_11_model_merging
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: B1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: Model Merging (仅 PDF)
+- canonical_url: 无
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/merging.pdf
+- mapping:
+  - n_nodes: [N08]
+  - learn_record_priority: P2
+- output_files:
+  - raw_audio: 无
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/merging.pdf
+  - transcript: 无
+  - segments: 无
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_11_model_merging.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_11_model_merging.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_11_model_merging.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: false
+  - segments_count: 0
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

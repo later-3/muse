@@ -1,0 +1,36 @@
+# LH25F_01_genai_intro
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] GenAI-ML 2025 Fall — 李宏毅
+- canonical_title: 一堂课搞懂生成式 AI 的原理
+- canonical_url: https://youtu.be/TigfpYPJk1s
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - course_index: user/reference/courses/lee-hongyi/README.md
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/LLM.pdf
+  - existing_slides_text: user/reference/courses/lee-hongyi/slides_text/LLM_GenAI_Intro.txt
+- mapping:
+  - n_nodes: [N02]
+  - learn_record_priority: P0
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25F_01_genai_intro.mp4
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LLM_GenAI_Intro.txt
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_01_genai_intro_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_01_genai_intro_segments.json
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_01_genai_intro.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_01_genai_intro.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 2148
+  - transcript_chars: 26116
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~85.2 min
+  - transcribe_time: 13.8 min
+  - next_action: none — pipeline complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

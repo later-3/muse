@@ -1,0 +1,35 @@
+# LH25_04_pretrain_alignment
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] ML 2025 Spring — 李宏毅
+- canonical_title: Pretrain + Alignment
+- canonical_url: https://youtu.be/Ozos6M1JtIE
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/pretrain.pdf
+  - existing_slides_text: user/reference/courses/lee-hongyi/slides_text/Pretrain_Alignment.txt
+- mapping:
+  - n_nodes: [N06]
+  - learn_record_priority: P0
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_04_pretrain_alignment.mp4
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/Pretrain_Alignment.txt
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_04_pretrain_alignment_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_04_pretrain_alignment_segments.json
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_04_pretrain_alignment.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_04_pretrain_alignment.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 1952
+  - transcript_chars: 26881
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~79.9 min
+  - transcribe_time: 12.6 min
+  - next_action: none — pipeline complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

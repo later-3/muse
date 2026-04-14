@@ -1,0 +1,36 @@
+# LH26_04_kv_cache
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH26] ML 2026 Spring — 李宏毅
+- canonical_title: KV Cache (加快生成速度 2/2)
+- canonical_url: https://youtu.be/fDQaadKysSA
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/inference.pdf
+  - slides_text_note: 共享 inference.pdf，与 LH26_03_flash_attention 相同
+- mapping:
+  - n_nodes: [N05]
+  - learn_record_priority: P0
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH26_04_kv_cache.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/inference.pdf
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH26_inference.txt
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH26_04_kv_cache_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH26_04_kv_cache_segments.json
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH26_04_kv_cache.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH26_04_kv_cache.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 1072
+  - transcript_chars: 13414
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~38.5 min
+  - transcribe_time: 6.0 min
+  - next_action: none — pipeline complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

@@ -1,0 +1,34 @@
+# LH26_02_context_engineering
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH26] 李宏毅 ML 2026 Spring
+- canonical_title: Context Engineering
+- canonical_url: https://youtu.be/urwDLyNa9FU
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2026-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/agent_era.pdf
+- mapping:
+  - n_nodes: [N11]
+  - learn_record_priority: P1
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH26_02_context_engineering.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/agent_era.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH26_02_context_engineering_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH26_02_context_engineering_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH26_02_context_engineering.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH26_02_context_engineering.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH26_02_context_engineering.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 1353
+  - transcript_chars: 18442
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~53.1 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

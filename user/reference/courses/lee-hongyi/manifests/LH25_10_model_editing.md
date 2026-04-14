@@ -1,0 +1,34 @@
+# LH25_10_model_editing
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25] 李宏毅 ML 2025 Spring
+- canonical_title: Model Editing
+- canonical_url: https://youtu.be/9HPsz7F0mJg
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/ml/2025-spring.php
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2025-course-data/edit.pdf
+- mapping:
+  - n_nodes: [N08]
+  - learn_record_priority: P2
+- output_files:
+  - raw_audio: user/reference/courses/lee-hongyi/raw_audio/LH25_10_model_editing.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/edit.pdf
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25_10_model_editing_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25_10_model_editing_segments.json
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/LH25_10_model_editing.txt
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25_10_model_editing.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25_10_model_editing.md
+- qa_notes:
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 638
+  - transcript_chars: 15401
+  - audio_source: YouTube (pytubefix)
+  - audio_duration: ~44.9 min
+  - next_action: none — Step 4 complete
+- blockers:
+  - none
+- updated_at: 2026-04-09

@@ -1,0 +1,28 @@
+# LH26_06_harness_engineering
+
+- status: done
+- mode: A1
+- source: lee-hongyi
+- canonical_title: Harness Engineering：有時候語言模型不是不夠聰明，只是沒有人類好好引導
+- canonical_url: https://www.youtube.com/watch?v=R6fZR_9kmIw
+- alternate_urls:
+  - https://youtu.be/R6fZR_9kmIw
+- related_materials:
+  - pdf: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/harness.pdf
+  - ppt: https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/harness.pptx
+  - 关联课程 LH25F_07 (大型语言模型的学习历程): https://youtu.be/YJoegm7kiUM
+  - 关联课程 LH25F_08 (通用模型的终身学习): https://youtu.be/EnWz5XuOnIQ
+- mapping: N11 Context 工程 / N10 Agent 核心 / N06 训练管线
+- output_files:
+  - raw_audio/LH26_06_harness_engineering.mp4 (78.8MB)
+  - transcripts/LH26_06_harness_engineering_transcript.txt (81KB, 32458 chars)
+  - transcripts/LH26_06_harness_engineering_segments.json (2692 segments)
+  - slides_text/LH26_06_harness_engineering.txt (60 slides)
+  - knowledge/LH26_06_harness_engineering.md
+- qa_notes:
+  - slides_text: ✅ 从 harness.pdf 提取，60 页
+  - transcript: ✅ Whisper medium, 92.3 min 音频, 17.9 min 转写
+  - 术语识别: Whisper 繁简混用（如"語言"vs"语言"），不影响理解；"Harness"有时被识别为"Hardness"，知识包中已纠正
+  - PDF 提取路径曾有 double path bug，已手动修复
+- blockers: 无
+- updated_at: 2026-04-14

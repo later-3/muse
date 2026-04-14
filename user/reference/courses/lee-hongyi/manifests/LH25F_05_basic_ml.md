@@ -1,0 +1,39 @@
+# LH25F_05_basic_ml
+
+- status: done (Step 4 complete — knowledge package ready)
+- mode: A1
+- source: [LH25F] GenAI-ML 2025 Fall — 李宏毅
+- canonical_title: 机器学习与深度学习的基本原理
+- canonical_url: https://youtu.be/Taj1eHmZyWw
+- alternate_urls:
+  - bilibili_url: TBD
+- related_materials:
+  - course_page: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall.php
+  - course_index: user/reference/courses/lee-hongyi/README.md
+  - pdf_url: https://speech.ee.ntu.edu.tw/~hylee/GenAI-ML/2025-fall-course-data/BasicML.pdf
+  - existing_slides_text: user/reference/courses/lee-hongyi/slides_text/BasicML.txt
+- mapping:
+  - n_nodes: [N01]
+  - learn_record_priority: P0
+- output_files:
+  - raw_audio_primary: user/reference/courses/lee-hongyi/raw_audio/LH25F_05_basic_ml.m4a
+  - raw_audio_fallback: user/reference/courses/lee-hongyi/raw_audio/LH25F_05_basic_ml.mp4
+  - raw_video_optional: user/reference/courses/lee-hongyi/raw_video/LH25F_05_basic_ml.mp4
+  - raw_pdf: user/reference/courses/lee-hongyi/raw_pdf/LH25F_05_basic_ml.pdf
+  - slides_text: user/reference/courses/lee-hongyi/slides_text/BasicML.txt
+  - transcript: user/reference/courses/lee-hongyi/transcripts/LH25F_05_basic_ml_transcript.txt
+  - segments: user/reference/courses/lee-hongyi/transcripts/LH25F_05_basic_ml_segments.json
+  - knowledge: user/reference/courses/lee-hongyi/knowledge/LH25F_05_basic_ml.md
+  - manifest: user/reference/courses/lee-hongyi/manifests/LH25F_05_basic_ml.md
+- qa_notes:
+  - template_initialized: true
+  - slides_text_ready: true
+  - transcript_ready: true
+  - segments_count: 4658
+  - transcript_size: 114KB
+  - audio_source: YouTube (pytubefix) — content identical to B站
+  - audio_duration: ~2h24m (8647s)
+  - next_action: none — pipeline complete
+- blockers:
+  - none
+- updated_at: 2026-04-09
